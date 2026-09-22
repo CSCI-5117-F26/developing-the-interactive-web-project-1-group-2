@@ -4,14 +4,16 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 
 ## App Info:
 
-* Team Name: TODO
-* App Name: TODO
+* Team Name: The Style Sheet Skinks
+* App Name: Map Blog (Temporary)
 * App Link: <https://TODO.com/>
 
 ### Students
 
-* First Last, x500@umn.edu
-* ...
+* Han Tran, tran1229@umn.edu
+* Brady Kloek, kloek016@umn.edu
+* Amara Marx, marx0109@umn.edu
+* Sarah Wood, wood1532@umn.edu
 
 
 ## Key Features
