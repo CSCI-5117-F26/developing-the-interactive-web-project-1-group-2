@@ -18,6 +18,7 @@ app = Flask(__name__)
 #                'id SERIAL PRIMARY KEY,'
 #                'author TEXT,'
 #                'username TEXT NOT NULL,'
+#                'title TEXT NOT NULL',
 #                'time TIMESTAMP DEFAULT NOW(),'
 #                'description TEXT NOT NULL,'
 #                'links INT UNIQUE,'
