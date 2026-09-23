@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Homework 1</title>
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    {% block scripts %}{% endblock %}
+</head>
+
+<body>
+    <header>
+        <div class="pure-menu pure-menu-horizontal">
+            <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
+            <a href="/blog" class="pure-menu-item pure-menu-link">Blog</a>
+            <a href="/account" class="pure-menu-item pure-menu-link">account</a>
+        </div>
+    </header>
+    {% block body %}{% endblock %}
+    <footer>
+        <a href="/aboutus">About us</a>
+    </footer>
+</body>
+
