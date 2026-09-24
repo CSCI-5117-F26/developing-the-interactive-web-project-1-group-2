@@ -25,4 +25,5 @@ def about_us_page():
     return render_template("aboutus.html"), 200
 
 # flask --app project1.server run
-# psql -U postgres -d postgres -f postgres.sql
+# psql -U username -d database -f postgres.sql
+# psql -U postgres -d postgres -f postgres.sql (example)
