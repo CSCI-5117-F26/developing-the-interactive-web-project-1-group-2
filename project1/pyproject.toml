@@ -1,0 +1,24 @@
+[project]
+name = "project1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "zberrier", email = "berri075@umn.edu" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.3",
+    "gunicorn>=26.2.0",
+    "jinja2>=3.1.6",
+    "markupsafe>=3.0.3",
+    "psycopg2>=2.9.13",
+    "python-dotenv>=1.2.3",
+]
+
+[project.scripts]
+project1 = "project1:main"
+
+[build-system]
+requires = ["uv_build>=0.12.13,<0.13.0"]
+build-backend = "uv_build"
