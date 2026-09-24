@@ -4,38 +4,6 @@ import psycopg2
 
 app = Flask(__name__)
 
-# change if your info differs
-# conn = psycopg2.connect(database="postgres", 
-#                         user="postgres",
-#                         password="root", 
-#                         host="localhost", 
-#                         port="5432")
-# cursor = conn.cursor()
-# cursor.execute('DROP TABLE IF EXISTS comments;')
-# cursor.execute('DROP TABLE IF EXISTS links;')
-# cursor.execute('DROP TABLE IF EXISTS map_blog;')
-# cursor.execute('CREATE TABLE map_blog ('
-#                'id SERIAL PRIMARY KEY,'
-#                'author TEXT,'
-#                'username TEXT NOT NULL,'
-#                'title TEXT NOT NULL',
-#                'time TIMESTAMP DEFAULT NOW(),'
-#                'description TEXT NOT NULL,'
-#                'links INT UNIQUE,'
-#                'comments INT UNIQUE);')
-# cursor.execute('CREATE TABLE links ('
-#                'link_id SERIAL PRIMARY KEY,'
-#                'link TEXT NOT NULL,'
-#                'FOREIGN KEY (link_id) REFERENCES map_blog(links));')
-# cursor.execute('CREATE TABLE comments ('
-#                'comment_id SERIAL PRIMARY KEY,'
-#                'author TEXT,'
-#                'time TIMESTAMP DEFAULT NOW(),'
-#                'FOREIGN KEY (comment_id) REFERENCES map_blog(comments));')
-# conn.commit()
-# cursor.close()
-# conn.close()
-
 @app.get("/")
 def home_page():
     return render_template("map.html"), 200
@@ -57,3 +25,5 @@ def about_us_page():
     return render_template("aboutus.html"), 200
 
 # flask --app project1.server run
+# psql -U username -d database -f postgres.sql
+# psql -U postgres -d postgres -f postgres.sql (example)
