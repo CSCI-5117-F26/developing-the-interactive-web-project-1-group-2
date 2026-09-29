@@ -47,7 +47,8 @@ In this space please either provide images (around 4) showing your prototypes, O
 
 **[Add images/photos that show your paper prototype (around 4)](https://stackoverflow.com/questions/10189356/how-to-add-screenshot-to-readmes-in-github-repository) along with a very brief caption:**
 
-![](https://media.giphy.com/media/26ufnwz3wDUli7GU0/giphy.gif)
+![Image of low-fidelity MapBlog mockups created in Miro, a whiteboarding app](MapBlog-Mockup.jpg?raw=true)
+A single high-quality image capturing the entirety of the low-fidelity MapBlog mockup for your convenience. We encourage our dear grader to click into this image to zoom and explore! Alternatively, follow this [Miro Link](https://miro.com/app/board/uXjVHjkKJXM=/?share_link_id=116152954478) which theoretically should allow you to view our Miro whiteboard for additional zooming fun.
 
 
 ## External Dependencies
