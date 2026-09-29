@@ -28,3 +28,22 @@ const footer = L.Control.extend({
     }
 });
 map.addControl(new footer());
+
+map.on('click', (e)=>{
+    const coord = e.latlng;
+    
+    const res = createPost(e);
+    if (res == true) {
+        var marker = L.marker([coord.lat, coord.lng]).addTo(map);
+        marker.on('click', viewPost);
+    }
+});
+
+function createPost(e) {
+    console.log('created');
+    return true;
+}
+
+function viewPost(e) {
+    console.log('viewed');
+}
