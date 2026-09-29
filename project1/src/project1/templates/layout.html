@@ -17,8 +17,10 @@
         </div>
     </header>
     {% block body %}{% endblock %}
-    <footer>
-        <a href="/aboutus">About us</a>
-    </footer>
+    {% block footer %}
+        <footer>
+            <a href="/aboutus">About us</a>
+        </footer>
+    {% endblock %}
 </body>
 
