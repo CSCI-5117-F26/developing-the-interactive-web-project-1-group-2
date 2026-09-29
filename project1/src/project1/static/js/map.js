@@ -9,8 +9,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-L.marker([44.97518, -93.23446]).addTo(map);
-
+// adding footer so it lays on top of the map
 const footer = L.Control.extend({
     options: {
         position: 'bottomleft'
@@ -28,5 +27,4 @@ const footer = L.Control.extend({
         return container;
     }
 });
-
 map.addControl(new footer());
