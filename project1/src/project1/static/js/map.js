@@ -9,17 +9,18 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-// adding footer so it lays on top of the map
-const footer = L.Control.extend({
+const sidebarButton = L.Control.extend({
     options: {
-        position: 'bottomleft'
+        position: 'topleft'
     },
     onAdd: function () {
-        const container = L.DomUtil.create('div', 'leaflet-control-footer');
-        const link = L.DomUtil.create('a', '', container);
-
-        link.setAttribute('href', '/aboutus');
-        link.textContent = 'About Us';
+        const container = L.DomUtil.create('div');
+        const button = L.DomUtil.create('button', 'pure-button', container);
+        
+        container.setAttribute('id', 'sidebarContainer');
+        button.setAttribute('id', 'sidebarButton');
+        button.setAttribute('onclick', 'adjustSideBar()');
+        button.textContent = 'Expand';
 
         L.DomEvent.disableClickPropagation(container);
         L.DomEvent.disableScrollPropagation(container);
@@ -27,7 +28,7 @@ const footer = L.Control.extend({
         return container;
     }
 });
-map.addControl(new footer());
+map.addControl(new sidebarButton());
 
 map.on('click', (e)=>{
     const coord = e.latlng;
@@ -38,6 +39,22 @@ map.on('click', (e)=>{
         marker.on('click', viewPost);
     }
 });
+
+function adjustSideBar() {
+    const sidebar = document.getElementById('sidebar');
+    const mapContainer = document.getElementById('mapContainer');
+    const sidebarButton = document.getElementById('sidebarButton');
+
+    if (sidebar.hidden == true) {
+        sidebar.hidden = false;
+        sidebarButton.textContent = 'Collapse';
+        mapContainer.classList.replace('pure-u-1', 'pure-u-2-3');
+    } else {
+        sidebar.hidden = true;
+        sidebarButton.textContent = 'Expand';
+        mapContainer.classList.replace('pure-u-2-3', 'pure-u-1');
+    }
+}
 
 function createPost(e) {
     console.log('created');

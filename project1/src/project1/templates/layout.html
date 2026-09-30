@@ -9,11 +9,15 @@
 </head>
 
 <body>
-    <header>
-        <div class="pure-menu pure-menu-horizontal">
-            <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
-            <a href="/blog" class="pure-menu-item pure-menu-link">Blog</a>
-            <a href="/account" class="pure-menu-item pure-menu-link">account</a>
+    <header class="pure-g">
+        {% block header %}{% endblock %}
+        <div class="pure-u-1-2">
+            <div id="menu" class="pure-menu pure-menu-horizontal">
+                <a href="/notifcations" class="pure-menu-item pure-menu-link">Notifications</a>
+                <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
+                <a href="/blog" class="pure-menu-item pure-menu-link">Blog</a>
+                <a href="/account" class="pure-menu-item pure-menu-link">account</a>
+            </div>
         </div>
     </header>
     {% block body %}{% endblock %}
