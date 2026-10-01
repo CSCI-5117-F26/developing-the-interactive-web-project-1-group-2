@@ -2,6 +2,7 @@ var map = L.map('map', {
     center: [44.97449, -93.23514],
     zoom: 16,
     zoomControl: false,
+    doubleClickZoom: false
 });
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -30,9 +31,7 @@ const sidebarButton = L.Control.extend({
 });
 map.addControl(new sidebarButton());
 
-map.on('click', (e)=>{
-    const coord = e.latlng;
-    
+map.on('click', (e)=>{    
     createPostPopup(e);  // fix later
     // if (res == true) {
     //     var marker = L.marker([coord.lat, coord.lng]).addTo(map);
@@ -41,8 +40,10 @@ map.on('click', (e)=>{
 });
 
 let createPopup = document.getElementById("createPopup");
-createPopup.addEventListener('click', () => {
-    createPopup.hidden = true;
+createPopup.addEventListener('click', (e) => {
+    if (e.target === createPopup) {
+        createPopup.hidden = true;
+    }
 })
 
 function adjustSideBar() {
