@@ -33,12 +33,17 @@ map.addControl(new sidebarButton());
 map.on('click', (e)=>{
     const coord = e.latlng;
     
-    const res = createPost(e);
-    if (res == true) {
-        var marker = L.marker([coord.lat, coord.lng]).addTo(map);
-        marker.on('click', viewPost);
-    }
+    createPostPopup(e);  // fix later
+    // if (res == true) {
+    //     var marker = L.marker([coord.lat, coord.lng]).addTo(map);
+    //     marker.on('click', viewPost);
+    // }
 });
+
+let createPopup = document.getElementById("createPopup");
+createPopup.addEventListener('click', () => {
+    createPopup.hidden = true;
+})
 
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
@@ -56,9 +61,8 @@ function adjustSideBar() {
     }
 }
 
-function createPost(e) {
-    console.log('created');
-    return true;
+function createPostPopup(e) {
+    createPopup.hidden = false;
 }
 
 function viewPost(e) {
