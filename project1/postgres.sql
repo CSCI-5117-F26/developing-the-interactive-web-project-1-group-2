@@ -26,7 +26,7 @@ CREATE TABLE posts (
     time TIMESTAMP DEFAULT NOW(),
     description TEXT NOT NULL,
     FOREIGN KEY (account) REFERENCES accounts(account_id),
-    FOREIGN KEY (place) REFERENCES locations(location_id)
+    FOREIGN KEY (location) REFERENCES locations(location_id)
 );
 
 CREATE TABLE links (
