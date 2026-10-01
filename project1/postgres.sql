@@ -19,27 +19,25 @@ CREATE TABLE locations (
 
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
-    author TEXT,    -- author can be username or NULL (anonymous)
-    account INT NOT NULL,
-    place INT UNIQUE,
+    anon INT NOT NULL,
+    account INT,
+    location INT UNIQUE,
     title TEXT NOT NULL,
     time TIMESTAMP DEFAULT NOW(),
     description TEXT NOT NULL,
-    links INT UNIQUE,
-    comments INT UNIQUE,
     FOREIGN KEY (account) REFERENCES accounts(account_id),
     FOREIGN KEY (place) REFERENCES locations(location_id)
 );
 
 CREATE TABLE links (
-    link_id SERIAL PRIMARY KEY,
+    post INT NOT NULL,
     link TEXT NOT NULL,
-    FOREIGN KEY (link_id) REFERENCES posts(links)
+    FOREIGN KEY (post) REFERENCES posts(post_id)
 );
 
 CREATE TABLE comments (
-    comment_id SERIAL PRIMARY KEY,
+    post INT NOT NULL,
     author TEXT NOT NULL,
     time TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (comment_id) REFERENCES posts(comments)
+    FOREIGN KEY (post) REFERENCES posts(post_id)
 );
