@@ -3,5 +3,4 @@
 .env
 
 **/__pycache__/
-
-SmoothWheelZoom.js
+.DS_Store

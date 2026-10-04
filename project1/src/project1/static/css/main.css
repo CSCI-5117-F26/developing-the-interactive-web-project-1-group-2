@@ -53,15 +53,20 @@ header #menu {
     justify-content: center;
 }
 
-.popupWindow{
+.popupWindow {
     width: 50%;
     height: 75%;
     background-color: white;
     z-index: 4;
-}
-
-#createPopup .popupWindow {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#createPopupWindow textarea {
+    max-width: 100%;
+}
+
+#anonymousOption {
+    text-align: center;
 }

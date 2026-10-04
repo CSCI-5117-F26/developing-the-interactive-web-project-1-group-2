@@ -27,9 +27,32 @@
         <div id="footer">
             <a href="/aboutus">About us</a>
         </div>
-        <div class="popupBackground" id="createPopup" hidden>
-            <div class="popupWindow">
-                <p>form</p>
+        <div class="popupBackground" id="createPopupBackground" hidden>
+            <div class="popupWindow" id="createPopupWindow">
+                <div>
+                    <div class="pure-form pure-form-aligned" id="createForm">
+                        <div class="pure-control-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" minlength="3" required="">
+                        </div>
+                        <div class="pure-control-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" cols="40" rows="4" required=""></textarea>
+                        </div>
+                        <div class="pure-control-group">
+                            <label for="image">Image</label>
+                            <input type="file" id="image" name="image" accept="image/*">
+                        </div>
+                        <div class="pure-controls">
+                            <label>Anonymous?</label><br>
+                            <label for="yes"><input type="radio" id="yes" name="anonOption" value="yes" required> Yes</label>
+                            <label for="no"><input type="radio" id="no" name="anonOption" value="no"> No</label>
+                        </div>
+                        <div class="pure-controls">
+                            <button class="pure-button pure-button-primary" id="createButton">Submit</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
