@@ -42,7 +42,6 @@ def create():
     if data['anon'] == 'yes':
         anon = True
     
-    # add data to database
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     
@@ -93,6 +92,31 @@ def create():
     })
     return res, 201
     
+@app.get('/api/getAll')
+def getAllPosts():
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    cursor.execute('''
+                   SELECT post_id, lat, long
+                   FROM posts
+                   INNER JOIN locations ON posts.location=locations.location_id;
+                   ''')
+
+    rows = cursor.fetchall()
+    print(rows)
+    conn.commit()
+    cursor.close()
+    conn.close()    
+    
+    body = []
+    for row in rows:
+        body.append({
+            'post_id': row[0],
+            'lat': row[1],
+            'long': row[2]
+        })
+    
+    return jsonify(body), 200
     
 # flask --app project1.server run
 # uv run gunicorn project1.server.app (render only)

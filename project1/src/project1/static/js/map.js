@@ -48,9 +48,31 @@ createPopupBackground.addEventListener('click', (e) => {
     }
 });
 
-// TODO: upon reload, get data to re add markers to the map
-// window.addEventListener('load', () => {
-// });
+window.addEventListener('load', () => {
+    loadMarkers()
+});
+
+async function loadMarkers() {
+    const res = await getPosts();
+    const posts = await res.json();
+
+    console.log(posts);
+
+    for (const post of posts) {
+        var marker = L.marker([post['lat'], post['long']], {
+            postId: post['post_id']
+        }).addTo(map);
+        marker.on('click', viewPost);
+    }
+}
+
+async function getPosts() {
+    url = '/api/getAll';
+    const res = await fetch(url, {
+        method: 'GET'
+    });
+    return res
+}
 
 function hidePopup() {
     createPopupBackground.hidden = true;
