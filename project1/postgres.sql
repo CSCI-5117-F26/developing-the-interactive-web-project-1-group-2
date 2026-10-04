@@ -19,7 +19,7 @@ CREATE TABLE locations (
 
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
-    anon INT NOT NULL,
+    anon BOOLEAN NOT NULL,
     account INT,
     location INT UNIQUE,
     title TEXT NOT NULL,
