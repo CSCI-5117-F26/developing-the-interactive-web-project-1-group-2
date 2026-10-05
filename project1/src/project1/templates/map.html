@@ -6,9 +6,56 @@
 <script src="{{ url_for('static', filename='js/map.js') }}" defer></script>
 {% endblock %}
 
+{% block header %}
+<div id="searchBar" class="pure-u-1-2">
+    <form action="/search" method="post" class="pure-form">
+        <input type="text" class="pure-input-rounded" aria-label="Search" />
+        <input type="submit" class="pure-input-rounded pure-button"/>
+    </form>
+</div>
+{% endblock %}
+
 {% block body %}
-<div id="map_page">
-    <div id="map"></div>
+<div id="map_page" class="pure-g">
+    <div id="sidebar" class="pure-u-1-3" hidden>
+        <div id="sideBarPosts">
+            <p>short list of existing posts will be made and shown here</p>
+        </div>
+    </div>
+    <div id="mapContainer" class="pure-u-1">
+        <div id="map"></div>
+        <div id="footer">
+            <a href="/aboutus">About us</a>
+        </div>
+        <div class="popupBackground" id="createPopupBackground" hidden>
+            <div class="popupWindow" id="createPopupWindow">
+                <div>
+                    <div class="pure-form pure-form-aligned" id="createForm">
+                        <div class="pure-control-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" minlength="3" required="">
+                        </div>
+                        <div class="pure-control-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" cols="40" rows="4" required=""></textarea>
+                        </div>
+                        <!-- <div class="pure-control-group">
+                            <label for="image">Image</label>
+                            <input type="file" id="image" name="image" accept="image/*">
+                        </div> -->
+                        <div class="pure-controls">
+                            <label>Anonymous?</label><br>
+                            <label for="yes"><input type="radio" id="yes" name="anonOption" value="yes" required> Yes</label>
+                            <label for="no"><input type="radio" id="no" name="anonOption" value="no"> No</label>
+                        </div>
+                        <div class="pure-controls">
+                            <button class="pure-button pure-button-primary" id="createButton">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

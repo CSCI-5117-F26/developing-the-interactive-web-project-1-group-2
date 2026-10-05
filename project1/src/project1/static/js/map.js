@@ -1,7 +1,12 @@
+let clickedLocation;
+let createPopupBackground;
+let createButton = document.getElementById('createButton');
+
 var map = L.map('map', {
     center: [44.97449, -93.23514],
     zoom: 16,
     zoomControl: false,
+    doubleClickZoom: false
 });
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -9,17 +14,18 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-// adding footer so it lays on top of the map
-const footer = L.Control.extend({
+const sidebarButton = L.Control.extend({
     options: {
-        position: 'bottomleft'
+        position: 'topleft'
     },
     onAdd: function () {
-        const container = L.DomUtil.create('div', 'leaflet-control-footer');
-        const link = L.DomUtil.create('a', '', container);
-
-        link.setAttribute('href', '/aboutus');
-        link.textContent = 'About Us';
+        const container = L.DomUtil.create('div');
+        const button = L.DomUtil.create('button', 'pure-button', container);
+        
+        container.setAttribute('id', 'sidebarContainer');
+        button.setAttribute('id', 'sidebarButton');
+        button.setAttribute('onclick', 'adjustSideBar()');
+        button.textContent = 'Expand';
 
         L.DomEvent.disableClickPropagation(container);
         L.DomEvent.disableScrollPropagation(container);
@@ -27,23 +33,134 @@ const footer = L.Control.extend({
         return container;
     }
 });
-map.addControl(new footer());
+map.addControl(new sidebarButton());
 
+createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e)=>{
-    const coord = e.latlng;
-    
-    const res = createPost(e);
-    if (res == true) {
-        var marker = L.marker([coord.lat, coord.lng]).addTo(map);
-        marker.on('click', viewPost);
+    createPopupBackground.hidden = false;
+    clickedLocation = e.latlng;
+});
+
+createPopupBackground.addEventListener('click', (e) => {
+    if (e.target === createPopupBackground) {
+        hidePopup();
     }
 });
 
-function createPost(e) {
-    console.log('created');
-    return true;
+window.addEventListener('load', () => {
+    loadMarkers()
+});
+
+async function loadMarkers() {
+    const res = await getPosts();
+    const posts = await res.json();
+
+    for (const post of posts) {
+        var marker = L.marker([post['lat'], post['long']], {
+            postId: post['post_id']
+        }).addTo(map);
+        marker.on('click', viewPost);
+    }
+}
+
+async function getPosts() {
+    url = '/api/getAll';
+    const res = await fetch(url, {
+        method: 'GET'
+    });
+    return res
+}
+
+function hidePopup() {
+    createPopupBackground.hidden = true;
+}
+
+function adjustSideBar() {
+    const sidebar = document.getElementById('sidebar');
+    const mapContainer = document.getElementById('mapContainer');
+    const sidebarButton = document.getElementById('sidebarButton');
+
+    if (sidebar.hidden == true) {
+        sidebar.hidden = false;
+        sidebarButton.textContent = 'Collapse';
+        mapContainer.classList.replace('pure-u-1', 'pure-u-2-3');
+    } else {
+        sidebar.hidden = true;
+        sidebarButton.textContent = 'Expand';
+        mapContainer.classList.replace('pure-u-2-3', 'pure-u-1');
+    }
+}
+
+async function create() {
+    const title_form = document.getElementById('title').value;
+    const description_form = document.getElementById('description').value;
+    // const image_form = document.getElementById('image').value;
+    const location_form = clickedLocation;
+    const anonOption = document.getElementsByName('anonOption');
+    const anon_form = isAnon(anonOption);      // Anonymous flag  
+
+    url = '/api/create';
+    const res = await fetch (url, {
+        method: "POST",
+        body: JSON.stringify({
+            title: title_form,
+            description: description_form,
+            // image: image_form,
+            anon: anon_form,
+            location: location_form
+        }),
+        headers: {"Content-Type": "application/json"}
+    });
+
+    if (res.status == 201) {
+        document.getElementById('title').value = '';
+        document.getElementById('description').value = '';
+        // document.getElementById('image').value = '';
+        document.getElementsByName('anonOption')[0]['checked'] = false;
+        document.getElementsByName('anonOption')[1]['checked'] = false;
+    }
+
+    return res;
+}
+
+async function createPost() {
+    const res = await create();
+
+    if (res.status == 400) {
+        // TODO: show alert - zoe
+        return;
+    }
+
+    if (res.status == 201) {
+        data = await res.json();
+
+        var marker = L.marker([clickedLocation.lat, clickedLocation.lng], {
+            postId: data.id
+        }).addTo(map);
+        marker.on('click', viewPost);
+        hidePopup();
+    }
+
+    // TODO: show different alert - zoe
+    return;
+}
+
+document.getElementById('createButton').addEventListener('click', () => {
+    createPost();
+});
+
+function isAnon(options) {
+    for (const option of options) {        
+        const isChecked = option['checked'];
+
+        if (isChecked == true) {
+            return option.value;
+        }
+    }
+    return null;
 }
 
 function viewPost(e) {
     console.log('viewed');
+    console.log(e.target.options.postId);
 }
