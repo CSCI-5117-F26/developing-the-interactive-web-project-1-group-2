@@ -35,7 +35,7 @@ def create():
     if title == '' or description == '' or data['anon'] == None:
         return make_response(data, 400)
     
-    image = escape(data['image'].strip())   # TODO: uploading files - zoe
+    # image = escape(data['image'].strip())   # TODO: uploading files - zoe
     location = data['location']
     
     anon = False
@@ -57,7 +57,6 @@ def create():
                    ORDER BY location_id DESC
                    LIMIT 1;''')
     location_id = cursor.fetchone()[0]
-    print(location_id)
     
     cursor.execute('''
                    INSERT INTO posts
@@ -71,13 +70,13 @@ def create():
                    LIMIT 1;''')
     post_id = cursor.fetchone()[0]
     
-    if not image == '':
-        cursor.execute('''
-                       INSERT INTO links
-                       (post, link)
-                       VALUES
-                       (%s, %s);''',
-                       (1, image))
+    # if not image == '':
+    #     cursor.execute('''
+    #                    INSERT INTO links
+    #                    (post, link)
+    #                    VALUES
+    #                    (%s, %s);''',
+    #                    (1, image))
     conn.commit()
     cursor.close()
     conn.close()
@@ -85,7 +84,7 @@ def create():
     res = jsonify({
         'title': title,
         'description': description,
-        'image': image,     # TODO: may need to modify, work on file uploads in flask - zoe
+        # 'image': image,     # TODO: may need to modify, work on file uploads in flask - zoe
         'anon': anon,
         'location': location,
         'id': post_id
@@ -103,7 +102,6 @@ def getAllPosts():
                    ''')
 
     rows = cursor.fetchall()
-    print(rows)
     conn.commit()
     cursor.close()
     conn.close()    
@@ -119,6 +117,6 @@ def getAllPosts():
     return jsonify(body), 200
     
 # flask --app project1.server run
-# uv run gunicorn project1.server.app (render only)
+# uv run gunicorn project1.server app run (render only)
 # psql -U username -d database -f postgres.sql
 # psql -U postgres -d postgres -f postgres.sql (example)

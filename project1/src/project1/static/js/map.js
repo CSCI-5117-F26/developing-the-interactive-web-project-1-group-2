@@ -39,7 +39,6 @@ createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e)=>{
     createPopupBackground.hidden = false;
     clickedLocation = e.latlng;
-    console.log(clickedLocation);
 });
 
 createPopupBackground.addEventListener('click', (e) => {
@@ -55,8 +54,6 @@ window.addEventListener('load', () => {
 async function loadMarkers() {
     const res = await getPosts();
     const posts = await res.json();
-
-    console.log(posts);
 
     for (const post of posts) {
         var marker = L.marker([post['lat'], post['long']], {
@@ -97,7 +94,7 @@ function adjustSideBar() {
 async function create() {
     const title_form = document.getElementById('title').value;
     const description_form = document.getElementById('description').value;
-    const image_form = document.getElementById('image').value;
+    // const image_form = document.getElementById('image').value;
     const location_form = clickedLocation;
     const anonOption = document.getElementsByName('anonOption');
     const anon_form = isAnon(anonOption);      // Anonymous flag  
@@ -108,7 +105,7 @@ async function create() {
         body: JSON.stringify({
             title: title_form,
             description: description_form,
-            image: image_form,
+            // image: image_form,
             anon: anon_form,
             location: location_form
         }),
@@ -118,7 +115,7 @@ async function create() {
     if (res.status == 201) {
         document.getElementById('title').value = '';
         document.getElementById('description').value = '';
-        document.getElementById('image').value = '';
+        // document.getElementById('image').value = '';
         document.getElementsByName('anonOption')[0]['checked'] = false;
         document.getElementsByName('anonOption')[1]['checked'] = false;
     }
@@ -128,8 +125,6 @@ async function create() {
 
 async function createPost() {
     const res = await create();
-
-    console.log(res);
 
     if (res.status == 400) {
         // TODO: show alert - zoe
