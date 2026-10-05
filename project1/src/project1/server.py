@@ -21,10 +21,6 @@ def blog_page():
 def account_page():
     return render_template("account.html"), 200
 
-@app.get("/aboutus")
-def about_us_page():
-    return render_template("aboutus.html"), 200
-
 @app.post("/api/create")
 def create():
     data = request.get_json()
