@@ -27,7 +27,10 @@
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
                 <div>
-                    <div class="pure-form pure-form-aligned" id="createForm">
+                    <form action="/create" method="post" class="pure-form pure-form-aligned" id="createForm" enctype=multipart/form-data>
+                        <input type="hidden" id="lat" name="lat">
+                        <input type="hidden" id="long" name="long">
+
                         <div class="pure-control-group">
                             <label for="title">Title</label>
                             <input type="text" id="title" name="title" minlength="3" required="">
@@ -36,10 +39,10 @@
                             <label for="description">Description</label>
                             <textarea id="description" name="description" cols="40" rows="4" required=""></textarea>
                         </div>
-                        <!-- <div class="pure-control-group">
+                        <div class="pure-control-group">
                             <label for="image">Image</label>
-                            <input type="file" id="image" name="image" accept="image/*">
-                        </div> -->
+                            <input type="file" id="image" name="image" accept="image/png, image/jpg, image/jpeg, image/gif">
+                        </div>
                         <div class="pure-controls">
                             <label>Anonymous?</label><br>
                             <label for="yes"><input type="radio" id="yes" name="anonOption" value="yes" required> Yes</label>
@@ -48,7 +51,7 @@
                         <div class="pure-controls">
                             <button class="pure-button pure-button-primary" id="createButton">Submit</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

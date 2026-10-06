@@ -1,9 +1,14 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import psycopg
 from markupsafe import escape
 import os
+from pathlib import Path
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+UPLOAD_FOLDER = Path(__file__).resolve().parents[2] / 'uploads'     # Help from AI to get correct file path
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.get("/")
 def home_page():
@@ -21,33 +26,39 @@ def blog_page():
 def account_page():
     return render_template("account.html"), 200
 
-@app.post("/api/create")
-def create():
-    data = request.get_json()
+@app.post("/create")
+def create():    
+    title = escape(request.form.get('title', '').strip())
+    description = escape(request.form.get('description', '').strip())
+    anon = request.form.get('anonOption', '')
+    lat = request.form.get('lat')
+    long = request.form.get('long')
     
-    title = escape(data['title'].strip())
-    description = escape(data['description'].strip())
+    if title == '' or description == '' or anon == '':
+        return redirect(url_for('home_page'))
     
-    if title == '' or description == '' or data['anon'] == None:
-        return make_response(data, 400)
+    anon = (anon == 'yes')
+    lat = float(lat)
+    long = float(long)
     
-    # image = escape(data['image'].strip())   # TODO: uploading files - zoe
-    location = data['location']
-    
-    anon = False
-    if data['anon'] == 'yes':
-        anon = True
+    file = request.files.get('image')
+    filepath = ''
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
     
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     
     # TODO: check if user has account/signed in - zoe
+
     cursor.execute('''
                    INSERT INTO locations
                    (lat, long)
                    VALUES
                    (%s, %s);''',
-                   (location['lat'], location['lng']))
+                   (lat, long))
     cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC
@@ -60,32 +71,24 @@ def create():
                    VALUES
                    (%s, %s, %s, %s);''', 
                    (anon, location_id, title, description))
-    cursor.execute('''
-                   SELECT post_id FROM posts
-                   ORDER BY post_id DESC
-                   LIMIT 1;''')
-    post_id = cursor.fetchone()[0]
     
-    # if not image == '':
-    #     cursor.execute('''
-    #                    INSERT INTO links
-    #                    (post, link)
-    #                    VALUES
-    #                    (%s, %s);''',
-    #                    (1, image))
+    if file and allowed_file(file.filename):
+        cursor.execute('''
+                       INSERT INTO links
+                       (post, link)
+                       VALUES
+                       (%s, %s);''',
+                       (1, filepath))
     conn.commit()
     cursor.close()
     conn.close()
-
-    res = jsonify({
-        'title': title,
-        'description': description,
-        # 'image': image,     # TODO: may need to modify, work on file uploads in flask - zoe
-        'anon': anon,
-        'location': location,
-        'id': post_id
-    })
-    return res, 201
+    
+    return redirect(url_for('home_page'))
+    
+# Function directly from Flask official documentation
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
     
 @app.get('/api/getAll')
 def getAllPosts():
