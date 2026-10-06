@@ -1,4 +1,3 @@
-let clickedLocation;
 let createPopupBackground;
 let createButton = document.getElementById('createButton');
 
@@ -38,7 +37,8 @@ map.addControl(new sidebarButton());
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e)=>{
     createPopupBackground.hidden = false;
-    clickedLocation = e.latlng;
+    document.getElementById('lat').value = e.latlng.lat;
+    document.getElementById('long').value = e.latlng.lng;
 });
 
 createPopupBackground.addEventListener('click', (e) => {
@@ -89,75 +89,6 @@ function adjustSideBar() {
         sidebarButton.textContent = 'Expand';
         mapContainer.classList.replace('pure-u-2-3', 'pure-u-1');
     }
-}
-
-async function create() {
-    const title_form = document.getElementById('title').value;
-    const description_form = document.getElementById('description').value;
-    // const image_form = document.getElementById('image').value;
-    const location_form = clickedLocation;
-    const anonOption = document.getElementsByName('anonOption');
-    const anon_form = isAnon(anonOption);      // Anonymous flag  
-
-    url = '/api/create';
-    const res = await fetch (url, {
-        method: "POST",
-        body: JSON.stringify({
-            title: title_form,
-            description: description_form,
-            // image: image_form,
-            anon: anon_form,
-            location: location_form
-        }),
-        headers: {"Content-Type": "application/json"}
-    });
-
-    if (res.status == 201) {
-        document.getElementById('title').value = '';
-        document.getElementById('description').value = '';
-        // document.getElementById('image').value = '';
-        document.getElementsByName('anonOption')[0]['checked'] = false;
-        document.getElementsByName('anonOption')[1]['checked'] = false;
-    }
-
-    return res;
-}
-
-async function createPost() {
-    const res = await create();
-
-    if (res.status == 400) {
-        // TODO: show alert - zoe
-        return;
-    }
-
-    if (res.status == 201) {
-        data = await res.json();
-
-        var marker = L.marker([clickedLocation.lat, clickedLocation.lng], {
-            postId: data.id
-        }).addTo(map);
-        marker.on('click', viewPost);
-        hidePopup();
-    }
-
-    // TODO: show different alert - zoe
-    return;
-}
-
-document.getElementById('createButton').addEventListener('click', () => {
-    createPost();
-});
-
-function isAnon(options) {
-    for (const option of options) {        
-        const isChecked = option['checked'];
-
-        if (isChecked == true) {
-            return option.value;
-        }
-    }
-    return null;
 }
 
 function viewPost(e) {
