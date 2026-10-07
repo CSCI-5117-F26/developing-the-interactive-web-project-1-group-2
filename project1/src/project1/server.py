@@ -26,6 +26,41 @@ def blog_page():
 def account_page():
     return render_template("account.html"), 200
 
+@app.route('/post/<int:post_id>')
+def show_post(post_id):
+    # show the post with the given id, the id is an integer
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM POSTS
+        LEFT JOIN accounts
+            ON posts.account = accounts.account_id
+        LEFT JOIN locations
+            ON posts.location = locations.location_id
+        WHERE post_id = %s;
+        ''', (post_id,)
+    )
+
+    post_row = cursor.fetchone() # one row post of the individual post, tuple type
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    if post_row is None:
+        return render_template("map.html"), 404  # we need a 404 page?
+
+    post = {
+        "post_id": post_row[0],
+        "anon": post_row[1],
+        "account": post_row[2],
+        "location": post_row[3],
+        "title": post_row[4],
+        "time": post_row[5],
+        "description": post_row[6]
+        # "author": "Anonymous" if post_row[1] else post_row[2]
+    }
+    return render_template("post.html", post=post), 200
+
 @app.post("/create")
 def create():    
     title = escape(request.form.get('title', '').strip())
