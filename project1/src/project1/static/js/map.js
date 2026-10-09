@@ -1,5 +1,6 @@
 let createPopupBackground;
 let createButton = document.getElementById('createButton');
+let popups = document.getElementsByClassName('popup');
 
 var map = L.map('map', {
     center: [44.97449, -93.23514],
@@ -36,14 +37,14 @@ map.addControl(new sidebarButton());
 
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e)=>{
-    createPopupBackground.hidden = false;
+    changePopup(false, 'createForm');
     document.getElementById('lat').value = e.latlng.lat;
     document.getElementById('long').value = e.latlng.lng;
 });
 
 createPopupBackground.addEventListener('click', (e) => {
     if (e.target === createPopupBackground) {
-        hidePopup();
+        changePopup(true);
     }
 });
 
@@ -71,8 +72,17 @@ async function getPosts() {
     return res
 }
 
-function hidePopup() {
-    createPopupBackground.hidden = true;
+function changePopup(hide, id=null) {
+    createPopupBackground.hidden = hide;
+
+    if (hide == true) {
+        for (let popup of popups) {
+            popup.hidden = hide;
+        }
+    } else if (id != null) {
+        let post = document.getElementById(id);
+        post.hidden = hide;
+    }
 }
 
 function adjustSideBar() {
@@ -91,7 +101,40 @@ function adjustSideBar() {
     }
 }
 
-function viewPost(e) {
-    console.log('viewed');
-    console.log(e.target.options.postId);
+async function viewPost(e) {
+    id = e.target.options.postId.toString();
+    url = '/post/'+id;
+
+    const res = await fetch(url, {
+        method: 'GET'
+    });
+    const data = await res.json();
+    console.log(data);
+    
+    showPost(data, id);
+    changePopup(false, 'post');
+}
+
+function showPost(post, id) {
+    let title = document.getElementById('postTitle');
+    title.innerText = post['title'];
+
+    let author = document.getElementById('postAuthor');
+    if (post['anon'] == true) {
+        author.innerText = `Author: anonymous`;
+    } else {
+        author.innerText = `Author: <username>`;
+    }
+
+    let description = document.getElementById('postDescription');
+    description.innerText = `Description: ${post['description']}`;
+    
+    let location = document.getElementById('postLocation');
+    location.innerText = `Location: ${post['location']['name']}`;
+
+    let date = document.getElementById('postDate');
+    date.innerText = `Date: ${post['time']}`;
+
+    let docId = document.getElementById('post_id');
+    docId.innerText = `${docId.innerText} ${id}`;
 }

@@ -27,7 +27,7 @@
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
                 <div>
-                    <form action="/create" method="post" class="pure-form pure-form-aligned" id="createForm" enctype=multipart/form-data>
+                    <form action="/create" method="post" class="pure-form pure-form-aligned popup" id="createForm" enctype=multipart/form-data hidden>
                         <input type="hidden" id="lat" name="lat">
                         <input type="hidden" id="long" name="long">
 
@@ -52,6 +52,15 @@
                             <button class="pure-button pure-button-primary" id="createButton">Submit</button>
                         </div>
                     </form>
+                    <div class="popup" id="post" hidden>
+                        <h1 id="postTitle"></h1>
+                        <p id="postAuthor"></p>
+                        <p id="postDescription"></p>
+                        <p id="postLocation"></p>
+                        <!-- <p id="postLink" ><img src=""></p> -->
+                        <p id="postDate"></p>
+                        <p id="post_id" hidden></p>
+                    </div>
                 </div>
             </div>
         </div>

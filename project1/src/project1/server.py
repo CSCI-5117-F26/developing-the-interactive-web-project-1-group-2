@@ -26,17 +26,24 @@ def blog_page():
 def account_page():
     return render_template("account.html"), 200
 
-@app.route('/post/<int:post_id>')
+@app.get('/post/<int:post_id>')
 def show_post(post_id):
     # show the post with the given id, the id is an integer
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT * FROM POSTS
+        SELECT anon, accounts.username, locations.location, locations.lat, 
+        locations.long, title, posts.time, description, links.link, comments.author, 
+        comments.time, comments.comment
+        FROM POSTS
         LEFT JOIN accounts
             ON posts.account = accounts.account_id
         LEFT JOIN locations
             ON posts.location = locations.location_id
+        LEFT JOIN links
+            ON posts.post_id = links.post
+        LEFT JOIN comments
+            ON posts.post_id = comments.post
         WHERE post_id = %s;
         ''', (post_id,)
     )
@@ -47,19 +54,26 @@ def show_post(post_id):
     conn.close()
 
     if post_row is None:
-        return render_template("map.html"), 404  # we need a 404 page?
+        return redirect(url_for('PageNotFound'))  # TODO: we need a 404 page?
 
     post = {
-        "post_id": post_row[0],
-        "anon": post_row[1],
-        "account": post_row[2],
-        "location": post_row[3],
-        "title": post_row[4],
-        "time": post_row[5],
-        "description": post_row[6]
-        # "author": "Anonymous" if post_row[1] else post_row[2]
+        "post_id": post_id,
+        "anon": post_row[0],
+        "account": post_row[1],
+        "location": {
+            'name': post_row[2],
+            'lat': post_row[3],
+            'long': post_row[4]
+        },
+        "title": post_row[5],
+        "time": post_row[6],
+        "description": post_row[7],
+        'link': post_row[8],
+        # "author": "Anonymous" if post_row[0] else post_row[1]
     }
-    return render_template("post.html", post=post), 200
+    
+    return jsonify(post), 200
+    # return render_template("post.html", post=post), 200
 
 @app.post("/create")
 def create():    
@@ -149,6 +163,10 @@ def getAllPosts():
         })
     
     return jsonify(body), 200
+
+@app.route('/404')
+def PageNotFound():
+    return render_template('404.html'), 404
     
 # flask --app project1.server run
 # uv run gunicorn project1.server app run (render only)

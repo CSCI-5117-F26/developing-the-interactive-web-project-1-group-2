@@ -63,7 +63,7 @@ header #menu {
     align-items: center;
 }
 
-#createPopupWindow textarea {
+.PopupWindow textarea {
     max-width: 100%;
 }
 
