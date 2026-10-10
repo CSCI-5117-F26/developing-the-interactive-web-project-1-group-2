@@ -77,5 +77,22 @@
         <p>No posts available.</p>
         {% endfor %}
     </div>
+    <div class="post-collapsed" id="collapsedView" style="display: none;">
+        {% for post in posts %}
+        <div class="post-dropdown">
+            <details>
+                <summary>{{post.title}}</summary>
+                <p>{{post.post_id}}
+                    {{post.account}}
+                    {{post.time}}
+                    {{post.description}}
+                    {{post.accounts}}
+                    {{post.location}}</p>
+            </details>
+        </div>
+        {% else %}
+        <p>No posts available.</p>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
