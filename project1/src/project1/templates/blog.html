@@ -14,21 +14,18 @@
     </form>
 </div>
 
-<button type="button" id="filterToggleBtn" class="pure-button">Filter</button>
-
-{#<label for="mode">View</label>#}
-
-<select name="mode" id="mode">
-    <option value="view">View</option>
-    <option value="edit">Edit</option>
-    <option value="delete">Delete</option>
-    <option value="create">Create</option>
-</select>
-
 {% endblock %}
 
 
 {% block body %}
+
+<button type="button" id="filterToggleBtn" class="pure-button">Filter</button>
+
+<label for="view">View</label>
+<select name="view" id="view">
+    <option value="grid">Grid</option>
+    <option value="collapsed">Collapsed</option>
+</select>
 
 <div id="filterSidebar" class="sidebar">
     <div class="sidebar-header">
@@ -64,6 +61,21 @@
 </div>
 
 <div id="blog_page">
-    <p>blog page</p>
+    <h1>Blog</h1>
+    <div class="post-grid" id="gridView">
+        {% for post in posts %}
+        <div class="post-card">
+            {{post.post_id}}
+            {{post.title}}
+            {{post.account}}
+            {{post.time}}
+            {{post.description}}
+            {{post.accounts}}
+            {{post.location}}
+        </div>
+        {% else %}
+        <p>No posts available.</p>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

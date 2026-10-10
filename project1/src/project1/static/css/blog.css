@@ -40,3 +40,26 @@
 #blog_page.shifted {
     margin-left: 350px;
 }
+
+.post-grid {
+    display: grid;
+    padding: 20px;
+}
+
+.post-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    border-color: black;
+    background-color: #fff;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
