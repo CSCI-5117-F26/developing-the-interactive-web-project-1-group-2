@@ -55,12 +55,14 @@ window.addEventListener('load', () => {
 async function loadMarkers() {
     const res = await getPosts();
     const posts = await res.json();
-
-    for (const post of posts) {
-        var marker = L.marker([post['lat'], post['long']], {
-            postId: post['post_id']
-        }).addTo(map);
-        marker.on('click', viewPost);
+    
+    if (posts.length > 0) {
+        for (const post of posts) {
+            var marker = L.marker([post['lat'], post['long']], {
+                postId: post['post_id']
+            }).addTo(map);
+            marker.on('click', viewPost);
+        }
     }
 }
 
@@ -131,6 +133,15 @@ function showPost(post, id) {
     
     let location = document.getElementById('postLocation');
     location.innerText = `Location: ${post['location']['name']}`;
+
+    console.log(post['image'])
+    let image = document.getElementById('postImage');
+    if (post['image'] != null) {
+        image.hidden = false;
+        image.setAttribute('src', post['image']);
+    } else {
+        image.hidden = true;
+    }
 
     let date = document.getElementById('postDate');
     date.innerText = `Date: ${post['time']}`;

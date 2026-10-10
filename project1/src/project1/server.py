@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
 import psycopg
 from markupsafe import escape
 import os
@@ -26,6 +26,10 @@ def blog_page():
 def account_page():
     return render_template("account.html"), 200
 
+@app.get("/uploads/<path:filename>")
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 @app.get('/post/<int:post_id>')
 def show_post(post_id):
     # show the post with the given id, the id is an integer
@@ -52,9 +56,16 @@ def show_post(post_id):
     conn.commit()
     cursor.close()
     conn.close()
+    
+    print(post_row)
+    print(post_row[8])
 
     if post_row is None:
         return redirect(url_for('PageNotFound'))  # TODO: we need a 404 page?
+    
+    img = None
+    if post_row[8] != None:
+        img = url_for('uploaded_file', filename=post_row[8])
 
     post = {
         "post_id": post_id,
@@ -68,7 +79,7 @@ def show_post(post_id):
         "title": post_row[5],
         "time": post_row[6],
         "description": post_row[7],
-        'link': post_row[8],
+        'image': img
         # "author": "Anonymous" if post_row[0] else post_row[1]
     }
     
@@ -120,6 +131,11 @@ def create():
                    VALUES
                    (%s, %s, %s, %s);''', 
                    (anon, location_id, title, description))
+    cursor.execute('''
+                   SELECT post_id FROM posts
+                   ORDER BY post_id DESC
+                   LIMIT 1;''')
+    id = cursor.fetchone()[0]
     
     if file and allowed_file(file.filename):
         cursor.execute('''
@@ -127,7 +143,7 @@ def create():
                        (post, link)
                        VALUES
                        (%s, %s);''',
-                       (1, filepath))
+                       (id, filename))
     conn.commit()
     cursor.close()
     conn.close()
@@ -155,12 +171,13 @@ def getAllPosts():
     conn.close()    
     
     body = []
-    for row in rows:
-        body.append({
-            'post_id': row[0],
-            'lat': row[1],
-            'long': row[2]
-        })
+    if len(rows) > 0:
+        for row in rows:
+            body.append({
+                'post_id': row[0],
+                'lat': row[1],
+                'long': row[2]
+            })
     
     return jsonify(body), 200
 

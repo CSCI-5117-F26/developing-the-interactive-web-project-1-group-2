@@ -26,7 +26,7 @@
         <div id="map"></div>
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
-                <div>
+                <div class="popups">
                     <form action="/create" method="post" class="pure-form pure-form-aligned popup" id="createForm" enctype=multipart/form-data hidden>
                         <input type="hidden" id="lat" name="lat">
                         <input type="hidden" id="long" name="long">
@@ -57,7 +57,7 @@
                         <p id="postAuthor"></p>
                         <p id="postDescription"></p>
                         <p id="postLocation"></p>
-                        <!-- <p id="postLink" ><img src=""></p> -->
+                        <img src="" alt="" id="postImage" hidden>
                         <p id="postDate"></p>
                         <p id="post_id" hidden></p>
                     </div>
