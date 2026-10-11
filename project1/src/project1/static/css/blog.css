@@ -43,6 +43,7 @@
 
 .post-grid {
     display: grid;
+    grid-template-columns: 200px 1fr 1fr;
     padding: 20px;
 }
 

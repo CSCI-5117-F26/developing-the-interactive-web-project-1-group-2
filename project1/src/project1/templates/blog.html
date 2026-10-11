@@ -7,26 +7,26 @@
 
 
 {% block header %}
-<div id="searchBar" class="pure-u-1-2">
-    <form action="/search" method="post" class="pure-form">
-        <input type="text" class="pure-input-rounded" aria-label="Search" />
-        <input type="submit" class="pure-input-rounded pure-button" />
-    </form>
-</div>
+<div class="pure-u-1-2 blog-controls">
+    <div id="searchBar">
+        <form action="/search" method="post" class="pure-form">
+            <input type="text" class="pure-input-rounded" aria-label="Search" />
+            <input type="submit" class="pure-input-rounded pure-button" />
+        </form>
+    </div>
 
+    <button type="button" id="filterToggleBtn" class="pure-button">Filter</button>
+
+    <label for="view">View</label>
+    <select name="view" id="view">
+        <option value="grid">Grid</option>
+        <option value="collapsed">Collapsed</option>
+    </select>
+</div>
 {% endblock %}
 
 
 {% block body %}
-
-<button type="button" id="filterToggleBtn" class="pure-button">Filter</button>
-
-<label for="view">View</label>
-<select name="view" id="view">
-    <option value="grid">Grid</option>
-    <option value="collapsed">Collapsed</option>
-</select>
-
 <div id="filterSidebar" class="sidebar">
     <div class="sidebar-header">
         <h2>Filter</h2>
@@ -61,7 +61,7 @@
 </div>
 
 <div id="blog_page">
-    <h1>Blog</h1>
+    <h1>Blogs</h1>
     <div class="post-grid" id="gridView">
         {% for post in posts %}
         <div class="post-card">

@@ -4,7 +4,11 @@ from pathlib import Path
 import psycopg
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from markupsafe import escape
+from psycopg.rows import dict_row
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 UPLOAD_FOLDER = (
@@ -26,7 +30,26 @@ def map_page():
 
 @app.get("/blog")
 def blog_page():
-    return render_template("blog.html"), 200
+    with psycopg.connect(
+        os.environ["DATABASE_URL"], row_factory=dict_row
+    ) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    posts.post_id, 
+                    posts.title, 
+                    posts.description, 
+                    locations.lat, 
+                    locations.long,
+                    posts.time,
+                    accounts.username AS account
+                FROM posts
+                LEFT JOIN locations ON posts.location = locations.location_id
+                LEFT JOIN accounts ON posts.account = accounts.account_id
+            """)
+            posts = cur.fetchall()
+
+    return render_template("blog.html", posts=posts), 200
 
 
 @app.get("/account")
