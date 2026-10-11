@@ -61,8 +61,22 @@ def logout():
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
-    print(token)
-    session["user"] = token
+    session["user_token"] = token
+    user_info = token.get("userinfo")
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    cursor.execute('''
+                INSERT INTO accounts
+                (auth0_sub, username)
+                VALUES
+                (%s, %s)
+                ON CONFLICT (auth0_sub)
+                DO UPDATE SET username = %s;
+                ''',
+                (user_info["sub"], user_info["nickname"], user_info["nickname"]))
+    conn.commit()
+    cursor.close()
+    conn.close()
     return redirect("/")
 
 @app.get('/post/<int:post_id>')
@@ -140,7 +154,15 @@ def create():
     cursor = conn.cursor()
     
     # TODO: check if user has account/signed in - zoe
-    # if (not anon and )
+    account_id = None
+    # If user is signed in, get their associated account_id
+    if ("user_token" in session):
+        sub = session["user_token"].get("userinfo")["sub"]
+        cursor.execute('''
+                        SELECT account_id FROM accounts
+                        WHERE auth0_sub = %s;
+                        ''', (sub,))
+        account_id = cursor.fetchone()[0]
 
     cursor.execute('''
                    INSERT INTO locations
@@ -156,10 +178,10 @@ def create():
     
     cursor.execute('''
                    INSERT INTO posts
-                   (anon, location, title, description)
+                   (anon, account, location, title, description)
                    VALUES
-                   (%s, %s, %s, %s);''', 
-                   (anon, location_id, title, description))
+                   (%s, %s, %s, %s, %s);''', 
+                   (anon, account_id, location_id, title, description))
     
     if file and allowed_file(file.filename):
         cursor.execute('''

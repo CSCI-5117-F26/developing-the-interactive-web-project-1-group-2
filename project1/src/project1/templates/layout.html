@@ -20,7 +20,7 @@
                 <a href="/notifcations" class="pure-menu-item pure-menu-link">Notifications</a>
                 <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
                 <a href="/blog" class="pure-menu-item pure-menu-link">Blog</a>
-                {% if session.user %}
+                {% if session.user_token %}
                     <a href="/account" class="pure-menu-item pure-menu-link">Account</a>
                 {% else %}
                     <a href="/login" class="pure-menu-item pure-menu-link" >Log In</a>
