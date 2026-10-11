@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import psycopg
 from markupsafe import escape
 import os
@@ -10,6 +10,19 @@ app = Flask(__name__)
 UPLOAD_FOLDER = Path(__file__).resolve().parents[2] / 'uploads'     # Help from AI to get correct file path
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+oauth = OAuth(app)
+app.secret_key = os.environ["AUTH0_SECRET"]
+
+oauth.register(
+    "auth0",
+    client_id=os.environ["AUTH0_CLIENT_ID"],
+    client_secret=os.environ["AUTH0_CLIENT_SECRET"],
+    client_kwargs={
+        "scope": "openid profile email",
+    },
+    server_metadata_url=f"https://{os.environ["AUTH0_DOMAIN"]}/.well-known/openid-configuration",
+)
 
 @app.get("/")
 def home_page():
@@ -26,6 +39,18 @@ def blog_page():
 @app.get("/account")
 def account_page():
     return render_template("account.html"), 200
+
+@app.route("/login")
+def login():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("callback", _external=True)
+    )
+
+@app.route("/callback", methods=["GET", "POST"])
+def callback():
+    token = oauth.auth0.authorize_access_token()
+    session["user"] = token
+    return redirect("/")
 
 @app.get('/post/<int:post_id>')
 def show_post(post_id):
