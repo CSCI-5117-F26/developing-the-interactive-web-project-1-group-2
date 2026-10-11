@@ -112,7 +112,7 @@ def show_post(post_id):
     post = {
         "post_id": post_id,
         "anon": post_row[0],
-        "account": post_row[1],
+        "username": post_row[1],
         "location": {
             'name': post_row[2],
             'lat': post_row[3],
@@ -124,6 +124,7 @@ def show_post(post_id):
         'link': post_row[8],
         # "author": "Anonymous" if post_row[0] else post_row[1]
     }
+    
     
     return jsonify(post), 200
     # return render_template("post.html", post=post), 200
@@ -153,16 +154,18 @@ def create():
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     
-    # TODO: check if user has account/signed in - zoe
     account_id = None
     # If user is signed in, get their associated account_id
     if ("user_token" in session):
         sub = session["user_token"].get("userinfo")["sub"]
-        cursor.execute('''
-                        SELECT account_id FROM accounts
-                        WHERE auth0_sub = %s;
-                        ''', (sub,))
-        account_id = cursor.fetchone()[0]
+        if sub:
+            cursor.execute('''
+                            SELECT account_id FROM accounts
+                            WHERE auth0_sub = %s;
+                            ''', (sub,))
+            row = cursor.fetchone()
+            if row:
+                account_id = row[0]
 
     cursor.execute('''
                    INSERT INTO locations

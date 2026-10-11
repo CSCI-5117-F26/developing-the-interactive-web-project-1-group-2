@@ -125,7 +125,7 @@ function showPost(post, id) {
     if (post['anon'] == true) {
         author.innerText = `Author: anonymous`;
     } else {
-        author.innerText = `Author: <username>`;
+        author.innerText = `Author: ${post['username']}`;
     }
 
     let description = document.getElementById('postDescription');
