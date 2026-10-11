@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, session
 import psycopg
+from psycopg.rows import dict_row
 from markupsafe import escape
 import os
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = Path(__file__).resolve().parents[2] / 'uploads'     # Help from AI to get correct file path
@@ -34,7 +37,26 @@ def map_page():
 
 @app.get("/blog")
 def blog_page():
-    return render_template("blog.html"), 200
+    with psycopg.connect(
+        os.environ["DATABASE_URL"], row_factory=dict_row
+    ) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    posts.post_id, 
+                    posts.title, 
+                    posts.description, 
+                    locations.lat, 
+                    locations.long,
+                    posts.time,
+                    accounts.username AS account
+                FROM posts
+                LEFT JOIN locations ON posts.location = locations.location_id
+                LEFT JOIN accounts ON posts.account = accounts.account_id
+            """)
+            posts = cur.fetchall()
+
+    return render_template("blog.html", posts=posts), 200
 
 @app.get("/account")
 def account_page():
@@ -79,6 +101,11 @@ def callback():
     conn.close()
     return redirect("/")
 
+@app.get("/uploads/<path:filename>")
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
 @app.get('/post/<int:post_id>')
 def show_post(post_id):
     # show the post with the given id, the id is an integer
@@ -109,10 +136,15 @@ def show_post(post_id):
     if post_row is None:
         return redirect(url_for('PageNotFound'))  # TODO: we need a 404 page?
 
+
+    img = None
+    if post_row[8] != None:
+        img = url_for('uploaded_file', filename=post_row[8])
+
     post = {
         "post_id": post_id,
         "anon": post_row[0],
-        "username": post_row[1],
+        "account": post_row[1],
         "location": {
             'name': post_row[2],
             'lat': post_row[3],
@@ -121,10 +153,9 @@ def show_post(post_id):
         "title": post_row[5],
         "time": post_row[6],
         "description": post_row[7],
-        'link': post_row[8],
+        'image': img
         # "author": "Anonymous" if post_row[0] else post_row[1]
     }
-    
     
     return jsonify(post), 200
     # return render_template("post.html", post=post), 200
@@ -185,6 +216,13 @@ def create():
                    VALUES
                    (%s, %s, %s, %s, %s);''', 
                    (anon, account_id, location_id, title, description))
+
+    cursor.execute('''
+                   SELECT post_id FROM posts
+                   ORDER BY post_id DESC
+                   LIMIT 1;''')
+    id = cursor.fetchone()[0]
+
     
     if file and allowed_file(file.filename):
         cursor.execute('''
@@ -192,7 +230,7 @@ def create():
                        (post, link)
                        VALUES
                        (%s, %s);''',
-                       (1, filepath))
+                       (id, filepath))
     conn.commit()
     cursor.close()
     conn.close()
@@ -201,31 +239,35 @@ def create():
     
 # Function directly from Flask official documentation
 def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-    
-@app.get('/api/getAll')
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    )
+
+
+@app.get("/api/getAll")
 def getAllPosts():
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
-    cursor.execute('''
+    cursor.execute("""
                    SELECT post_id, lat, long
                    FROM posts
                    INNER JOIN locations ON posts.location=locations.location_id;
-                   ''')
+                   """)
 
     rows = cursor.fetchall()
     conn.commit()
     cursor.close()
-    conn.close()    
-    
+    conn.close()
+
     body = []
-    for row in rows:
-        body.append({
-            'post_id': row[0],
-            'lat': row[1],
-            'long': row[2]
-        })
+    if len(rows) > 0:
+        for row in rows:
+            body.append({
+                'post_id': row[0],
+                'lat': row[1],
+                'long': row[2]
+            })
     
     return jsonify(body), 200
 
