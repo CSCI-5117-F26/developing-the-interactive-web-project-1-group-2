@@ -1,67 +1,31 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import psycopg
 from markupsafe import escape
 import os
 from pathlib import Path
-
-import psycopg
-from flask import Flask, jsonify, redirect, render_template, request, url_for
-from markupsafe import escape
-from psycopg.rows import dict_row
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
-
-load_dotenv()
+from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
-UPLOAD_FOLDER = (
-    Path(__file__).resolve().parents[2] / "uploads"
-)  # Help from AI to get correct file path
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
+UPLOAD_FOLDER = Path(__file__).resolve().parents[2] / 'uploads'     # Help from AI to get correct file path
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.get("/")
 def home_page():
     return render_template("map.html"), 200
 
-
 @app.get("/map")
 def map_page():
     return render_template("map.html"), 200
 
-
 @app.get("/blog")
 def blog_page():
-    with psycopg.connect(
-        os.environ["DATABASE_URL"], row_factory=dict_row
-    ) as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT 
-                    posts.post_id, 
-                    posts.title, 
-                    posts.description, 
-                    locations.lat, 
-                    locations.long,
-                    posts.time,
-                    accounts.username AS account
-                FROM posts
-                LEFT JOIN locations ON posts.location = locations.location_id
-                LEFT JOIN accounts ON posts.account = accounts.account_id
-            """)
-            posts = cur.fetchall()
-
-    return render_template("blog.html", posts=posts), 200
-
+    return render_template("blog.html"), 200
 
 @app.get("/account")
 def account_page():
     return render_template("account.html"), 200
-
-@app.get("/uploads/<path:filename>")
-def uploaded_file(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 @app.get('/post/<int:post_id>')
 def show_post(post_id):
@@ -89,16 +53,9 @@ def show_post(post_id):
     conn.commit()
     cursor.close()
     conn.close()
-    
-    print(post_row)
-    print(post_row[8])
 
     if post_row is None:
         return redirect(url_for('PageNotFound'))  # TODO: we need a 404 page?
-    
-    img = None
-    if post_row[8] != None:
-        img = url_for('uploaded_file', filename=post_row[8])
 
     post = {
         "post_id": post_id,
@@ -112,7 +69,7 @@ def show_post(post_id):
         "title": post_row[5],
         "time": post_row[6],
         "description": post_row[7],
-        'image': img
+        'link': post_row[8],
         # "author": "Anonymous" if post_row[0] else post_row[1]
     }
     
@@ -120,105 +77,91 @@ def show_post(post_id):
     # return render_template("post.html", post=post), 200
 
 @app.post("/create")
-def create():
-    title = escape(request.form.get("title", "").strip())
-    description = escape(request.form.get("description", "").strip())
-    anon = request.form.get("anonOption", "")
-    lat = request.form.get("lat")
-    long = request.form.get("long")
-
-    if title == "" or description == "" or anon == "":
-        return redirect(url_for("home_page"))
-
-    anon = anon == "yes"
+def create():    
+    title = escape(request.form.get('title', '').strip())
+    description = escape(request.form.get('description', '').strip())
+    anon = request.form.get('anonOption', '')
+    lat = request.form.get('lat')
+    long = request.form.get('long')
+    
+    if title == '' or description == '' or anon == '':
+        return redirect(url_for('home_page'))
+    
+    anon = (anon == 'yes')
     lat = float(lat)
     long = float(long)
-
-    file = request.files.get("image")
-    filepath = ""
+    
+    file = request.files.get('image')
+    filepath = ''
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
-
+    
     # TODO: check if user has account/signed in - zoe
 
-    cursor.execute(
-        """
+    cursor.execute('''
                    INSERT INTO locations
                    (lat, long)
                    VALUES
-                   (%s, %s);""",
-        (lat, long),
-    )
-    cursor.execute("""
+                   (%s, %s);''',
+                   (lat, long))
+    cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC
-                   LIMIT 1;""")
+                   LIMIT 1;''')
     location_id = cursor.fetchone()[0]
-
-    cursor.execute(
-        """
+    
+    cursor.execute('''
                    INSERT INTO posts
                    (anon, location, title, description)
                    VALUES
                    (%s, %s, %s, %s);''', 
                    (anon, location_id, title, description))
-    cursor.execute('''
-                   SELECT post_id FROM posts
-                   ORDER BY post_id DESC
-                   LIMIT 1;''')
-    id = cursor.fetchone()[0]
     
     if file and allowed_file(file.filename):
-        cursor.execute(
-            """
+        cursor.execute('''
                        INSERT INTO links
                        (post, link)
                        VALUES
                        (%s, %s);''',
-                       (id, filename))
+                       (1, filepath))
     conn.commit()
     cursor.close()
     conn.close()
-
-    return redirect(url_for("home_page"))
-
-
+    
+    return redirect(url_for('home_page'))
+    
 # Function directly from Flask official documentation
 def allowed_file(filename):
-    return (
-        "." in filename
-        and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-    )
-
-
-@app.get("/api/getAll")
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    
+@app.get('/api/getAll')
 def getAllPosts():
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.execute('''
                    SELECT post_id, lat, long
                    FROM posts
                    INNER JOIN locations ON posts.location=locations.location_id;
-                   """)
+                   ''')
 
     rows = cursor.fetchall()
     conn.commit()
     cursor.close()
-    conn.close()
-
+    conn.close()    
+    
     body = []
-    if len(rows) > 0:
-        for row in rows:
-            body.append({
-                'post_id': row[0],
-                'lat': row[1],
-                'long': row[2]
-            })
+    for row in rows:
+        body.append({
+            'post_id': row[0],
+            'lat': row[1],
+            'long': row[2]
+        })
     
     return jsonify(body), 200
 
