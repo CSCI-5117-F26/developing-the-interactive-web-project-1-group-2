@@ -161,28 +161,28 @@ def show_post(post_id):
     # return render_template("post.html", post=post), 200
 
 @app.post("/create")
-def create():    
-    title = escape(request.form.get('title', '').strip())
-    description = escape(request.form.get('description', '').strip())
-    anon = request.form.get('anonOption', '')
-    lat = request.form.get('lat')
-    long = request.form.get('long')
-    
-    if title == '' or description == '' or anon == '':
-        return redirect(url_for('home_page'))
-    
-    anon = (anon == 'yes')
+def create():
+    title = escape(request.form.get("title", "").strip())
+    description = escape(request.form.get("description", "").strip())
+    anon = request.form.get("anonOption", "")
+    lat = request.form.get("lat")
+    long = request.form.get("long")
+
+    if title == "" or description == "" or anon == "":
+        return redirect(url_for("home_page"))
+
+    anon = anon == "yes"
     lat = float(lat)
     long = float(long)
-    
-    file = request.files.get('image')
-    filepath = ''
+
+    file = request.files.get("image")
+    filepath = ""
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(filepath)
-    
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+
+    conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
     
     account_id = None
@@ -230,7 +230,7 @@ def create():
                        (post, link)
                        VALUES
                        (%s, %s);''',
-                       (id, filepath))
+                       (id, filename))
     conn.commit()
     cursor.close()
     conn.close()
