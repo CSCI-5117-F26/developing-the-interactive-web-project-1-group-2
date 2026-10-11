@@ -63,10 +63,21 @@ header #menu {
     align-items: center;
 }
 
-#createPopupWindow textarea {
+.PopupWindow textarea {
     max-width: 100%;
 }
 
 #anonymousOption {
     text-align: center;
+}
+
+#post {
+    padding: 2%;
+    margin: 3% auto;
+    text-align: center;
+}
+
+#postImage {
+    max-width: 20em;
+    max-height: 14em;
 }

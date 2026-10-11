@@ -39,5 +39,6 @@ CREATE TABLE comments (
     post INT NOT NULL,
     author TEXT NOT NULL,
     time TIMESTAMP DEFAULT NOW(),
+    comment TEXT NOT NULL,
     FOREIGN KEY (post) REFERENCES posts(post_id)
 );
