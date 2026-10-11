@@ -1,35 +1,39 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, session
 import psycopg
+from psycopg.rows import dict_row
 from markupsafe import escape
 import os
 from pathlib import Path
-
-import psycopg
-from flask import Flask, jsonify, redirect, render_template, request, url_for
-from markupsafe import escape
-from psycopg.rows import dict_row
 from werkzeug.utils import secure_filename
+from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 
-load_dotenv()
 
 app = Flask(__name__)
-UPLOAD_FOLDER = (
-    Path(__file__).resolve().parents[2] / "uploads"
-)  # Help from AI to get correct file path
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+UPLOAD_FOLDER = Path(__file__).resolve().parents[2] / 'uploads'     # Help from AI to get correct file path
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+oauth = OAuth(app)
+app.secret_key = os.environ["AUTH0_SECRET"]
+
+oauth.register(
+    "auth0",
+    client_id=os.environ["AUTH0_CLIENT_ID"],
+    client_secret=os.environ["AUTH0_CLIENT_SECRET"],
+    client_kwargs={
+        "scope": "openid profile email",
+    },
+    server_metadata_url=f"https://{os.environ["AUTH0_DOMAIN"]}/.well-known/openid-configuration",
+)
 
 @app.get("/")
 def home_page():
     return render_template("map.html"), 200
 
-
 @app.get("/map")
 def map_page():
     return render_template("map.html"), 200
-
 
 @app.get("/blog")
 def blog_page():
@@ -54,14 +58,53 @@ def blog_page():
 
     return render_template("blog.html", posts=posts), 200
 
-
 @app.get("/account")
 def account_page():
     return render_template("account.html"), 200
 
+@app.route("/login")
+def login():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("callback", _external=True)
+    )
+
+@app.route("/signup")
+def signup():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("callback", _external=True),
+        screen_hint="signup"
+    )
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/map")
+
+@app.route("/callback", methods=["GET", "POST"])
+def callback():
+    token = oauth.auth0.authorize_access_token()
+    session["user_token"] = token
+    user_info = token.get("userinfo")
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    cursor.execute('''
+                INSERT INTO accounts
+                (auth0_sub, username)
+                VALUES
+                (%s, %s)
+                ON CONFLICT (auth0_sub)
+                DO UPDATE SET username = %s;
+                ''',
+                (user_info["sub"], user_info["nickname"], user_info["nickname"]))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect("/")
+
 @app.get("/uploads/<path:filename>")
 def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 
 @app.get('/post/<int:post_id>')
 def show_post(post_id):
@@ -89,13 +132,11 @@ def show_post(post_id):
     conn.commit()
     cursor.close()
     conn.close()
-    
-    print(post_row)
-    print(post_row[8])
 
     if post_row is None:
         return redirect(url_for('PageNotFound'))  # TODO: we need a 404 page?
-    
+
+
     img = None
     if post_row[8] != None:
         img = url_for('uploaded_file', filename=post_row[8])
@@ -143,39 +184,48 @@ def create():
 
     conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
+    
+    account_id = None
+    # If user is signed in, get their associated account_id
+    if ("user_token" in session):
+        sub = session["user_token"].get("userinfo")["sub"]
+        if sub:
+            cursor.execute('''
+                            SELECT account_id FROM accounts
+                            WHERE auth0_sub = %s;
+                            ''', (sub,))
+            row = cursor.fetchone()
+            if row:
+                account_id = row[0]
 
-    # TODO: check if user has account/signed in - zoe
-
-    cursor.execute(
-        """
+    cursor.execute('''
                    INSERT INTO locations
                    (lat, long)
                    VALUES
-                   (%s, %s);""",
-        (lat, long),
-    )
-    cursor.execute("""
+                   (%s, %s);''',
+                   (lat, long))
+    cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC
-                   LIMIT 1;""")
+                   LIMIT 1;''')
     location_id = cursor.fetchone()[0]
-
-    cursor.execute(
-        """
+    
+    cursor.execute('''
                    INSERT INTO posts
-                   (anon, location, title, description)
+                   (anon, account, location, title, description)
                    VALUES
-                   (%s, %s, %s, %s);''', 
-                   (anon, location_id, title, description))
+                   (%s, %s, %s, %s, %s);''', 
+                   (anon, account_id, location_id, title, description))
+
     cursor.execute('''
                    SELECT post_id FROM posts
                    ORDER BY post_id DESC
                    LIMIT 1;''')
     id = cursor.fetchone()[0]
+
     
     if file and allowed_file(file.filename):
-        cursor.execute(
-            """
+        cursor.execute('''
                        INSERT INTO links
                        (post, link)
                        VALUES
@@ -184,10 +234,9 @@ def create():
     conn.commit()
     cursor.close()
     conn.close()
-
-    return redirect(url_for("home_page"))
-
-
+    
+    return redirect(url_for('home_page'))
+    
 # Function directly from Flask official documentation
 def allowed_file(filename):
     return (
