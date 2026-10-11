@@ -65,9 +65,7 @@
     <div class="post-grid" id="gridView">
         {% for post in posts %}
         <div class="post-card">
-            {{post.post_id}}
             {{post.title}}
-            {{post.account}}
             {{post.time}}
             {{post.description}}
             {{post.accounts}}
@@ -82,12 +80,10 @@
         <div class="post-dropdown">
             <details>
                 <summary>{{post.title}}</summary>
-                <p>{{post.post_id}}
-                    {{post.account}}
-                    {{post.time}}
-                    {{post.description}}
-                    {{post.accounts}}
-                    {{post.location}}</p>
+                <p>{{post.time}}</p>
+                <p>{{post.description}}</p>
+                <p>{{post.accounts}}</p>
+                <p>{{post.location}}</p>
             </details>
         </div>
         {% else %}
