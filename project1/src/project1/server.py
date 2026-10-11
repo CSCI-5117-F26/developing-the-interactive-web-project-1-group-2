@@ -46,9 +46,22 @@ def login():
         redirect_uri=url_for("callback", _external=True)
     )
 
+@app.route("/signup")
+def signup():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("callback", _external=True),
+        screen_hint="signup"
+    )
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/map")
+
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
+    print(token)
     session["user"] = token
     return redirect("/")
 
@@ -127,6 +140,7 @@ def create():
     cursor = conn.cursor()
     
     # TODO: check if user has account/signed in - zoe
+    # if (not anon and )
 
     cursor.execute('''
                    INSERT INTO locations
