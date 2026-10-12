@@ -91,6 +91,7 @@
                 <p>{{post.accounts}}</p>
                 <p>{{post.location}}</p>
                 {% if account_id and post.owner_id == account_id %}
+                    <a href="/edit/{{ post.post_id }}" class="pure-button">Edit</a>
                     <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
                         onsubmit="return confirm('Delete this post?')">
                         <button class="pure-button">Delete</button>
