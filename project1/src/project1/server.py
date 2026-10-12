@@ -327,7 +327,7 @@ def delete_post(post_id):
     cursor = conn.cursor()
 
     cursor.execute("SELECT location FROM posts WHERE post_id = %s AND account = %s",
-                   (post_id, account_id))
+                  (post_id, account_id))
     
     row = cursor.fetchone()
 
@@ -342,6 +342,40 @@ def delete_post(post_id):
     conn.close()
     return redirect(request.referrer or url_for("blog_page"))
 
+
+@app.get("/edit/<int:post_id>")
+def edit_page(post_id):
+    account_id = get_account_id()
+    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT title, description FROM posts WHERE post_id = %s AND account = %s",
+                  (post_id, account_id))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if row is None:
+        return redirect(url_for("blog_page"))
+
+    post = {"post_id": post_id, "title": row[0], "description": row[1]}
+    return render_template("edit.html", post=post)
+
+@app.post("/edit/<int:post_id>")
+def edit_save(post_id):
+    account_id = get_account_id()
+    title = request.form.get("title", "").strip()
+    description = request.form.get("description", "").strip()
+
+    if title and description:
+        conn = psycopg.connect(os.environ["DATABASE_URL"])
+        cursor = conn.cursor()
+        cursor.execute("UPDATE posts SET title = %s, description = %s WHERE post_id = %s AND account = %s",
+                       (title, description, post_id, account_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    return redirect(url_for("blog_page"))
 
 @app.route('/404')
 def PageNotFound():

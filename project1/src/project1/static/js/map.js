@@ -149,6 +149,8 @@ function showPost(post, id) {
     document.getElementById('postActions').hidden = !post['can_edit'];
     document.getElementById('deleteForm').action = '/delete/' + id;
 
+    document.getElementById('editLink').href = '/edit/' + id;
+    
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
 }
