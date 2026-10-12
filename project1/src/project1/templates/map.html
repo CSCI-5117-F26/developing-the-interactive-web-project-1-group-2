@@ -60,6 +60,12 @@
                         <img src="" alt="" id="postImage" hidden>
                         <p id="postDate"></p>
                         <p id="post_id" hidden></p>
+                        <div id="postActions" hidden>
+                            <form id="deleteForm" method="post" style="display:inline"
+                                onsubmit="return confirm('Delete this post?')">
+                                <button class="pure-button">Delete</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

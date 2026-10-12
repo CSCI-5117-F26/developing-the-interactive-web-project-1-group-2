@@ -146,6 +146,9 @@ function showPost(post, id) {
     let date = document.getElementById('postDate');
     date.innerText = `Date: ${post['time']}`;
 
+    document.getElementById('postActions').hidden = !post['can_edit'];
+    document.getElementById('deleteForm').action = '/delete/' + id;
+
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
 }
