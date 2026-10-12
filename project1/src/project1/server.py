@@ -14,18 +14,39 @@ UPLOAD_FOLDER = Path(__file__).resolve().parents[2] / 'uploads'     # Help from 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-oauth = OAuth(app)
-app.secret_key = os.environ["AUTH0_SECRET"]
+load_dotenv()
+ 
+DEV_LOGIN = os.environ.get("DEV_LOGIN") == "1" # set to 1 when using dev login
 
-oauth.register(
-    "auth0",
-    client_id=os.environ["AUTH0_CLIENT_ID"],
-    client_secret=os.environ["AUTH0_CLIENT_SECRET"],
-    client_kwargs={
-        "scope": "openid profile email",
-    },
-    server_metadata_url=f"https://{os.environ["AUTH0_DOMAIN"]}/.well-known/openid-configuration",
-)
+oauth = OAuth(app)
+app.secret_key = os.environ["AUTH0_SECRET"] or ("dev-only-secret" if DEV_LOGIN else os.environ["AUTH0_SECRET"])
+
+if os.environ.get("AUTH0_DOMAIN"):
+    oauth.register(
+        "auth0",
+        client_id=os.environ["AUTH0_CLIENT_ID"],
+        client_secret=os.environ["AUTH0_CLIENT_SECRET"],
+        client_kwargs={
+            "scope": "openid profile email",
+        },
+        server_metadata_url=f"https://{os.environ["AUTH0_DOMAIN"]}/.well-known/openid-configuration",
+    )
+elif not DEV_LOGIN:
+    raise RuntimeError("Set the AUTH0_* variables, or set DEV_LOGIN=1 to use /dev-login")
+
+def get_account_id():
+    if "user_token" not in session:
+        return None
+    sub = session["user_token"]["userinfo"]["sub"]
+    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    cursor = conn.cursor()
+    cursor.execute("SELECT account_id FROM accounts WHERE auth0_sub = %s", (sub,))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if row:
+        return row[0]
+    return None
 
 @app.get("/")
 def home_page():
@@ -49,14 +70,15 @@ def blog_page():
                     locations.lat, 
                     locations.long,
                     posts.time,
-                    accounts.username AS account
+                    accounts.username AS account,
+                    posts.account AS owner_id
                 FROM posts
                 LEFT JOIN locations ON posts.location = locations.location_id
                 LEFT JOIN accounts ON posts.account = accounts.account_id
             """)
             posts = cur.fetchall()
 
-    return render_template("blog.html", posts=posts), 200
+    return render_template("blog.html", posts=posts, account_id=get_account_id()), 200
 
 @app.get("/account")
 def account_page():
@@ -101,6 +123,29 @@ def callback():
     conn.close()
     return redirect("/")
 
+
+if DEV_LOGIN:
+    @app.get("/dev-login")
+    def dev_login():
+        number = request.args.get("user", "1")
+        sub = f"dev|{number}"
+        nickname = f"dev{number}"
+
+        session["user_token"] = {"userinfo": {"sub": sub, "nickname": nickname}}
+
+        conn = psycopg.connect(os.environ["DATABASE_URL"])
+        cursor = conn.cursor()
+        cursor.execute('''
+                       INSERT INTO accounts (auth0_sub, username)
+                       VALUES (%s, %s)
+                       ON CONFLICT (auth0_sub)
+                       DO UPDATE SET username = %s;
+                       ''', (sub, nickname, nickname))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect("/")
+
 @app.get("/uploads/<path:filename>")
 def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
@@ -111,10 +156,11 @@ def show_post(post_id):
     # show the post with the given id, the id is an integer
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
+    account_id = get_account_id()
     cursor.execute('''
         SELECT anon, accounts.username, locations.location, locations.lat, 
         locations.long, title, posts.time, description, links.link, comments.author, 
-        comments.time, comments.comment
+        comments.time, comments.comment, posts.account
         FROM POSTS
         LEFT JOIN accounts
             ON posts.account = accounts.account_id
@@ -145,6 +191,7 @@ def show_post(post_id):
         "post_id": post_id,
         "anon": post_row[0],
         "account": post_row[1],
+        "username": post_row[1],
         "location": {
             'name': post_row[2],
             'lat': post_row[3],
@@ -153,7 +200,8 @@ def show_post(post_id):
         "title": post_row[5],
         "time": post_row[6],
         "description": post_row[7],
-        'image': img
+        'image': img,
+        'can_edit' : account_id is not None and account_id == post_row[12]
         # "author": "Anonymous" if post_row[0] else post_row[1]
     }
     
@@ -270,6 +318,64 @@ def getAllPosts():
             })
     
     return jsonify(body), 200
+
+
+@app.post("/delete/<int:post_id>")
+def delete_post(post_id):
+    account_id = get_account_id()
+    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT location FROM posts WHERE post_id = %s AND account = %s",
+                  (post_id, account_id))
+    
+    row = cursor.fetchone()
+
+    if row:
+        cursor.execute("DELETE FROM links WHERE post = %s", (post_id,))
+        cursor.execute("DELETE FROM comments WHERE post = %s", (post_id,))
+        cursor.execute("DELETE FROM posts WHERE post_id = %s", (post_id,))
+        cursor.execute("DELETE FROM locations WHERE location_id = %s", (row[0],))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(request.referrer or url_for("blog_page"))
+
+
+@app.get("/edit/<int:post_id>")
+def edit_page(post_id):
+    account_id = get_account_id()
+    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT title, description FROM posts WHERE post_id = %s AND account = %s",
+                  (post_id, account_id))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if row is None:
+        return redirect(url_for("blog_page"))
+
+    post = {"post_id": post_id, "title": row[0], "description": row[1]}
+    return render_template("edit.html", post=post)
+
+@app.post("/edit/<int:post_id>")
+def edit_save(post_id):
+    account_id = get_account_id()
+    title = request.form.get("title", "").strip()
+    description = request.form.get("description", "").strip()
+
+    if title and description:
+        conn = psycopg.connect(os.environ["DATABASE_URL"])
+        cursor = conn.cursor()
+        cursor.execute("UPDATE posts SET title = %s, description = %s WHERE post_id = %s AND account = %s",
+                       (title, description, post_id, account_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    return redirect(url_for("blog_page"))
 
 @app.route('/404')
 def PageNotFound():
