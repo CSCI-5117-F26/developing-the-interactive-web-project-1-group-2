@@ -70,6 +70,12 @@
             {{post.description}}
             {{post.accounts}}
             {{post.location}}
+            {% if account_id and post.owner_id == account_id %}
+                <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
+                    onsubmit="return confirm('Delete this post?')">
+                    <button class="pure-button">Delete</button>
+                </form>
+            {% endif %}
         </div>
         {% else %}
         <p>No posts available.</p>
@@ -84,6 +90,12 @@
                 <p>{{post.description}}</p>
                 <p>{{post.accounts}}</p>
                 <p>{{post.location}}</p>
+                {% if account_id and post.owner_id == account_id %}
+                    <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
+                        onsubmit="return confirm('Delete this post?')">
+                        <button class="pure-button">Delete</button>
+                    </form>
+                {% endif %}
             </details>
         </div>
         {% else %}

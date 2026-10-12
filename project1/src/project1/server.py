@@ -70,14 +70,15 @@ def blog_page():
                     locations.lat, 
                     locations.long,
                     posts.time,
-                    accounts.username AS account
+                    accounts.username AS account,
+                    posts.account AS owner_id
                 FROM posts
                 LEFT JOIN locations ON posts.location = locations.location_id
                 LEFT JOIN accounts ON posts.account = accounts.account_id
             """)
             posts = cur.fetchall()
 
-    return render_template("blog.html", posts=posts), 200
+    return render_template("blog.html", posts=posts, account_id=get_account_id()), 200
 
 @app.get("/account")
 def account_page():
