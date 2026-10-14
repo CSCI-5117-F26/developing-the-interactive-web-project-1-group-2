@@ -2,6 +2,7 @@
 
 {% block scripts %}
 <link href="{{ url_for('static', filename='css/blog.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 <script src="{{ url_for('static', filename='js/blog.js') }}" defer></script>
 {% endblock %}
 
@@ -64,17 +65,22 @@
     <h1>Blogs</h1>
     <div class="post-grid" id="gridView">
         {% for post in posts %}
-        <div class="post-card">
-            {{post.title}}
-            {{post.time}}
-            {{post.description}}
-            {{post.accounts}}
-            {{post.location}}
+        <div class="post-card clickable-post" data-id="{{post.post_id}}" data-title="{{post.title}}"
+            data-time="{{post.time}}" data-description="{{post.description}}" data-author="{{post.accounts}}"
+            data-location="{{post.location}}" data-image="{{post.image_url}}" data-owner="{{post.owner_id}}"
+            style="cursor: pointer;">
+
+            <h3>{{post.title}}</h3>
+            <p>{{post.time}}</p>
+            <p>{{post.description}}</p>
+            <p>{{post.accounts}}</p>
+            <p>{{post.location}}</p>
+
             {% if account_id and post.owner_id == account_id %}
-                <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
-                    onsubmit="return confirm('Delete this post?')">
-                    <button class="pure-button">Delete</button>
-                </form>
+            <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
+                onsubmit="return confirm('Delete this post?'); event.stopPropagation();">
+                <button class="pure-button">Delete</button>
+            </form>
             {% endif %}
         </div>
         {% else %}
@@ -85,23 +91,52 @@
         {% for post in posts %}
         <div class="post-dropdown">
             <details>
-                <summary>{{post.title}}</summary>
+                <summary class="clickable-post" data-id="{{post.post_id}}" data-title="{{post.title}}"
+                    data-time="{{post.time}}" data-description="{{post.description}}" data-author="{{post.accounts}}"
+                    data-location="{{post.location}}" data-image="{{post.image_url}}" data-owner="{{post.owner_id}}">
+                    {{post.title}}
+                </summary>
                 <p>{{post.time}}</p>
                 <p>{{post.description}}</p>
                 <p>{{post.accounts}}</p>
                 <p>{{post.location}}</p>
                 {% if account_id and post.owner_id == account_id %}
-                    <a href="/edit/{{ post.post_id }}" class="pure-button">Edit</a>
-                    <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
-                        onsubmit="return confirm('Delete this post?')">
-                        <button class="pure-button">Delete</button>
-                    </form>
+                <a href="/edit/{{ post.post_id }}" class="pure-button">Edit</a>
+                <form action="/delete/{{ post.post_id }}" method="post" style="display:inline"
+                    onsubmit="return confirm('Delete this post?')">
+                    <button class="pure-button">Delete</button>
+                </form>
                 {% endif %}
             </details>
         </div>
         {% else %}
         <p>No posts available.</p>
         {% endfor %}
+    </div>
+    <div class="popupBackground" id="createPopupBackground" hidden>
+        <div class="popupWindow" id="createPopupWindow">
+            <div class="popups">
+                <div class="popup" id="post">
+                    <button type="button" id="closePopupBtn" class="pure-button" style="float: right;">X</button>
+
+                    <h1 id="postTitle"></h1>
+                    <p id="postAuthor"></p>
+                    <p id="postDescription"></p>
+                    <p id="postLocation"></p>
+                    <img src="" alt="" id="postImage" hidden>
+                    <p id="postDate"></p>
+                    <p id="post_id" hidden></p>
+
+                    <div id="postActions" hidden>
+                        <a id="editLink" class="pure-button" href="#">Edit</a>
+                        <form id="deleteForm" method="post" style="display:inline"
+                            onsubmit="return confirm('Delete this post?')">
+                            <button class="pure-button">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
