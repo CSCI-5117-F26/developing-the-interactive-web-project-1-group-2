@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function adjustSideBar() {
-    const sidebar = document.getElementById('filterSidebar');
+    const sidebar = document.getElementById('sidebar');
     const blogContainer = document.getElementById('blogContainer');
     const sidebarButton = document.getElementById('filterToggleBtn');
 
