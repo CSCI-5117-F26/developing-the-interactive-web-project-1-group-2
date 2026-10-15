@@ -237,9 +237,9 @@ def show_post(post_id):
         'comments': comments
         # 'author': 'Anonymous' if post_row[0] else post_row[1]
     }
-
-    return jsonify(post), 200
-    # return render_template("post.html", post=post), 200
+    if request.args.get('format') == 'json':
+        return jsonify(post), 200
+    return render_template("post.html", post=post), 200
 
 
 @app.post('/post/<int:post_id>/comments')
