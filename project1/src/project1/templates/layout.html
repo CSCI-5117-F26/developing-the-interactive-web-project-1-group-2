@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Map Blog</title>
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+        integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
     {% block scripts %}{% endblock %}
 </head>
 
@@ -18,7 +20,12 @@
                 <a href="/notifcations" class="pure-menu-item pure-menu-link">Notifications</a>
                 <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
                 <a href="/blog" class="pure-menu-item pure-menu-link">Blog</a>
-                <a href="/account" class="pure-menu-item pure-menu-link">account</a>
+                {% if session.user_token %}
+                    <a href="/account" class="pure-menu-item pure-menu-link">Account</a>
+                {% else %}
+                    <a href="/login" class="pure-menu-item pure-menu-link" >Log In</a>
+                    <a href="/signup" class="pure-menu-item pure-menu-link" >Sign Up</a>
+                {% endif %}
             </div>
         </div>
     </header>

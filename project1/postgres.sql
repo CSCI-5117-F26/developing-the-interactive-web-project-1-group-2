@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS accounts;
 
 CREATE TABLE accounts (
     account_id serial PRIMARY KEY,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL
+    auth0_sub TEXT UNIQUE NOT NULL, -- "sub" (subject) is Auth0's internal unique account identifier. Use this field to determine authorization
+    username TEXT NOT NULL
 );
 
 CREATE TABLE locations (
@@ -39,5 +39,6 @@ CREATE TABLE comments (
     post INT NOT NULL,
     author TEXT NOT NULL,
     time TIMESTAMP DEFAULT NOW(),
+    comment TEXT NOT NULL,
     FOREIGN KEY (post) REFERENCES posts(post_id)
 );

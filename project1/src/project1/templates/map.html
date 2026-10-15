@@ -26,8 +26,8 @@
         <div id="map"></div>
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
-                <div>
-                    <form action="/create" method="post" class="pure-form pure-form-aligned" id="createForm" enctype=multipart/form-data>
+                <div class="popups">
+                    <form action="/create" method="post" class="pure-form pure-form-aligned popup" id="createForm" enctype=multipart/form-data hidden>
                         <input type="hidden" id="lat" name="lat">
                         <input type="hidden" id="long" name="long">
 
@@ -52,6 +52,22 @@
                             <button class="pure-button pure-button-primary" id="createButton">Submit</button>
                         </div>
                     </form>
+                    <div class="popup" id="post" hidden>
+                        <h1 id="postTitle"></h1>
+                        <p id="postAuthor"></p>
+                        <p id="postDescription"></p>
+                        <p id="postLocation"></p>
+                        <img src="" alt="" id="postImage" hidden>
+                        <p id="postDate"></p>
+                        <p id="post_id" hidden></p>
+                        <div id="postActions" hidden>
+                            <a id="editLink" class="pure-button" href="#">Edit</a>
+                            <form id="deleteForm" method="post" style="display:inline"
+                                onsubmit="return confirm('Delete this post?')">
+                                <button class="pure-button">Delete</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
