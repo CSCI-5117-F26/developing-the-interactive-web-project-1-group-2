@@ -230,8 +230,9 @@ def show_post(post_id):
         # "author": "Anonymous" if post_row[0] else post_row[1]
     }
 
-    return jsonify(post), 200
-    # return render_template("post.html", post=post), 200
+    if request.headers.get("Accept") == "application/json":
+        return jsonify(post), 200
+    return render_template("post.html", post=post), 200
 
 
 @app.post("/create")
