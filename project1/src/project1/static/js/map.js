@@ -67,7 +67,7 @@ async function loadMarkers() {
 }
 
 async function getPosts() {
-    url = '/api/getAll';
+    let url = '/api/getAll';
     const res = await fetch(url, {
         method: 'GET'
     });
@@ -104,8 +104,8 @@ function adjustSideBar() {
 }
 
 async function viewPost(e) {
-    id = e.target.options.postId.toString();
-    url = '/post/'+id;
+    let id = e.target.options.postId.toString();
+    let url = `/post/${id}?format=json`;
 
     const res = await fetch(url, {
         method: 'GET'
@@ -160,6 +160,7 @@ function showPost(post, id) {
 
     let comments = document.getElementById('commentList');
     let noComment = document.getElementById('noComment');
+    comments.replaceChildren(); // remove other post comments to diaply curr post cmt
 
     if (post['comments'].length > 0) {
         for (let comment of post['comments']) {
@@ -181,8 +182,4 @@ function showPost(post, id) {
     else {
         noComment.hidden = false;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 865862cc11177f61c44befb1abf98f703d8dfe8a
