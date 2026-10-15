@@ -239,7 +239,8 @@ def show_post(post_id):
     }
 
     return jsonify(post), 200
-    # return render_template('post.html', post=post), 200
+    # return render_template("post.html", post=post), 200
+
 
 @app.post('/post/<int:post_id>/comments')
 def add_comment(post_id):

@@ -181,4 +181,8 @@ function showPost(post, id) {
     else {
         noComment.hidden = false;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 865862cc11177f61c44befb1abf98f703d8dfe8a
