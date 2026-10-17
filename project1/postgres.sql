@@ -32,6 +32,8 @@ CREATE TABLE posts (
 CREATE TABLE links (
     post INT NOT NULL,
     link TEXT NOT NULL,
+    image_file BYTEA NOT NULL,
+    mime_type TEXT NOT NULL,
     FOREIGN KEY (post) REFERENCES posts(post_id)
 );
 

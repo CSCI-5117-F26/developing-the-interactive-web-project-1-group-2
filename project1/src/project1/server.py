@@ -5,12 +5,11 @@ from flask import (
     jsonify,
     redirect,
     url_for,
-    send_from_directory,
     session,
+    Response
 )
 import psycopg
 from psycopg.rows import dict_row
-from markupsafe import escape
 import os
 from pathlib import Path
 from werkzeug.utils import secure_filename
@@ -19,11 +18,7 @@ from dotenv import load_dotenv
 
 
 app = Flask(__name__)
-UPLOAD_FOLDER = (
-    Path(__file__).resolve().parents[2] / 'uploads'
-)  # Help from AI to get correct file path
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'image/png', 'image/jpg', 'image/jpeg', 'image/gif'}
 
 load_dotenv()
 
@@ -174,11 +169,6 @@ if DEV_LOGIN:
         return redirect('/')
 
 
-@app.get('/uploads/<path:filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
 @app.get('/post/<int:post_id>')
 def show_post(post_id):
     # show the post with the given id, the id is an integer
@@ -196,9 +186,8 @@ def show_post(post_id):
                 ON posts.location = locations.location_id
             LEFT JOIN links
                 ON posts.post_id = links.post
-            WHERE post_id = %s;
-            ''', (post_id,),
-            )
+            WHERE post_id = %s;''',
+            (post_id,))
             post_row = cursor.fetchone()  # one row post of the individual post, tuple type (a, b, ...)
 
             if post_row is None:
@@ -221,7 +210,7 @@ def show_post(post_id):
 
         img = None
         if post_row[8] != None:
-            img = url_for('uploaded_file', filename=post_row[8])
+            img = url_for('post_image', post_id=post_id)
 
     post = {
         'post_id': post_id,
@@ -235,12 +224,23 @@ def show_post(post_id):
         'image': img,
         'can_edit': account_id is not None and account_id == post_row[9],
         'comments': comments
-        # 'author': 'Anonymous' if post_row[0] else post_row[1]
     }
     if request.args.get('format') == 'json':
         return jsonify(post), 200
     return render_template("post.html", post=post), 200
 
+@app.get('/post/<int:post_id>/image')
+def post_image(post_id):
+    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute('''
+                           SELECT image_file, mime_type
+                           FROM links
+                           WHERE post=%s;''',
+                           (post_id,))
+            row = cursor.fetchone()
+            img, type = row
+    return Response(bytes(img), mimetype=type)
 
 @app.post('/post/<int:post_id>/comments')
 def add_comment(post_id):
@@ -289,8 +289,8 @@ def add_comment(post_id):
 
 @app.post('/create')
 def create():
-    title = escape(request.form.get('title', '').strip())
-    description = escape(request.form.get('description', '').strip())
+    title = request.form.get('title', '').strip()
+    description = request.form.get('description', '').strip()
     anon = request.form.get('anonOption', '')
     lat = request.form.get('lat')
     long = request.form.get('long')
@@ -303,11 +303,12 @@ def create():
     long = float(long)
 
     file = request.files.get('image')
-    filepath = ''
-    if file and allowed_file(file.filename):
+    image_binary = None
+    mime_type = None
+    if file and allowed_file(file.mimetype):
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        image_binary = file.read()
+        mime_type = file.mimetype
 
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
@@ -329,13 +330,12 @@ def create():
                 account_id = row[0]
 
     cursor.execute(
-        '''
+                   '''
                    INSERT INTO locations
                    (lat, long)
                    VALUES
                    (%s, %s);''',
-        (lat, long),
-    )
+                   (lat, long))
     cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC
@@ -343,13 +343,12 @@ def create():
     location_id = cursor.fetchone()[0]
 
     cursor.execute(
-        '''
+                   '''
                    INSERT INTO posts
                    (anon, account, location, title, description)
                    VALUES
                    (%s, %s, %s, %s, %s);''',
-        (anon, account_id, location_id, title, description),
-    )
+                   (anon, account_id, location_id, title, description))
 
     cursor.execute('''
                    SELECT post_id FROM posts
@@ -357,15 +356,14 @@ def create():
                    LIMIT 1;''')
     id = cursor.fetchone()[0]
 
-    if file and allowed_file(file.filename):
+    if file and image_binary and mime_type:
         cursor.execute(
-            '''
+                       '''
                        INSERT INTO links
-                       (post, link)
+                       (post, link, image_file, mime_type)
                        VALUES
-                       (%s, %s);''',
-            (id, filename),
-        )
+                       (%s, %s, %s, %s);''',
+                       (id, filename, image_binary, mime_type))
     conn.commit()
     cursor.close()
     conn.close()
@@ -373,10 +371,9 @@ def create():
     return redirect(url_for('home_page'))
 
 
-# Function directly from Flask official documentation
+# Function from Flask official documentation, slight modifications
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+    return filename in ALLOWED_EXTENSIONS
 
 @app.get('/api/getAll')
 def getAllPosts():
