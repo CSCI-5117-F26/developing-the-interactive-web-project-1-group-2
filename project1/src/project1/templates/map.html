@@ -60,6 +60,24 @@
                         <img src="" alt="" id="postImage" hidden>
                         <p id="postDate"></p>
                         <p id="post_id" hidden></p>
+                        <div id="postActions" hidden>
+                            <a id="editLink" class="pure-button" href="#">Edit</a>
+                            <form id="deleteForm" method="post" style="display:inline"
+                                onsubmit="return confirm('Delete this post?')">
+                                <button class="pure-button">Delete</button>
+                            </form>
+                        </div>
+                        <section id="postComments">
+                            <h3>Comments</h3>
+                            <p id="noComment" class="pure-form-message-inline" hidden>No comments to display yet.</p>
+                            <form id="commentForm" method="post" class="pure-form">
+                                <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." required>
+                                <button class="pure-button">Submit</button>
+                            </form>
+                            <div id="commentList">
+                                
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>

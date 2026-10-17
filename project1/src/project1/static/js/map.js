@@ -67,7 +67,7 @@ async function loadMarkers() {
 }
 
 async function getPosts() {
-    url = '/api/getAll';
+    let url = '/api/getAll';
     const res = await fetch(url, {
         method: 'GET'
     });
@@ -104,8 +104,8 @@ function adjustSideBar() {
 }
 
 async function viewPost(e) {
-    id = e.target.options.postId.toString();
-    url = '/post/'+id;
+    let id = e.target.options.postId.toString();
+    let url = `/post/${id}?format=json`;
 
     const res = await fetch(url, {
         method: 'GET'
@@ -125,7 +125,7 @@ function showPost(post, id) {
     if (post['anon'] == true) {
         author.innerText = `Author: anonymous`;
     } else {
-        author.innerText = `Author: <username>`;
+        author.innerText = `Author: ${post['username']}`;
     }
 
     let description = document.getElementById('postDescription');
@@ -146,6 +146,40 @@ function showPost(post, id) {
     let date = document.getElementById('postDate');
     date.innerText = `Date: ${post['time']}`;
 
+    document.getElementById('postActions').hidden = !post['can_edit'];
+    document.getElementById('deleteForm').action = '/delete/' + id;
+
+    document.getElementById('editLink').href = '/edit/' + id;
+    
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
+    
+    // Add post comments
+    let commentForm = document.getElementById('commentForm');
+    commentForm.action = `/post/${id}/comments`;
+
+    let comments = document.getElementById('commentList');
+    let noComment = document.getElementById('noComment');
+    comments.replaceChildren(); // remove other post comments to diaply curr post cmt
+
+    if (post['comments'].length > 0) {
+        for (let comment of post['comments']) {
+            noComment.hidden = true;
+
+            let author = document.createElement('p');
+            author.innerText = `Author: ${comment['author']}`;
+            comments.appendChild(author);
+
+            let time = document.createElement('p');
+            time.innerText = `Time: ${comment['time']}`;
+            comments.appendChild(time);
+
+            let commentText = document.createElement('p');
+            commentText.innerText = `Comment: ${comment['comment']}`;
+            comments.appendChild(commentText);
+        }
+    }
+    else {
+        noComment.hidden = false;
+    }
 }
