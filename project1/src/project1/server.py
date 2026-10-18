@@ -79,8 +79,8 @@ def blog_page():
                     posts.post_id, 
                     posts.title, 
                     posts.description, 
-                    locations.lat, 
-                    locations.long,
+                    ST_Y(locations.coord), 
+                    ST_X(locations.coord),
                     posts.time,
                     accounts.username AS account,
                     posts.account AS owner_id
@@ -177,8 +177,8 @@ def show_post(post_id):
         with conn.cursor() as cursor:
             cursor.execute(
             '''
-            SELECT anon, accounts.username, locations.location, locations.lat, 
-            locations.long, title, posts.time, description, links.link, posts.account
+            SELECT anon, accounts.username, locations.location, ST_X(locations.coord), 
+            ST_Y(locations.coord), title, posts.time, description, links.link, posts.account
             FROM POSTS
             LEFT JOIN accounts
                 ON posts.account = accounts.account_id
@@ -217,7 +217,7 @@ def show_post(post_id):
         'anon': post_row[0],
         'account': post_row[1],
         'username': post_row[1],
-        'location': {'name': post_row[2], 'lat': post_row[3], 'long': post_row[4]},
+        'location': {'name': post_row[2], 'long': post_row[3], 'lat': post_row[4],},
         'title': post_row[5],
         'time': post_row[6],
         'description': post_row[7],
@@ -329,13 +329,14 @@ def create():
             if row:
                 account_id = row[0]
 
+    print(long)
+    print(lat)
+    
     cursor.execute(
                    '''
-                   INSERT INTO locations
-                   (lat, long)
-                   VALUES
-                   (%s, %s);''',
-                   (lat, long))
+                   INSERT INTO locations (geoType, coord)
+                   VALUES (%s, ST_MakePoint(%s, %s));''',
+                   ('point', long, lat))
     cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC
@@ -380,7 +381,7 @@ def getAllPosts():
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     cursor.execute('''
-                   SELECT post_id, lat, long
+                   SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord)
                    FROM posts
                    INNER JOIN locations ON posts.location=locations.location_id;
                    ''')

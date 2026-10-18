@@ -1,3 +1,5 @@
+CREATE EXTENSION postgis;
+
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS links;
 DROP TABLE IF EXISTS posts;
@@ -13,8 +15,12 @@ CREATE TABLE accounts (
 CREATE TABLE locations (
     location_id SERIAL PRIMARY KEY,
     location TEXT,
-    lat FLOAT NOT NULL,
-    long FLOAT NOT NULL
+    geoType TEXT NOT NULL,
+    coord GEOMETRY NOT NULL,     -- (long, lat)
+    addr TEXT,
+    city TEXT,
+    state TEXT,
+    zip INT
 );
 
 CREATE TABLE posts (
