@@ -294,6 +294,7 @@ def create():
     anon = request.form.get('anonOption', '')
     lat = request.form.get('lat')
     long = request.form.get('long')
+    locationName = request.form.get('locationName')
 
     if title == '' or description == '' or anon == '':
         return redirect(url_for('home_page'))
@@ -328,15 +329,21 @@ def create():
             row = cursor.fetchone()
             if row:
                 account_id = row[0]
-
-    print(long)
-    print(lat)
     
-    cursor.execute(
-                   '''
-                   INSERT INTO locations (geoType, coord)
-                   VALUES (%s, ST_MakePoint(%s, %s));''',
-                   ('point', long, lat))
+    if (locationName == ''):
+        cursor.execute(
+                       '''
+                       INSERT INTO locations (geoType, coord)
+                       VALUES
+                       (%s, ST_MakePoint(%s, %s));''',
+                       ('point', long, lat))
+    else:
+        cursor.execute(
+                       '''
+                       INSERT INTO locations (location, geoType, coord)
+                       VALUES
+                       (%s, %s, ST_MakePoint(%s, %s));''',
+                       (locationName, 'point', long, lat))
     cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC

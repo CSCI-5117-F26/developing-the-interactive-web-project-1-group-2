@@ -14,6 +14,27 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+// help with AI to access geojson file
+fetch(REGIONS_URL)
+    .then(response => response.json())
+    .then(data => {
+        const features = data['features'];
+
+        // TODO: store features data to db
+
+        L.geoJson(features, {
+            style: function (features) {
+                return {
+                    opacity: 0,
+                    fillOpacity: 0
+                };
+            }
+        }).on('click', (e) => {
+            feature = e['layer']['feature'];
+            document.getElementById('locationName').value = feature['properties']['BLDG_NAME_'];
+        }).addTo(map);
+    });
+
 const sidebarButton = L.Control.extend({
     options: {
         position: 'topleft'
@@ -21,7 +42,7 @@ const sidebarButton = L.Control.extend({
     onAdd: function () {
         const container = L.DomUtil.create('div');
         const button = L.DomUtil.create('button', 'pure-button', container);
-        
+
         container.setAttribute('id', 'sidebarContainer');
         button.setAttribute('id', 'sidebarButton');
         button.setAttribute('onclick', 'adjustSideBar()');
@@ -36,7 +57,7 @@ const sidebarButton = L.Control.extend({
 map.addControl(new sidebarButton());
 
 createPopupBackground = document.getElementById("createPopupBackground");
-map.on('click', (e)=>{
+map.on('click', (e) => {
     changePopup(false, 'createForm');
     document.getElementById('lat').value = e.latlng.lat;
     document.getElementById('long').value = e.latlng.lng;
@@ -55,7 +76,7 @@ window.addEventListener('load', () => {
 async function loadMarkers() {
     const res = await getPosts();
     const posts = await res.json();
-    
+
     if (posts.length > 0) {
         for (const post of posts) {
             var marker = L.marker([post['lat'], post['long']], {
@@ -74,7 +95,7 @@ async function getPosts() {
     return res
 }
 
-function changePopup(hide, id=null) {
+function changePopup(hide, id = null) {
     createPopupBackground.hidden = hide;
 
     if (hide == true) {
@@ -84,6 +105,8 @@ function changePopup(hide, id=null) {
     } else if (id != null) {
         let post = document.getElementById(id);
         post.hidden = hide;
+
+        // TODO: check if user is logged in. if not, the anonymous button should not show up
     }
 }
 
@@ -111,8 +134,7 @@ async function viewPost(e) {
         method: 'GET'
     });
     const data = await res.json();
-    console.log(data);
-    
+
     showPost(data, id);
     changePopup(false, 'post');
 }
@@ -130,11 +152,13 @@ function showPost(post, id) {
 
     let description = document.getElementById('postDescription');
     description.innerText = `Description: ${post['description']}`;
-    
-    let location = document.getElementById('postLocation');
-    location.innerText = `Location: ${post['location']['name']}`;
 
-    console.log(post['image'])
+    let location = document.getElementById('postLocation');
+    location.innerText = `Location: (${post['location']['lat']}, ${post['location']['long']})`;
+    if (post['location']['name']) {
+        location.innerText = `Location: ${post['location']['name']}`;
+    }
+
     let image = document.getElementById('postImage');
     if (post['image'] != null) {
         image.hidden = false;
@@ -150,10 +174,10 @@ function showPost(post, id) {
     document.getElementById('deleteForm').action = '/delete/' + id;
 
     document.getElementById('editLink').href = '/edit/' + id;
-    
+
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
-    
+
     // Add post comments
     let commentForm = document.getElementById('commentForm');
     commentForm.action = `/post/${id}/comments`;
