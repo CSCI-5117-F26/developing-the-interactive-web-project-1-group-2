@@ -183,3 +183,24 @@ function showPost(post, id) {
         noComment.hidden = false;
     }
 }
+
+window.addEventListener('load', () => {
+    updatePostsInView();
+});
+
+map.on('moveend', updatePostsInView);
+
+async function updatePostsInView() {
+    const bounds = map.getBounds();
+
+    const url = new URL('/api/getNearby', window.location.origin);
+
+    url.searchParams.set('minLat', bounds.getSouth());
+    url.searchParams.set('maxLat', bounds.getNorth());
+    url.searchParams.set('minLong', bounds.getWest());
+    url.searchParams.set('maxLong', bounds.getEast());
+
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log(data)
+}

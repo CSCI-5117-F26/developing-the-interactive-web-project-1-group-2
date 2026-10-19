@@ -67,24 +67,7 @@ def home_page():
 
 @app.get('/map')
 def map_page():
-    with psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row) as conn:
-        with conn.cursor() as cur:
-            cur.execute('''
-                SELECT 
-                    posts.post_id, 
-                    posts.title, 
-                    posts.description, 
-                    locations.lat, 
-                    locations.long,
-                    posts.time,
-                    accounts.username AS account,
-                    posts.account AS owner_id
-                FROM posts
-                LEFT JOIN locations ON posts.location = locations.location_id
-                LEFT JOIN accounts ON posts.account = accounts.account_id
-            ''')
-            posts = cur.fetchall()
-    return render_template('map.html', posts=posts), 200
+    return render_template('map.html'), 200
 
 
 @app.get('/blog')
@@ -401,6 +384,34 @@ def getAllPosts():
                    FROM posts
                    INNER JOIN locations ON posts.location=locations.location_id;
                    ''')
+
+    rows = cursor.fetchall()
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    body = []
+    if len(rows) > 0:
+        for row in rows:
+            body.append({'post_id': row[0], 'lat': row[1], 'long': row[2]})
+
+    return jsonify(body), 200
+
+@app.get('/api/getNearby')
+def getNearbyPosts():
+    min_lat = request.args.get('minLat', type=float)
+    max_lat = request.args.get('maxLat', type=float)
+    min_long = request.args.get('minLong', type=float)
+    max_long = request.args.get('maxLong', type=float)
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    # TODO: update with PostGIS logic
+    cursor.execute('''
+                   SELECT post_id, lat, long
+                   FROM posts
+                   INNER JOIN locations ON posts.location=locations.location_id
+                   WHERE %s < lat AND lat < %s AND %s < long AND long < %s
+                   ''', (min_lat, max_lat, min_long, max_long),)
 
     rows = cursor.fetchall()
     conn.commit()
