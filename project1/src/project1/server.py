@@ -89,7 +89,7 @@ def blog_page():
                 LEFT JOIN accounts ON posts.account = accounts.account_id
             ''')
             posts = cur.fetchall()
-
+        print(posts)
     return render_template('blog.html', posts=posts, account_id=get_account_id()), 200
 
 
@@ -394,6 +394,46 @@ def getAllPosts():
     if len(rows) > 0:
         for row in rows:
             body.append({'post_id': row[0], 'lat': row[1], 'long': row[2]})
+
+    return jsonify(body), 200
+
+@app.get('/api/getNearby')
+def get_nearby():
+    min_lat = request.args.get('minLat', type=float)
+    max_lat = request.args.get('maxLat', type=float)
+    min_long = request.args.get('minLong', type=float)
+    max_long = request.args.get('maxLong', type=float)
+    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    # TODO: update with PostGIS logic
+    cursor.execute('''
+                    SELECT
+                        posts.post_id, 
+                        posts.title, 
+                        posts.description, 
+                        locations.lat, 
+                        locations.long,
+                        posts.time,
+                        accounts.username AS account,
+                        posts.account AS owner_id
+                    FROM posts
+                    LEFT JOIN locations ON posts.location = locations.location_id
+                    LEFT JOIN accounts ON posts.account = accounts.account_id
+                    WHERE %s < lat AND lat < %s AND %s < long AND long < %s
+                   ''', (min_lat, max_lat, min_long, max_long),)
+
+    rows = cursor.fetchall()
+    print(rows)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    body = []
+    if len(rows) > 0:
+        for row in rows:
+            body.append({'post_id': row[0], 'title': row[1], 'description': row[2], 
+                         'lat': row[3], 'long': row[4], 'time': row[5], 
+                         'account': row[6], 'owner_id': row[7]})
 
     return jsonify(body), 200
 

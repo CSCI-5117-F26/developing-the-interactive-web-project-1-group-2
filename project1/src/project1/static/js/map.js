@@ -183,3 +183,70 @@ function showPost(post, id) {
         noComment.hidden = false;
     }
 }
+
+window.addEventListener('load', () => {
+    updatePostsInView();
+});
+
+map.on('moveend', updatePostsInView);
+
+async function updatePostsInView() {
+    const bounds = map.getBounds();
+
+    const url = new URL('/api/getNearby', window.location.origin);
+
+    url.searchParams.set('minLat', bounds.getSouth());
+    url.searchParams.set('maxLat', bounds.getNorth());
+    url.searchParams.set('minLong', bounds.getWest());
+    url.searchParams.set('maxLong', bounds.getEast());
+
+    const response = await fetch(url);
+    const posts = await response.json();
+    console.log(posts);
+
+    updateSidebar(posts);
+}
+
+function updateSidebar(posts) {
+    const container = document.getElementById('sideBarPosts');
+    container.replaceChildren();    // Resets the children to start from scratch
+
+    if (posts.length === 0) {
+        const noPosts = document.createElement('p');
+        noPosts.textContent = 'No Nearby Posts!';
+        container.appendChild(noPosts);
+        return;
+    }
+
+    // Effectively recreate the HTML structure of the collapsable blog post view
+    for (const post of posts) {
+        const dropdown = document.createElement('div');
+        dropdown.className = 'post-dropdown';
+
+        const details = document.createElement('details');
+
+        const summary = document.createElement('summary');
+        summary.className = 'clickable-post';
+        summary.textContent = post.title;
+        details.appendChild(summary);
+        
+        // Clicking on a post makes the map pan to it and opens the post popup
+        summary.addEventListener('click', (e) => {
+            map.panTo([post.lat, post.long]);
+            viewPost({target:{options:{postId:post.post_id}}});
+        });
+
+        const time = document.createElement('p');
+        time.textContent = post.time;
+        details.appendChild(time);
+
+        const desc = document.createElement('p');
+        desc.textContent = post.description;
+        details.appendChild(desc);
+
+        dropdown.appendChild(details);
+        container.appendChild(dropdown);
+    }
+
+
+}
