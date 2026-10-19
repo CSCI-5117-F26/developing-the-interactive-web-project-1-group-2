@@ -89,7 +89,6 @@ def blog_page():
                 LEFT JOIN accounts ON posts.account = accounts.account_id
             ''')
             posts = cur.fetchall()
-        print(posts)
     return render_template('blog.html', posts=posts, account_id=get_account_id()), 200
 
 
@@ -423,7 +422,6 @@ def get_nearby():
                    ''', (min_lat, max_lat, min_long, max_long),)
 
     rows = cursor.fetchall()
-    print(rows)
     conn.commit()
     cursor.close()
     conn.close()
