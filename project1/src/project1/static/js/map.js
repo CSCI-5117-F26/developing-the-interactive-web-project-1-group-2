@@ -229,8 +229,12 @@ function updateSidebar(posts) {
         summary.className = 'clickable-post';
         summary.textContent = post.title;
         details.appendChild(summary);
-
-
+        
+        // Clicking on a post makes the map pan to it and opens the post popup
+        summary.addEventListener('click', (e) => {
+            map.panTo([post.lat, post.long]);
+            viewPost({target:{options:{postId:post.post_id}}});
+        });
 
         const time = document.createElement('p');
         time.textContent = post.time;
