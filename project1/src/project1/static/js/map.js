@@ -201,6 +201,48 @@ async function updatePostsInView() {
     url.searchParams.set('maxLong', bounds.getEast());
 
     const response = await fetch(url);
-    const data = await response.json();
-    console.log(data)
+    const posts = await response.json();
+    console.log(posts);
+
+    updateSidebar(posts);
+}
+
+function updateSidebar(posts) {
+    const container = document.getElementById('sideBarPosts');
+    container.replaceChildren();    // Resets the children to start from scratch
+
+    if (posts.length === 0) {
+        const noPosts = document.createElement('p');
+        noPosts.textContent = 'No Nearby Posts!';
+        container.appendChild(noPosts);
+        return;
+    }
+
+    // Effectively recreate the HTML structure of the collapsable blog post view
+    for (const post of posts) {
+        const dropdown = document.createElement('div');
+        dropdown.className = 'post-dropdown';
+
+        const details = document.createElement('details');
+
+        const summary = document.createElement('summary');
+        summary.className = 'clickable-post';
+        summary.textContent = post.title;
+        details.appendChild(summary);
+
+
+
+        const time = document.createElement('p');
+        time.textContent = post.time;
+        details.appendChild(time);
+
+        const desc = document.createElement('p');
+        desc.textContent = post.description;
+        details.appendChild(desc);
+
+        dropdown.appendChild(details);
+        container.appendChild(dropdown);
+    }
+
+
 }

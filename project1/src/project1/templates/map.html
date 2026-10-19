@@ -18,28 +18,7 @@
 {% block body %}
 <div id="map_page" class="pure-g">
     <div id="sidebar" class="pure-u-1-3" hidden>
-        <div id="sideBarPosts">
-            <div class="post-collapsed" id="collapsedView">
-            {% for post in posts %}
-            <div class="post-dropdown">
-                <details>
-                    <summary class="clickable-post" data-id="{{post.post_id}}" data-title="{{post.title}}"
-                        data-time="{{post.time}}" data-description="{{post.description}}"
-                        data-author="{{post.accounts}}" data-location="{{post.location}}"
-                        data-image="{{post.image_url}}" data-owner="{{post.owner_id}}">
-                        {{post.title}}
-                    </summary>
-                    <p>{{post.time}}</p>
-                    <p>{{post.description}}</p>
-                    <p>{{post.accounts}}</p>
-                    <p>{{post.location}}</p>       
-                </details>
-            </div>
-            {% else %}
-            <p>No posts available.</p>
-            {% endfor %}
-        </div>
-        </div>
+        <div id="sideBarPosts"></div>
     </div>
     <div id="mapContainer" class="pure-u-1">
         <div id="map"></div>
