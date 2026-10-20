@@ -336,7 +336,7 @@ def create():
                        INSERT INTO locations (geoType, coord)
                        VALUES
                        (%s, ST_MakePoint(%s, %s));''',
-                       ('point', long, lat))
+                       ('Point', long, lat))
     else:
         cursor.execute(
                        '''

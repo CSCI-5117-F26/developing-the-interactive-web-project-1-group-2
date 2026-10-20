@@ -20,8 +20,6 @@ fetch(REGIONS_URL)
     .then(data => {
         const features = data['features'];
 
-        // TODO: store features data to db
-
         L.geoJson(features, {
             style: function (features) {
                 return {
