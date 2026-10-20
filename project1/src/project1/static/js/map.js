@@ -48,6 +48,23 @@ createPopupBackground.addEventListener('click', (e) => {
     }
 });
 
+document.getElementById('closePopup').addEventListener('click', () => {
+    changePopup(true);
+});
+
+const imageInput = document.getElementById('image');
+const imagePreview = document.getElementById('imagePreview');
+imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (file) {
+        imagePreview.src = URL.createObjectURL(file);
+        imagePreview.hidden = false;
+    } else {
+        imagePreview.removeAttribute('src');
+        imagePreview.hidden = true;
+    }
+});
+
 window.addEventListener('load', () => {
     loadMarkers()
 });
