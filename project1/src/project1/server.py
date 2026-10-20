@@ -417,9 +417,9 @@ def get_nearby():
                     SELECT
                         posts.post_id, 
                         posts.title, 
-                        posts.description, 
-                        locations.lat, 
-                        locations.long,
+                        posts.description,
+                        ST_Y(locations.coord),
+                        ST_X(locations.coord), 
                         posts.time,
                         accounts.username AS account,
                         posts.account AS owner_id
