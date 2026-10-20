@@ -49,7 +49,7 @@ def get_account_id():
     if 'user_token' not in session:
         return None
     sub = session['user_token']['userinfo']['sub']
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
     cursor.execute('SELECT account_id FROM accounts WHERE auth0_sub = %s', (sub,))
     row = cursor.fetchone()
@@ -72,7 +72,7 @@ def map_page():
 
 @app.get('/blog')
 def blog_page():
-    with psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row) as conn:
+    with psycopg.connect(os.environ['RENDER_DB'], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
             cur.execute('''
                 SELECT 
@@ -122,7 +122,7 @@ def callback():
     token = oauth.auth0.authorize_access_token()
     session['user_token'] = token
     user_info = token.get('userinfo')
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
     cursor.execute(
         '''
@@ -151,7 +151,7 @@ if DEV_LOGIN:
 
         session['user_token'] = {'userinfo': {'sub': sub, 'nickname': nickname}}
 
-        conn = psycopg.connect(os.environ['DATABASE_URL'])
+        conn = psycopg.connect(os.environ['RENDER_DB'])
         cursor = conn.cursor()
         cursor.execute(
             '''
@@ -172,7 +172,7 @@ if DEV_LOGIN:
 def show_post(post_id):
     # show the post with the given id, the id is an integer
     account_id = get_account_id()
-    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
             '''
@@ -230,7 +230,7 @@ def show_post(post_id):
 
 @app.get('/post/<int:post_id>/image')
 def post_image(post_id):
-    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
         with conn.cursor() as cursor:
             cursor.execute('''
                            SELECT image_file, mime_type
@@ -249,7 +249,7 @@ def add_comment(post_id):
         return "NO AUTHOR NOR COMMENT", 400
 
     account_id = get_account_id()
-    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
         with conn.cursor() as cursor:
             cursor.execute('''
             SELECT post_id FROM posts
@@ -310,7 +310,7 @@ def create():
         image_binary = file.read()
         mime_type = file.mimetype
 
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
 
     account_id = None
@@ -384,7 +384,7 @@ def allowed_file(filename):
 
 @app.get('/api/getAll')
 def getAllPosts():
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
     cursor.execute('''
                    SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord)
@@ -410,7 +410,7 @@ def get_nearby():
     max_lat = request.args.get('maxLat', type=float)
     min_long = request.args.get('minLong', type=float)
     max_long = request.args.get('maxLong', type=float)
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
     # TODO: update with PostGIS logic
     cursor.execute('''
@@ -447,7 +447,7 @@ def get_nearby():
 @app.post('/delete/<int:post_id>')
 def delete_post(post_id):
     account_id = get_account_id()
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
 
     cursor.execute(
@@ -472,7 +472,7 @@ def delete_post(post_id):
 @app.get('/edit/<int:post_id>')
 def edit_page(post_id):
     account_id = get_account_id()
-    conn = psycopg.connect(os.environ['DATABASE_URL'])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
 
     cursor.execute(
@@ -497,7 +497,7 @@ def edit_save(post_id):
     description = request.form.get('description', '').strip()
 
     if title and description:
-        conn = psycopg.connect(os.environ['DATABASE_URL'])
+        conn = psycopg.connect(os.environ['RENDER_DB'])
         cursor = conn.cursor()
         cursor.execute(
             'UPDATE posts SET title = %s, description = %s WHERE post_id = %s AND account = %s',
