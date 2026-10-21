@@ -106,18 +106,16 @@ function changePopup(hide, id = null) {
 
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
-    const mapContainer = document.getElementById('mapContainer');
-    const sidebarButton = document.getElementById('sidebarButton');
-
-    if (sidebar.hidden == true) {
-        sidebar.hidden = false;
-        sidebarButton.textContent = 'Collapse';
-        mapContainer.classList.replace('pure-u-1', 'pure-u-2-3');
-    } else {
-        sidebar.hidden = true;
-        sidebarButton.textContent = 'Expand';
-        mapContainer.classList.replace('pure-u-2-3', 'pure-u-1');
+    sidebar.hidden = !sidebar.hidden;
+    
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if(sidebar.hidden){
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2}px`;
     }
+    else{
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+    }
+
 }
 
 async function viewPost(e) {
