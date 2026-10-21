@@ -33,27 +33,6 @@ fetch(REGIONS_URL)
         }).addTo(map);
     });
 
-const sidebarButton = L.Control.extend({
-    options: {
-        position: 'topleft'
-    },
-    onAdd: function () {
-        const container = L.DomUtil.create('div');
-        const button = L.DomUtil.create('button', 'pure-button', container);
-
-        container.setAttribute('id', 'sidebarContainer');
-        button.setAttribute('id', 'sidebarButton');
-        button.setAttribute('onclick', 'adjustSideBar()');
-        button.textContent = 'Expand';
-
-        L.DomEvent.disableClickPropagation(container);
-        L.DomEvent.disableScrollPropagation(container);
-
-        return container;
-    }
-});
-map.addControl(new sidebarButton());
-
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e) => {
     changePopup(false, 'createForm');
