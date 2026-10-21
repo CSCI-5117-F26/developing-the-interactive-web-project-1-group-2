@@ -100,14 +100,17 @@ def account_page():
 @app.route('/login')
 def login():
     return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for('callback', _external=True)
+        redirect_uri=url_for('callback', _external=True),
+        prompt='login'
     )
 
 
 @app.route('/signup')
 def signup():
     return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for('callback', _external=True), screen_hint='signup'
+        redirect_uri=url_for('callback', _external=True),
+        screen_hint='signup',
+        prompt='login'
     )
 
 
