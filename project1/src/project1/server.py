@@ -79,6 +79,7 @@ def blog_page():
                     posts.post_id, 
                     posts.title, 
                     posts.description, 
+                    posts.anon,
                     ST_Y(locations.coord), 
                     ST_X(locations.coord),
                     posts.time,
