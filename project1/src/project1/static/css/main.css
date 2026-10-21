@@ -450,6 +450,12 @@ position: relative;
     gap: 1.25em;
 }
 
+.post-actions a,
+.post-actions a:hover {
+    color: #000;
+    text-decoration: none;
+}
+
 .post-actions form {
     margin: 0;
 }
@@ -479,6 +485,8 @@ position: relative;
     text-decoration: none;
 }
 
+/* Depends on how much info we want displayed
+
 .post-row .post-desc {
     margin: 0 0 0.5em;
     font-size: 0.8em;
@@ -497,11 +505,27 @@ position: relative;
 .post-row-meta .post-meta {
     margin: 0;
 }
+ */
+
+.post-row-meta .post-actions {
+    margin-left: auto;
+}
+
+.post-row-meta {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.post-row-title {
+    font-size: 1.3em;
+}
 
 .post-row h3 {
     margin: 0 0 0.25em;
-    font-size: 0.9em;
-    font-weight: 400;
+    font-size: 1.3em;
+    font-weight: 700;
 }
 
 .post-row .post-desc {
