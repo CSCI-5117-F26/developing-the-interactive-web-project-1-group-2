@@ -1,16 +1,47 @@
 {% extends "layout.html" %}
 
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/post.js') }}" defer></script>
+{% endblock %}
+
 {% block body %}
 <div id="post_page">
-    <section id="post" class="pure-u-1-2">
-        <h1>Post Page</h1>
-        <h1>Post Title: {{ post.title }}</h1>
+    <section id="indv-post-page" class="pure-u-1-2">
+        <h1>{{ post.title }}</h1>
         <h1>Post ID: {{ post.post_id }}</h1>
-        <!-- <p>Post Author: {{ post.author }}</p> -->
+        <p>Post Author: 
+            {% if post.anon %}
+                {{ Anonymous }}
+            {% else %}
+                {{ post.username }}
+            {% endif %}
+        </p>
         <p>Post Description: {{ post.description }}</p>
         <p>Post Location: {{ post.location }}</p>
-        <!-- <p>Post Image/Link: {{ post.image_link }}</p> -->
-        <p>Post Date: {{ post.time }}</p>
+        {% if post.image %}
+            <p>Post Image/Link:</p>
+            <img src="{{ post.image }}" alt="{{ post.title }}" id="indv-post-img">
+        {% else %}
+            <p>No image available for this post.</p>
+        {% endif %}
+        <p>Date Created: {{ post.time }}</p>
+    </section>
+    <section id="postComments">
+        <h3>Comments</h3>
+        <p id="noComment" class="pure-form-message-inline" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
+        <form id="commentForm" method="post"action="/post/{{ post.post_id }}/comments" class="pure-form">
+            <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." required>
+            <button class="pure-button">Submit</button>
+        </form>
+        <div id="commentList">
+            {% for comment in post.comments %}
+                <div class="comment">
+                    <p>{{ comment.author }}</p>
+                    <p>Date: {{ comment.time }}</p>
+                    <p>{{ comment.comment }}</p>
+                </div>
+            {% endfor %}
+        </div>
     </section>
 </div>
 {% endblock %}

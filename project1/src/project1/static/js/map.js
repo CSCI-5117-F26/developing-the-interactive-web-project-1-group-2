@@ -33,27 +33,6 @@ fetch(REGIONS_URL)
         }).addTo(map);
     });
 
-const sidebarButton = L.Control.extend({
-    options: {
-        position: 'topleft'
-    },
-    onAdd: function () {
-        const container = L.DomUtil.create('div');
-        const button = L.DomUtil.create('button', 'pure-button', container);
-
-        container.setAttribute('id', 'sidebarContainer');
-        button.setAttribute('id', 'sidebarButton');
-        button.setAttribute('onclick', 'adjustSideBar()');
-        button.textContent = 'Expand';
-
-        L.DomEvent.disableClickPropagation(container);
-        L.DomEvent.disableScrollPropagation(container);
-
-        return container;
-    }
-});
-map.addControl(new sidebarButton());
-
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e) => {
     changePopup(false, 'createForm');
@@ -127,18 +106,16 @@ function changePopup(hide, id = null) {
 
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
-    const mapContainer = document.getElementById('mapContainer');
-    const sidebarButton = document.getElementById('sidebarButton');
-
-    if (sidebar.hidden == true) {
-        sidebar.hidden = false;
-        sidebarButton.textContent = 'Collapse';
-        mapContainer.classList.replace('pure-u-1', 'pure-u-2-3');
-    } else {
-        sidebar.hidden = true;
-        sidebarButton.textContent = 'Expand';
-        mapContainer.classList.replace('pure-u-2-3', 'pure-u-1');
+    sidebar.hidden = !sidebar.hidden;
+    
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if(sidebar.hidden){
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2}px`;
     }
+    else{
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+    }
+
 }
 
 async function viewPost(e) {
@@ -193,34 +170,11 @@ function showPost(post, id) {
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
 
-    // Add post comments
-    let commentForm = document.getElementById('commentForm');
-    commentForm.action = `/post/${id}/comments`;
-
-    let comments = document.getElementById('commentList');
-    let noComment = document.getElementById('noComment');
-    comments.replaceChildren(); // remove other post comments to diaply curr post cmt
-
-    if (post['comments'].length > 0) {
-        for (let comment of post['comments']) {
-            noComment.hidden = true;
-
-            let author = document.createElement('p');
-            author.innerText = `Author: ${comment['author']}`;
-            comments.appendChild(author);
-
-            let time = document.createElement('p');
-            time.innerText = `Time: ${comment['time']}`;
-            comments.appendChild(time);
-
-            let commentText = document.createElement('p');
-            commentText.innerText = `Comment: ${comment['comment']}`;
-            comments.appendChild(commentText);
-        }
-    }
-    else {
-        noComment.hidden = false;
-    }
+    // Add view comments for post button
+    let viewCommentsButton = document.getElementById('viewCommentsButton');
+    viewCommentsButton.addEventListener('click', function () {
+        window.location.href = `/post/${id}`;
+    });
 }
 
 window.addEventListener('load', () => {
@@ -286,6 +240,4 @@ function updateSidebar(posts) {
         dropdown.appendChild(details);
         container.appendChild(dropdown);
     }
-
-
 }

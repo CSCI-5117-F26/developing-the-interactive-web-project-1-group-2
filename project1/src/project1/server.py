@@ -101,14 +101,17 @@ def account_page():
 @app.route('/login')
 def login():
     return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for('callback', _external=True)
+        redirect_uri=url_for('callback', _external=True),
+        prompt='login'
     )
 
 
 @app.route('/signup')
 def signup():
     return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for('callback', _external=True), screen_hint='signup'
+        redirect_uri=url_for('callback', _external=True),
+        screen_hint='signup',
+        prompt='login'
     )
 
 
@@ -418,16 +421,16 @@ def get_nearby():
                     SELECT
                         posts.post_id, 
                         posts.title, 
-                        posts.description, 
-                        locations.lat, 
-                        locations.long,
+                        posts.description,
+                        ST_Y(locations.coord),
+                        ST_X(locations.coord),
                         posts.time,
                         accounts.username AS account,
                         posts.account AS owner_id
                     FROM posts
                     LEFT JOIN locations ON posts.location = locations.location_id
                     LEFT JOIN accounts ON posts.account = accounts.account_id
-                    WHERE %s < lat AND lat < %s AND %s < long AND long < %s
+                    WHERE %s < ST_Y(locations.coord) AND ST_Y(locations.coord) < %s AND %s < ST_X(locations.coord) AND ST_X(locations.coord) < %s
                    ''', (min_lat, max_lat, min_long, max_long),)
 
     rows = cursor.fetchall()
