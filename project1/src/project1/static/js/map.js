@@ -193,34 +193,11 @@ function showPost(post, id) {
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
 
-    // Add post comments
-    let commentForm = document.getElementById('commentForm');
-    commentForm.action = `/post/${id}/comments`;
-
-    let comments = document.getElementById('commentList');
-    let noComment = document.getElementById('noComment');
-    comments.replaceChildren(); // remove other post comments to diaply curr post cmt
-
-    if (post['comments'].length > 0) {
-        for (let comment of post['comments']) {
-            noComment.hidden = true;
-
-            let author = document.createElement('p');
-            author.innerText = `Author: ${comment['author']}`;
-            comments.appendChild(author);
-
-            let time = document.createElement('p');
-            time.innerText = `Time: ${comment['time']}`;
-            comments.appendChild(time);
-
-            let commentText = document.createElement('p');
-            commentText.innerText = `Comment: ${comment['comment']}`;
-            comments.appendChild(commentText);
-        }
-    }
-    else {
-        noComment.hidden = false;
-    }
+    // Add view comments for post button
+    let viewCommentsButton = document.getElementById('viewCommentsButton');
+    viewCommentsButton.addEventListener('click', function () {
+        window.location.href = `/post/${id}`;
+    });
 }
 
 window.addEventListener('load', () => {
@@ -286,6 +263,4 @@ function updateSidebar(posts) {
         dropdown.appendChild(details);
         container.appendChild(dropdown);
     }
-
-
 }
