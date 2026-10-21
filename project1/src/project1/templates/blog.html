@@ -8,7 +8,10 @@
 {% block header %}
 <div class="pure-u-1-2 blog-controls">
     <div class="pure-u-1-2">
-        <a href="/map" class="site-logo">🌍 GeoBloggr</a>
+        <a href="/map" class="site-logo">
+            <img src="{{ url_for('static', filename='images/geoblog-logo.png') }}" alt="GeoBloggr logo">
+            <span>GeoBloggr</span>
+        </a>
     </div>
 </div>
 {% endblock %}

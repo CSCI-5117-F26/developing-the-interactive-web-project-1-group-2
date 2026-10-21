@@ -10,12 +10,23 @@
 {% endblock %}
 
 {% block header %}
-<div id="searchBar" class="pure-u-1-2">
+
+<div class="pure-u-1-2 blog-controls">
+    <div class="pure-u-1-2">
+        <a href="/map" class="site-logo">
+            <img src="{{ url_for('static', filename='images/geoblog-logo.png') }}" alt="GeoBloggr logo">
+            <span>GeoBloggr</span>
+        </a>
+    </div>
+</div>
+
+<!-- <div id="searchBar" class="pure-u-1-2">
     <form action="/search" method="post" class="pure-form">
         <input type="text" class="pure-input-rounded" aria-label="Search" />
         <input type="submit" class="pure-input-rounded pure-button"/>
     </form>
-</div>
+</div> -->
+
 {% endblock %}
 
 {% block body %}

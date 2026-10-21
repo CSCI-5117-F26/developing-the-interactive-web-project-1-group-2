@@ -17,10 +17,19 @@ body header {
 }
 
 .site-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
     font-size: 1.4em;
     font-weight: 700;
     color: #000;
     text-decoration: none;
+}
+
+.site-logo img {
+    width: 1.4em;
+    height: 1.4em;
+    object-fit: contain;
 }
 
 
