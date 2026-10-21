@@ -70,9 +70,7 @@
                 <article class="post-row">
                     <div class="post-row-text">
                         <h3><a href="{{ url_for('show_post', post_id=post.post_id) }}">{{ post.title }}</a></h3>
-                        <p class="post-desc">{{ post.description }}</p>
                         <div class="post-row-meta">
-                            <p class="post-meta">Author: {{ 'anonymous' if post.anon else (post.account or 'unknown') }}</p>
                             {% if account_id and post.owner_id == account_id %}
                             <span class="post-actions">
                                 <a href="/edit/{{ post.post_id }}">edit</a>
