@@ -79,8 +79,8 @@ def blog_page():
                     posts.post_id, 
                     posts.title, 
                     posts.description, 
-                    locations.lat, 
-                    locations.long,
+                    ST_Y(locations.coord), 
+                    ST_X(locations.coord),
                     posts.time,
                     accounts.username AS account,
                     posts.account AS owner_id
@@ -176,8 +176,8 @@ def show_post(post_id):
         with conn.cursor() as cursor:
             cursor.execute(
             '''
-            SELECT anon, accounts.username, locations.location, locations.lat, 
-            locations.long, title, posts.time, description, links.link, posts.account
+            SELECT anon, accounts.username, locations.location, ST_X(locations.coord), 
+            ST_Y(locations.coord), title, posts.time, description, links.link, posts.account
             FROM POSTS
             LEFT JOIN accounts
                 ON posts.account = accounts.account_id
@@ -216,7 +216,7 @@ def show_post(post_id):
         'anon': post_row[0],
         'account': post_row[1],
         'username': post_row[1],
-        'location': {'name': post_row[2], 'lat': post_row[3], 'long': post_row[4]},
+        'location': {'name': post_row[2], 'long': post_row[3], 'lat': post_row[4],},
         'title': post_row[5],
         'time': post_row[6],
         'description': post_row[7],
@@ -293,6 +293,7 @@ def create():
     anon = request.form.get('anonOption', '')
     lat = request.form.get('lat')
     long = request.form.get('long')
+    locationName = request.form.get('locationName')
 
     if title == '' or description == '' or anon == '':
         return redirect(url_for('home_page'))
@@ -327,14 +328,21 @@ def create():
             row = cursor.fetchone()
             if row:
                 account_id = row[0]
-
-    cursor.execute(
-                   '''
-                   INSERT INTO locations
-                   (lat, long)
-                   VALUES
-                   (%s, %s);''',
-                   (lat, long))
+    
+    if (locationName == ''):
+        cursor.execute(
+                       '''
+                       INSERT INTO locations (geoType, coord)
+                       VALUES
+                       (%s, ST_MakePoint(%s, %s));''',
+                       ('Point', long, lat))
+    else:
+        cursor.execute(
+                       '''
+                       INSERT INTO locations (location, geoType, coord)
+                       VALUES
+                       (%s, %s, ST_MakePoint(%s, %s));''',
+                       (locationName, 'point', long, lat))
     cursor.execute('''
                    SELECT location_id FROM locations
                    ORDER BY location_id DESC
@@ -379,7 +387,7 @@ def getAllPosts():
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     cursor.execute('''
-                   SELECT post_id, lat, long
+                   SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord)
                    FROM posts
                    INNER JOIN locations ON posts.location=locations.location_id;
                    ''')
@@ -409,16 +417,16 @@ def get_nearby():
                     SELECT
                         posts.post_id, 
                         posts.title, 
-                        posts.description, 
-                        locations.lat, 
-                        locations.long,
+                        posts.description,
+                        ST_Y(locations.coord),
+                        ST_X(locations.coord),
                         posts.time,
                         accounts.username AS account,
                         posts.account AS owner_id
                     FROM posts
                     LEFT JOIN locations ON posts.location = locations.location_id
                     LEFT JOIN accounts ON posts.account = accounts.account_id
-                    WHERE %s < lat AND lat < %s AND %s < long AND long < %s
+                    WHERE %s < ST_Y(locations.coord) AND ST_Y(locations.coord) < %s AND %s < ST_X(locations.coord) AND ST_X(locations.coord) < %s
                    ''', (min_lat, max_lat, min_long, max_long),)
 
     rows = cursor.fetchall()
