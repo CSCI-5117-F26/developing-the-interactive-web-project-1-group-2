@@ -513,6 +513,8 @@ position: relative;
 .post-row .post-meta {
     margin: 0;
     font-size: 0.8em;
+}
+
 .post-dropdown {
     margin-bottom: 1em;
     padding: 1em;
@@ -531,6 +533,7 @@ position: relative;
     padding: 1%;
     margin: 1% auto;
 }
+
 #indv-post-page {
     border: 1pt solid black;
     display: flex;
@@ -541,12 +544,14 @@ position: relative;
     margin: 3% auto;
     text-align: center;
 }
+
 #indv-post-img {
     width: 50%;
     max-width: 100%;
     height: auto;
     object-fit: contain;
 }
+
 #postComments {
     display: flex;
     flex-direction: column;
