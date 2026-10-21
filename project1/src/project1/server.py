@@ -15,6 +15,7 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 
 app = Flask(__name__)
@@ -74,21 +75,72 @@ def map_page():
 def blog_page():
     with psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
-            cur.execute('''
-                SELECT 
-                    posts.post_id, 
-                    posts.title, 
-                    posts.description, 
-                    ST_Y(locations.coord), 
-                    ST_X(locations.coord),
-                    posts.time,
-                    accounts.username AS account,
-                    posts.account AS owner_id
-                FROM posts
-                LEFT JOIN locations ON posts.location = locations.location_id
-                LEFT JOIN accounts ON posts.account = accounts.account_id
-            ''')
-            posts = cur.fetchall()
+            if (len(request.args) == 0 or 
+                (request.args.get('date-range') == 'any' and
+                 request.args.get('location') == '' and
+                 request.args.get('user') == '')):
+                cur.execute('''
+                    SELECT 
+                        posts.post_id, 
+                        posts.title, 
+                        posts.description,
+                        ST_Y(locations.coord), 
+                        ST_X(locations.coord),
+                        posts.time,
+                        accounts.username AS account,
+                        posts.account AS owner_id
+                    FROM posts
+                    LEFT JOIN locations ON posts.location = locations.location_id
+                    LEFT JOIN accounts ON posts.account = accounts.account_id
+                ''')
+            else:
+                conditions = []
+                values = []
+                
+                if not request.args.get('location') == '':
+                    queryLocation = 'LOWER(locations.location) = LOWER(%s)'
+                    conditions.append(queryLocation)
+                    values.append(request.args.get('location'))
+                    
+                # if not request.args.get('radius') == '':  # TODO: fix this query
+                #     radiusFloat = float(request.args.get('radius'))
+                #     queryRadius = 'ST_DWithin(locations.coord::geography, %s::geography)'
+                #     conditions.append(queryRadius)
+                #     values.append(radiusFloat)
+                
+                if not request.args.get('user') == '':
+                    queryUser = 'LOWER(accounts.username) = LOWER(%s)'
+                    conditions.append(queryUser)
+                    values.append(request.args.get('user'))
+                
+                if not request.args.get('date-range') == 'any':
+                    range = request.args.get('date-range')
+                    now = datetime.now()
+                    
+                    if range == 'today':
+                        cutoff = now - timedelta(days=1)
+                    elif range == 'week':
+                        cutoff = now - timedelta(weeks=1)
+                    else:
+                        cutoff = now - timedelta(weeks=4)
+                                            
+                    queryDateRange = 'posts.time > %s'
+                    conditions.append(queryDateRange)
+                    values.append(cutoff)
+                
+                where = ('WHERE ' + ' AND '.join(conditions))
+                
+                cur.execute(f'''
+                            SELECT posts.post_id, posts.title, posts.description, posts.time,
+                                ST_Y(locations.coord), ST_X(locations.coord),
+                                posts.account AS owner_id,
+                                accounts.username AS account
+                            FROM posts
+                            LEFT JOIN locations ON posts.location = locations.location_id
+                            LEFT JOIN accounts ON posts.account = accounts.account_id
+                            {where};''', values)
+                
+            posts = cur.fetchall()            
     return render_template('blog.html', posts=posts, account_id=get_account_id()), 200
 
 

@@ -34,15 +34,15 @@
             <button type="button" id="closeSidebarBtn" class="pure-button">X</button>
         </div>
 
-        <form id="filterForm" action="/filter" method="get" class="pure-form pure-form-stacked">
+        <form id="filterForm" action="/blog" method="get" class="pure-form pure-form-stacked">
             <fieldset>
                 <label for="location">Location</label>
                 <input type="text" id="location" name="location" class="pure-input-1" placeholder="e.g. Bruininks Hall">
 
-                <label for="radius">Location Radius (miles)</label>
+                <!-- <label for="radius">Location Radius (miles)</label>
                 <input type="range" id="radius" name="radius" class="pure-input-1" min="1" max="100" value="10"
                     oninput="this.nextElementSibling.value = this.value">
-                <output>10</output> miles
+                <output>10</output> miles -->
 
                 <label for="user">User</label>
                 <input type="text" id="user" name="user" class="pure-input-1" placeholder="@username">
