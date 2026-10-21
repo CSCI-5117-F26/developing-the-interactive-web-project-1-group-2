@@ -419,14 +419,14 @@ def get_nearby():
                         posts.title, 
                         posts.description,
                         ST_Y(locations.coord),
-                        ST_X(locations.coord), 
+                        ST_X(locations.coord),
                         posts.time,
                         accounts.username AS account,
                         posts.account AS owner_id
                     FROM posts
                     LEFT JOIN locations ON posts.location = locations.location_id
                     LEFT JOIN accounts ON posts.account = accounts.account_id
-                    WHERE %s < lat AND lat < %s AND %s < long AND long < %s
+                    WHERE %s < ST_Y(locations.coord) AND ST_Y(locations.coord) < %s AND %s < ST_X(locations.coord) AND ST_X(locations.coord) < %s
                    ''', (min_lat, max_lat, min_long, max_long),)
 
     rows = cursor.fetchall()
