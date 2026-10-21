@@ -20,10 +20,14 @@ header #menu {
 
 /* map page specific */
 #map_page {
-    flex: 1;
+position: relative;
+  width: 100%;
+  height: calc(100vh - .7em);   /* Account for header */
+  overflow: hidden;
 }
 
 #mapContainer {
+    width: 100%;
     height: 100%;
 }
 
@@ -54,7 +58,7 @@ header #menu {
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 1003;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,7 +70,7 @@ header #menu {
     /* ~600px */
     max-height: 85vh;
     background-color: white;
-    z-index: 1001;
+    z-index: 1004;
     border-radius: 0;
     padding: 0;
     overflow-y: auto;
@@ -228,13 +232,30 @@ header #menu {
     max-height: 14em;
 }
 
-.sidebar {
+#sidebar {
     background-color: #f8f9fa;
     border-right: 0.1em solid #ddd;
-    padding: 1.25em;
+    padding: 3em;
     box-sizing: border-box;
     overflow-y: auto;
     min-height: 100vh;
+    position: absolute;
+    width: 350px;
+    z-index: 1002;
+}
+
+#sidebarToggle {
+    background-color: #0e0e0e;
+    border-radius: 20px;
+    box-sizing: border-box;
+    opacity: .6;
+    height: 120px;
+    position: absolute;
+    top: 35%;
+    margin:auto;
+    width: 80px;
+    left: -40px;
+    z-index: 1001;
 }
 
 .sidebar-header {
