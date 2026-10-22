@@ -314,6 +314,13 @@ def create():
         image_binary = file.read()
         mime_type = file.mimetype
 
+    custom_icon_file = request.files.get('customIcon')
+    icon_binary = None
+    icon_mime_type = None
+    if custom_icon_file and allowed_file(custom_icon_file.mimetype):
+        icon_binary = custom_icon_file.read()
+        icon_mime_type = custom_icon_file.mimetype
+    
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
 
@@ -332,7 +339,17 @@ def create():
             row = cursor.fetchone()
             if row:
                 account_id = row[0]
-    
+    icon_id = None
+    if custom_icon_file and icon_binary and icon_mime_type:
+        cursor.execute(
+                        '''
+                        INSERT INTO icons
+                        (icon_file, mime_type)
+                        VALUES (%s, %s)
+                        RETURNING icon_id;
+                        ''',
+                        (icon_binary, icon_mime_type))
+        icon_id = cursor.fetchone()[0]
     if (locationName == ''):
         cursor.execute(
                        '''
@@ -356,10 +373,10 @@ def create():
     cursor.execute(
                    '''
                    INSERT INTO posts
-                   (anon, account, location, title, description)
+                   (icon_id, anon, account, location, title, description)
                    VALUES
-                   (%s, %s, %s, %s, %s);''',
-                   (anon, account_id, location_id, title, description))
+                   (%s, %s, %s, %s, %s, %s);''',
+                   (icon_id, anon, account_id, location_id, title, description))
 
     cursor.execute('''
                    SELECT post_id FROM posts
@@ -375,13 +392,27 @@ def create():
                        VALUES
                        (%s, %s, %s, %s);''',
                        (id, filename, image_binary, mime_type))
+    
     conn.commit()
     cursor.close()
     conn.close()
 
     return redirect(url_for('home_page'))
 
-
+@app.get('/icon/<int:icon_id>')
+def get_icon(icon_id):
+    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute('''
+                           SELECT icon_file, mime_type
+                           FROM icons
+                           WHERE icon_id=%s;
+                           ''', (icon_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return redirect('/404'), 404
+            img, type = row
+    return Response(bytes(img), mimetype=type)
 # Function from Flask official documentation, slight modifications
 def allowed_file(filename):
     return filename in ALLOWED_EXTENSIONS
@@ -391,9 +422,9 @@ def getAllPosts():
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
     cursor.execute('''
-                   SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord)
+                   SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord), posts.icon_id
                    FROM posts
-                   INNER JOIN locations ON posts.location=locations.location_id;
+                   INNER JOIN locations ON posts.location = locations.location_id
                    ''')
 
     rows = cursor.fetchall()
@@ -404,7 +435,7 @@ def getAllPosts():
     body = []
     if len(rows) > 0:
         for row in rows:
-            body.append({'post_id': row[0], 'lat': row[1], 'long': row[2]})
+            body.append({'post_id': row[0], 'lat': row[1], 'long': row[2], 'icon_id': row[3]})
 
     return jsonify(body), 200
 

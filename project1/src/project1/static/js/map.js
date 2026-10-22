@@ -9,6 +9,14 @@ var map = L.map('map', {
     doubleClickZoom: false
 });
 
+var CustomIcon = L.Icon.extend({
+    options: {
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -40]
+    }
+})
+
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -73,9 +81,12 @@ async function loadMarkers() {
 
     if (posts.length > 0) {
         for (const post of posts) {
-            var marker = L.marker([post['lat'], post['long']], {
-                postId: post['post_id']
-            }).addTo(map);
+            let postMarker = { postId: post['post_id'] };
+            // Add a custom icon for post
+            if (post['icon_id'] != null) {
+                postMarker.icon = new CustomIcon({ iconUrl: `/icon/${post['icon_id']}` });
+            }
+            var marker = L.marker([post['lat'], post['long']], postMarker).addTo(map);
             marker.on('click', viewPost);
         }
     }
