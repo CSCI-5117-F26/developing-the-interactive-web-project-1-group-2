@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block body %}
-<div id="map_page" class="pure-g">
+<div id="map_page" class="pure-g" data-user-logged-in="{{ 'true' if logged_in else 'false' }}">
     <div id="sidebar" hidden>
         <div id="sideBarPosts"></div>
     </div>
@@ -71,7 +71,7 @@
                                 <label for="description">Description:</label>
                                 <textarea id="description" name="description" class="pure-input-1" rows="3" required></textarea> 
                                 
-                                <div class="anonRow">
+                                <div class="anonRow" id="anonRow">
                                     <label for="anon">Post anonymously?</label>
                                     <input type="checkbox" id="anon" name="anonOption" value="yes">
                                     <input type="hidden" name="anonOption" value="no">

@@ -62,12 +62,12 @@ def get_account_id():
 
 @app.get('/')
 def home_page():
-    return render_template('map.html'), 200
+    return render_template('map.html', logged_in=get_account_id() is not None), 200
 
 
 @app.get('/map')
 def map_page():
-    return render_template('map.html'), 200
+    return render_template('map.html', logged_in=get_account_id() is not None), 200
 
 
 @app.get('/blog')

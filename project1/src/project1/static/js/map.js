@@ -101,6 +101,14 @@ function changePopup(hide, id = null) {
         post.hidden = hide;
 
         // TODO: check if user is logged in. if not, the anonymous button should not show up
+        let userLoggedIn = document.getElementById('map_page').dataset.userLoggedIn === 'true';
+        let anonSection = document.getElementById('anonRow');
+        if (userLoggedIn == true) {
+            anonSection.hidden = false;
+        }
+        else {
+            anonSection.hidden = true;
+        }
     }
 }
 
@@ -137,7 +145,10 @@ function showPost(post, id) {
 
     let author = document.getElementById('postAuthor');
     if (post['anon'] == true) {
-        author.innerText = `Author: anonymous`;
+        author.innerText = `Author: Anonymous`;
+        if (post['username']) {
+            author.innerText += ` (${post['username']})`;
+        }
     } else {
         author.innerText = `Author: ${post['username']}`;
     }

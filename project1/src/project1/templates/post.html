@@ -11,7 +11,11 @@
         <h1>Post ID: {{ post.post_id }}</h1>
         <p>Post Author: 
             {% if post.anon %}
-                {{ Anonymous }}
+                {% if post.username %}
+                    Anonymous ({{ post.username }})
+                {% else %}
+                    Anonymous
+                {% endif %}
             {% else %}
                 {{ post.username }}
             {% endif %}
