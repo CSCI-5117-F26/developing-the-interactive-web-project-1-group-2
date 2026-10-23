@@ -9,6 +9,14 @@ var map = L.map('map', {
     doubleClickZoom: false
 });
 
+var CustomIcon = L.Icon.extend({
+    options: {
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -40]
+    }
+})
+
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -32,27 +40,6 @@ fetch(REGIONS_URL)
             document.getElementById('locationName').value = feature['properties']['BLDG_NAME_'];
         }).addTo(map);
     });
-
-const sidebarButton = L.Control.extend({
-    options: {
-        position: 'topleft'
-    },
-    onAdd: function () {
-        const container = L.DomUtil.create('div');
-        const button = L.DomUtil.create('button', 'pure-button', container);
-
-        container.setAttribute('id', 'sidebarContainer');
-        button.setAttribute('id', 'sidebarButton');
-        button.setAttribute('onclick', 'adjustSideBar()');
-        button.textContent = 'Expand';
-
-        L.DomEvent.disableClickPropagation(container);
-        L.DomEvent.disableScrollPropagation(container);
-
-        return container;
-    }
-});
-map.addControl(new sidebarButton());
 
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e) => {
@@ -112,9 +99,12 @@ async function loadMarkers() {
 
     if (posts.length > 0) {
         for (const post of posts) {
-            var marker = L.marker([post['lat'], post['long']], {
-                postId: post['post_id']
-            }).addTo(map);
+            let postMarker = { postId: post['post_id'] };
+            // Add a custom icon for post
+            if (post['icon_id'] != null) {
+                postMarker.icon = new CustomIcon({ iconUrl: `/icon/${post['icon_id']}` });
+            }
+            var marker = L.marker([post['lat'], post['long']], postMarker).addTo(map);
             marker.on('click', viewPost);
         }
     }
@@ -140,24 +130,30 @@ function changePopup(hide, id = null) {
         post.hidden = hide;
 
         // TODO: check if user is logged in. if not, the anonymous button should not show up
+        let userLoggedIn = document.getElementById('map_page').dataset.userLoggedIn === 'true';
+        let anonSection = document.getElementById('anonRow');
+        if (userLoggedIn == true) {
+            anonSection.hidden = false;
+        }
+        else {
+            anonSection.hidden = true;
+        }
     }
 }
 
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
-    const mapContainer = document.getElementById('mapContainer');
-    const sidebarButton = document.getElementById('sidebarButton');
-
-    if (sidebar.hidden == true) {
-        sidebar.hidden = false;
-        sidebarButton.textContent = 'Collapse';
-        mapContainer.classList.replace('pure-u-1', 'pure-u-2-3');
-        updatePostsInView();
-    } else {
-        sidebar.hidden = true;
-        sidebarButton.textContent = 'Expand';
-        mapContainer.classList.replace('pure-u-2-3', 'pure-u-1');
+    sidebar.hidden = !sidebar.hidden;
+    
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if(sidebar.hidden){
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2}px`;
     }
+    else{
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+        updatePostsInView();
+    }
+
 }
 
 async function viewPost(e) {
@@ -179,7 +175,10 @@ function showPost(post, id) {
 
     let author = document.getElementById('postAuthor');
     if (post['anon'] == true) {
-        author.innerText = `Author: anonymous`;
+        author.innerText = `Author: Anonymous`;
+        if (post['username']) {
+            author.innerText += ` (${post['username']})`;
+        }
     } else {
         author.innerText = `Author: ${post['username']}`;
     }
@@ -212,34 +211,11 @@ function showPost(post, id) {
     let docId = document.getElementById('post_id');
     docId.innerText = `${docId.innerText} ${id}`;
 
-    // Add post comments
-    let commentForm = document.getElementById('commentForm');
-    commentForm.action = `/post/${id}/comments`;
-
-    let comments = document.getElementById('commentList');
-    let noComment = document.getElementById('noComment');
-    comments.replaceChildren(); // remove other post comments to diaply curr post cmt
-
-    if (post['comments'].length > 0) {
-        for (let comment of post['comments']) {
-            noComment.hidden = true;
-
-            let author = document.createElement('p');
-            author.innerText = `Author: ${comment['author']}`;
-            comments.appendChild(author);
-
-            let time = document.createElement('p');
-            time.innerText = `Time: ${comment['time']}`;
-            comments.appendChild(time);
-
-            let commentText = document.createElement('p');
-            commentText.innerText = `Comment: ${comment['comment']}`;
-            comments.appendChild(commentText);
-        }
-    }
-    else {
-        noComment.hidden = false;
-    }
+    // Add view comments for post button
+    let viewCommentsButton = document.getElementById('viewCommentsButton');
+    viewCommentsButton.addEventListener('click', function () {
+        window.location.href = `/post/${id}`;
+    });
 }
 
 window.addEventListener('load', () => {
@@ -315,6 +291,5 @@ function updateSidebar(posts) {
         const noPosts = document.createElement('p');
         noPosts.textContent = 'No Nearby Posts!';
         container.appendChild(noPosts);
-        return;
     }
 }

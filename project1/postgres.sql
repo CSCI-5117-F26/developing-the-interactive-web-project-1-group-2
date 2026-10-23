@@ -3,6 +3,7 @@ CREATE EXTENSION postgis;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS links;
 DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS icons;
 DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS accounts;
 
@@ -23,14 +24,22 @@ CREATE TABLE locations (
     zip INT
 );
 
+CREATE TABLE icons (
+    icon_id SERIAL PRIMARY KEY,
+    icon_file BYTEA NOT NULL,
+    mime_type TEXT NOT NULL
+);
+
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
+    icon_id INT,
     anon BOOLEAN NOT NULL,
     account INT,
     location INT UNIQUE,
     title TEXT NOT NULL,
     time TIMESTAMP DEFAULT NOW(),
     description TEXT NOT NULL,
+    FOREIGN KEY (icon_id) REFERENCES icons(icon_id),
     FOREIGN KEY (account) REFERENCES accounts(account_id),
     FOREIGN KEY (location) REFERENCES locations(location_id)
 );
@@ -42,6 +51,8 @@ CREATE TABLE links (
     mime_type TEXT NOT NULL,
     FOREIGN KEY (post) REFERENCES posts(post_id)
 );
+
+
 
 CREATE TABLE comments (
     post INT NOT NULL,
