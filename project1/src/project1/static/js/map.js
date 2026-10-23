@@ -217,49 +217,38 @@ async function updatePostsInView() {
 
     const response = await fetch(url);
     const posts = await response.json();
-    console.log(posts);
 
     updateSidebar(posts);
 }
 
 function updateSidebar(posts) {
-    const container = document.getElementById('sideBarPosts');
-    container.replaceChildren();    // Resets the children to start from scratch
+    const sideBarPosts = document.getElementById('sideBarPosts');
+    sideBarPosts.replaceChildren();    // Resets the children to start from scratch
 
     if (posts.length === 0) {
         const noPosts = document.createElement('p');
-        noPosts.textContent = 'No Nearby Posts!';
-        container.appendChild(noPosts);
+        noPosts.textContent = 'No Nearby Posts';
+        sideBarPosts.appendChild(noPosts);
         return;
     }
 
     // Effectively recreate the HTML structure of the collapsable blog post view
     for (const post of posts) {
-        const dropdown = document.createElement('div');
-        dropdown.className = 'post-dropdown';
+        const post_row = document.createElement('article');
+        post_row.className = 'post-row';
+        const post_row_text = document.createElement('div');
+        post_row_text.className = 'post-row-text';
+        const h3 = document.createElement('h3');
+        h3.textContent = post.title;
 
-        const details = document.createElement('details');
-
-        const summary = document.createElement('summary');
-        summary.className = 'clickable-post';
-        summary.textContent = post.title;
-        details.appendChild(summary);
+        sideBarPosts.appendChild(post_row);
+        post_row.appendChild(post_row_text);
+        post_row_text.appendChild(h3);
         
         // Clicking on a post makes the map pan to it and opens the post popup
-        summary.addEventListener('click', (e) => {
-            map.panTo([post.lat, post.long]);
+        post_row.addEventListener('click', (e) => {
+            map.flyTo([post.lat, post.long], Math.max(16, map.getZoom()));
             viewPost({target:{options:{postId:post.post_id}}});
         });
-
-        const time = document.createElement('p');
-        time.textContent = post.time;
-        details.appendChild(time);
-
-        const desc = document.createElement('p');
-        desc.textContent = post.description;
-        details.appendChild(desc);
-
-        dropdown.appendChild(details);
-        container.appendChild(dropdown);
     }
 }
