@@ -68,7 +68,24 @@ def home_page():
 
 @app.get('/map')
 def map_page():
-    return render_template('map.html'), 200
+    if (len(request.args) != 0 and request.args.get('search') != None):
+        titleQuery = request.args.get('search').strip()
+        descriptionQuery = f'%{titleQuery}%'
+        if (titleQuery != None):
+            with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute('''
+                                SELECT post_id FROM posts
+                                WHERE title ILIKE %s or
+                                description ILIKE %s;
+                                ''',
+                                (titleQuery, descriptionQuery))
+                    post_ids = [row[0] for row in cursor.fetchall()]
+            if (len(post_ids) == 0):
+                return render_template('map.html', postIds=[-1]), 200
+            return render_template('map.html', postIds=post_ids), 200
+        return render_template('map.html', postIds=[]), 400
+    return render_template('map.html', postIds=[]), 200
 
 
 @app.get('/blog')
@@ -559,7 +576,6 @@ def edit_save(post_id):
         cursor.close()
         conn.close()
     return redirect(url_for('blog_page'))
-
 
 @app.route('/404')
 def PageNotFound():

@@ -11,10 +11,13 @@
 
 {% block header %}
 <div id="searchBar" class="pure-u-1-2">
-    <form action="/search" method="post" class="pure-form">
-        <input type="text" class="pure-input-rounded" aria-label="Search" />
+    <form action="/map" method="get" class="pure-form" id="searchForm">
+        <input type="text" class="pure-input-rounded" aria-label="Search" id="search" name="search"/>
         <input type="submit" class="pure-input-rounded pure-button"/>
     </form>
+    {% for id in postIds %}
+        <input type="hidden" id="{{id}}" class="post_ids">
+    {% endfor %}
 </div>
 {% endblock %}
 
