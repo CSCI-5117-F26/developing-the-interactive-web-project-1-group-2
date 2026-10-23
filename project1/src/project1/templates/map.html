@@ -11,6 +11,16 @@
 
 {% block header %}
 
+<!-- <div id="searchBar" class="pure-u-1-2">
+    <form action="/map" method="get" class="pure-form" id="searchForm">
+        <input type="text" class="pure-input-rounded" aria-label="Search" id="search" name="search"/>
+        <input type="submit" class="pure-input-rounded pure-button"/>
+    </form>
+    {% for id in postIds %}
+        <input type="hidden" id="{{id}}" class="post_ids">
+    {% endfor %}
+</div> -->
+
 <div class="pure-u-1-2 blog-controls">
     <div class="pure-u-1-2">
         <a href="/map" class="site-logo">
@@ -19,13 +29,6 @@
         </a>
     </div>
 </div>
-
-<!-- <div id="searchBar" class="pure-u-1-2">
-    <form action="/search" method="post" class="pure-form">
-        <input type="text" class="pure-input-rounded" aria-label="Search" />
-        <input type="submit" class="pure-input-rounded pure-button"/>
-    </form>
-</div> -->
 
 {% endblock %}
 

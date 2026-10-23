@@ -71,8 +71,26 @@ imageInput.addEventListener('change', () => {
     }
 });
 
-window.addEventListener('load', () => {
-    loadMarkers()
+let removedPostIds = [];
+window.addEventListener('load', async () => {
+    await loadMarkers()
+
+    const postIds = document.getElementsByClassName('post_ids');
+    if (postIds != null && postIds.length > 0) {
+        let idsList = []
+        for (id of postIds) {
+            idsList.push(Number(id['id']));
+        }
+
+        removedPostIds = [];
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.Marker &&
+                !idsList.includes(layer['options']['postId'])) {
+                layer.remove();
+                removedPostIds.push(layer['options']['postId']);
+            }
+        });
+    }
 });
 
 async function loadMarkers() {
@@ -133,6 +151,7 @@ function adjustSideBar() {
     }
     else{
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+        updatePostsInView();
     }
 
 }
@@ -217,7 +236,6 @@ async function updatePostsInView() {
 
     const response = await fetch(url);
     const posts = await response.json();
-    console.log(posts);
 
     updateSidebar(posts);
 }
@@ -234,7 +252,13 @@ function updateSidebar(posts) {
     }
 
     // Effectively recreate the HTML structure of the collapsable blog post view
+    let postFlag = false;
     for (const post of posts) {
+        if (removedPostIds.includes(post.post_id)) {
+            continue;
+        }
+
+        postFlag = true;
         const dropdown = document.createElement('div');
         dropdown.className = 'post-dropdown';
 
@@ -261,5 +285,11 @@ function updateSidebar(posts) {
 
         dropdown.appendChild(details);
         container.appendChild(dropdown);
+    }
+
+    if (postFlag == false) {
+        const noPosts = document.createElement('p');
+        noPosts.textContent = 'No Nearby Posts!';
+        container.appendChild(noPosts);
     }
 }

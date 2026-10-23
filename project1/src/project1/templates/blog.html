@@ -120,13 +120,15 @@
 
                 <h3 class="side-title">Filter</h3>
                 <form id="filterForm" action="/filter" method="get" class="pure-form pure-form-stacked">
+                  
+                <label for="search">Search</label>
+                <input type="text" id="search" name="search" class="pure-input-1" placeholder="keywords">
+                
                 <label for="location">Location</label>
-                <input type="text" id="location" name="location" class="pure-input-1">
+                <input type="text" id="location" name="location" class="pure-input-1">               
 
-                <label for="radius">Location Radius (miles)</label>
-                <input type="range" id="radius" name="radius" class="pure-input-1" min="1" max="100" value="10"
-                        oninput="this.nextElementSibling.value = this.value + ' miles'">
-                <output>10 miles</output>
+                <label for="user">User</label>
+                <input type="text" id="user" name="user" class="pure-input-1" placeholder="@username">
 
                 <label for="date-range">Date</label>
                 <select id="date-range" name="date-range" class="pure-input-1">
