@@ -91,11 +91,12 @@ def map_page():
 @app.get('/blog')
 def blog_page():
     with psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row) as conn:
-        with conn.cursor() as cur:
+        with conn.cursor() as cur:            
             if (len(request.args) == 0 or 
-                (request.args.get('date-range') == 'any' and
-                 request.args.get('location') == '' and
-                 request.args.get('user') == '')):
+                (request.args.get('search').strip() == '' and
+                 request.args.get('date-range') == 'any' and
+                 request.args.get('location').strip() == '' and
+                 request.args.get('user').strip() == '')):
                 cur.execute('''
                     SELECT 
                         posts.post_id, 
@@ -114,21 +115,35 @@ def blog_page():
                 conditions = []
                 values = []
                 
-                if not request.args.get('location') == '':
+                searchInput = request.args.get('search')
+                searchInput = searchInput.strip()
+                
+                locationInput = request.args.get('location')
+                locationInput = locationInput.strip()
+                
+                userInput = request.args.get('user')
+                userInput = userInput.strip()
+                
+                if not searchInput == '':
+                    querySearch = 'posts.title ILIKE %s or posts.description ILIKE %s'
+                    conditions.append(querySearch)
+                    values.extend([searchInput, f'%{searchInput}%'])
+                
+                if not locationInput == '':
                     queryLocation = 'LOWER(locations.location) = LOWER(%s)'
                     conditions.append(queryLocation)
-                    values.append(request.args.get('location'))
+                    values.append(locationInput)
                     
-                # if not request.args.get('radius') == '':  # TODO: fix this query
+                # if not request.args.get('radius') == '':
                 #     radiusFloat = float(request.args.get('radius'))
                 #     queryRadius = 'ST_DWithin(locations.coord::geography, %s::geography)'
                 #     conditions.append(queryRadius)
                 #     values.append(radiusFloat)
                 
-                if not request.args.get('user') == '':
+                if not userInput == '':
                     queryUser = 'LOWER(accounts.username) = LOWER(%s)'
                     conditions.append(queryUser)
-                    values.append(request.args.get('user'))
+                    values.append(userInput)
                 
                 if not request.args.get('date-range') == 'any':
                     range = request.args.get('date-range')

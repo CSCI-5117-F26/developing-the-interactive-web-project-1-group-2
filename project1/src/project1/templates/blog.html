@@ -8,12 +8,12 @@
 
 {% block header %}
 <div class="pure-u-1-2 blog-controls">
-    <div id="searchBar">
+    <!-- <div id="searchBar">
         <form action="/search" method="post" class="pure-form">
             <input type="text" class="pure-input-rounded" aria-label="Search" />
             <input type="submit" class="pure-input-rounded pure-button" />
         </form>
-    </div>
+    </div> -->
 
     <button type="button" id="filterToggleBtn" class="pure-button">Filter</button>
 
@@ -36,6 +36,9 @@
 
         <form id="filterForm" action="/blog" method="get" class="pure-form pure-form-stacked">
             <fieldset>
+                <label for="search">Search</label>
+                <input type="text" id="search" name="search" class="pure-input-1" placeholder="keywords">
+                
                 <label for="location">Location</label>
                 <input type="text" id="location" name="location" class="pure-input-1" placeholder="e.g. Bruininks Hall">
 
