@@ -432,6 +432,11 @@ header #menu {
     border-radius: 0;
 }
 
+#clearFilterButton {
+    height: 2em;
+    margin-top: 1em;
+}
+
 /* GRID */
 
 .post-card,

@@ -104,8 +104,17 @@
             </div>
 
             <div class="side-card">
-
-                <h3 class="side-title">Filter</h3>
+                <div class="side-title">
+                    <h3 class="pure-u-2-3">Filter</h3>
+                    {% if filter == True %}
+                        <a href="/blog">
+                            <button class="pure-button pure-input-rounded" id="clearFilterButton">
+                                Clear
+                            </button>
+                        </a>
+                    {% endif %}
+                </div>
+                
                 <form id="filterForm" action="/blog" method="get" class="pure-form pure-form-stacked">
                   
                 <label for="search">Search</label>
