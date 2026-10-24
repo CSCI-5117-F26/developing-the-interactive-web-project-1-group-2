@@ -104,6 +104,8 @@ def map_page():
 def blog_page():
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
+            filterFlag = False
+            
             if len(request.args) == 0 or (
                 request.args.get("search").strip() == ""
                 and request.args.get("date-range") == "any"
@@ -125,6 +127,7 @@ def blog_page():
                     LEFT JOIN accounts ON posts.account = accounts.account_id
                 """)
             else:
+                filterFlag = True
                 conditions = []
                 values = []
 
@@ -187,9 +190,8 @@ def blog_page():
                             {where};""",
                     values,
                 )
-
             posts = cur.fetchall()
-    return render_template("blog.html", posts=posts, account_id=get_account_id()), 200
+    return render_template("blog.html", posts=posts, account_id=get_account_id(), filter=filterFlag), 200
 
 
 @app.get("/account")
@@ -579,7 +581,7 @@ def get_nearby():
     conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
 
-    cursor.execute('''
+    cursor.execute("""
                     SELECT
                         posts.post_id, 
                         posts.title, 
