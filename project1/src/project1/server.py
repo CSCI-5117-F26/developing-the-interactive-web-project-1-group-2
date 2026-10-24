@@ -6,7 +6,8 @@ from flask import (
     redirect,
     url_for,
     session,
-    Response
+    Response,
+    abort
 )
 import psycopg
 from psycopg.rows import dict_row
@@ -277,7 +278,7 @@ def show_post(post_id):
             post_row = cursor.fetchone()  # one row post of the individual post, tuple type (a, b, ...)
 
             if post_row is None:
-                return redirect('/404'), 404
+                return abort(404)
 
             cursor.execute('''
             SELECT author, time, comment FROM comments
@@ -335,7 +336,7 @@ def post_comment(post_id):
             ''', (post_id,)
             )
             if cursor.fetchone() is None:
-                return redirect('/404'), 404
+                return abort(404)
             
             if account_id is not None:
                 cursor.execute('''
@@ -489,7 +490,7 @@ def get_icon(icon_id):
                            ''', (icon_id,))
             row = cursor.fetchone()
             if row is None:
-                return redirect('/404'), 404
+                return abort(404)
             img, type = row
     return Response(bytes(img), mimetype=type)
 # Function from Flask official documentation, slight modifications
@@ -526,7 +527,7 @@ def get_nearby():
     max_long = request.args.get('maxLong', type=float)
     conn = psycopg.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
-    # TODO: update with PostGIS logic
+
     cursor.execute('''
                     SELECT
                         posts.post_id, 
@@ -598,7 +599,7 @@ def edit_page(post_id):
     conn.close()
 
     if row is None:
-        return redirect(url_for('blog_page'))
+        return abort(404)
 
     post = {'post_id': post_id, 'title': row[0], 'description': row[1]}
     return render_template('edit.html', post=post)
@@ -622,8 +623,8 @@ def edit_save(post_id):
         conn.close()
     return redirect(url_for('blog_page'))
 
-@app.route('/404')
-def PageNotFound():
+@app.errorhandler(404)
+def page_not_found(e):
     return render_template('404.html'), 404
 
 
