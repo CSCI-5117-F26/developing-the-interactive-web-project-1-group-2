@@ -579,7 +579,7 @@ def get_nearby():
     conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
 
-    cursor.execute('''
+    cursor.execute("""
                     SELECT
                         posts.post_id, 
                         posts.title, 
