@@ -3,7 +3,9 @@ body {
     height: 100%;
 }
 
-[hidden] { display: none !important; }
+[hidden] {
+    display: none !important;
+}
 
 body {
     display: flex;
@@ -39,10 +41,11 @@ header #menu {
 
 /* map page specific */
 #map_page {
-position: relative;
-  width: 100%;
-  height: calc(100vh - .7em);   /* Account for header */
-  overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - .7em);
+    /* Account for header */
+    overflow: hidden;
 }
 
 #mapContainer {
@@ -122,19 +125,19 @@ position: relative;
     cursor: pointer;
 }
 
-#createForm .popupBody { 
-    padding: 1.5em 1.5em 2em; 
+#createForm .popupBody {
+    padding: 1.5em 1.5em 2em;
 }
 
-#createForm .popupCol  { 
-    box-sizing: border-box; 
-    padding: 0 0.5em; 
+#createForm .popupCol {
+    box-sizing: border-box;
+    padding: 0 0.5em;
 }
 
-#createForm label { 
-    display: block; 
-    margin: 0.75em 0 0.25em; 
-    font-size: 1em; 
+#createForm label {
+    display: block;
+    margin: 0.75em 0 0.25em;
+    font-size: 1em;
 }
 
 #createForm .imageBox {
@@ -157,10 +160,10 @@ position: relative;
     object-fit: cover;
 }
 
-#imagePreview:not([hidden]) + .placeholderIcon {
+#imagePreview:not([hidden])+.placeholderIcon {
     display: none;
 }
- 
+
 #createForm .imagePicker {
     display: flex;
     align-items: center;
@@ -186,7 +189,7 @@ position: relative;
     object-fit: contain;
 }
 
-#createForm .imageBox #imagePreview:not([hidden]) ~ .placeholderIcon {
+#createForm .imageBox #imagePreview:not([hidden])~.placeholderIcon {
     display: none;
 }
 
@@ -208,15 +211,15 @@ position: relative;
     margin-bottom: 0.5em;
 }
 
-#createForm .anonRow { 
-    display: flex; 
-    align-items: center; 
-    gap: 0.75em; 
-    margin-bottom: 1em; 
+#createForm .anonRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    margin-bottom: 1em;
 }
 
-#createForm .anonRow label { 
-    margin: 0; 
+#createForm .anonRow label {
+    margin: 0;
 }
 
 #createForm input[type="checkbox"] {
@@ -224,9 +227,9 @@ position: relative;
     cursor: pointer;
 }
 
-#createForm .submitRow { 
-    display: flex; 
-    justify-content: flex-end; 
+#createForm .submitRow {
+    display: flex;
+    justify-content: flex-end;
 }
 
 #createButton {
@@ -242,16 +245,16 @@ position: relative;
     #createForm .popupBody {
         padding: 1.25em 1em;
     }
- 
+
     #createForm .popupCol {
         width: 100%;
         padding: 0;
     }
- 
+
     #createForm .imageBox {
         aspect-ratio: 16 / 9;
     }
- 
+
     #createForm .imagePicker {
         margin-bottom: 1.25em;
     }
@@ -268,10 +271,32 @@ position: relative;
     max-height: 14em;
 }
 
-#postDescription, #postTitle {
+#postDescription,
+#postTitle,
+.post-title,
+.post-desc,
+.post-meta,
+.post-footer {
     overflow-wrap: break-word;
     text-wrap: pretty;
 }
+
+.char-limit-footnote {
+    display: block;
+    font-size: 0.75em;
+    color: #666;
+    text-align: right;
+    margin-top: -0.2em;
+    margin-bottom: 0.8em;
+}
+
+.file-size-footnote {
+    display: block;
+    font-size: 0.75em;
+    color: #666;
+    margin-top: 0.2em;
+}
+
 
 #sidebar {
     background-color: #f8f9fa;
@@ -293,7 +318,7 @@ position: relative;
     height: 120px;
     position: absolute;
     top: 35%;
-    margin:auto;
+    margin: auto;
     width: 80px;
     left: -40px;
     z-index: 1001;
@@ -409,7 +434,9 @@ position: relative;
 
 /* GRID */
 
-.post-card, .side-card, .post-row {
+.post-card,
+.side-card,
+.post-row {
     background-color: #fff;
     margin-bottom: 1.5em;
 }
@@ -605,15 +632,19 @@ position: relative;
 }
 
 /* Post page specific */
-#post_page{
+#post_page {
     background-color: #ddd;
 }
 
-#comments h3, #noComment, .indiv_post_author, .indiv_post_date {
+#comments h3,
+#noComment,
+.indiv_post_author,
+.indiv_post_date {
     text-align: center;
 }
 
-#comments h3, #noComment {
+#comments h3,
+#noComment {
     margin: 1%;
 }
 
@@ -625,7 +656,8 @@ position: relative;
 #postComments {
     min-width: 0;
     overflow-wrap: anywhere;
-    word-break: break-word; /* fallback for older browsers */
+    word-break: break-word;
+    /* fallback for older browsers */
 }
 
 #indv-post-title,
@@ -635,7 +667,9 @@ position: relative;
     text-wrap: pretty;
 }
 
-.indiv_post_author, .indiv_post_date, .indiv_post_comment  {
+.indiv_post_author,
+.indiv_post_date,
+.indiv_post_comment {
     margin: 1%;
 }
 
