@@ -31,9 +31,9 @@
 
     <div id="comments">
         <h3>Comments</h3>
+        <p id="noComment" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
         <div id="postComments">
-            <p id="noComment" class="pure-form-message-inline" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
-            <form id="commentForm" method="post" action="/post/{{ post.post_id }}/comments" class="pure-form">
+            <form id="commentForm" method="post" action="/post/{{ post.post_id }}" class="pure-form">
                 <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100" required>
                 <button class="pure-button pure-button-primary">Submit</button>
             </form>

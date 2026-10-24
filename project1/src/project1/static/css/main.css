@@ -609,8 +609,16 @@ position: relative;
     background-color: #ddd;
 }
 
-#comments h3, .indiv_post_author, .indiv_post_date {
+#comments h3, #noComment, .indiv_post_author, .indiv_post_date {
     text-align: center;
+}
+
+#comments h3, #noComment {
+    margin: 1%;
+}
+
+#noComment {
+    color: #555;
 }
 
 #indv-post-page,
@@ -639,6 +647,7 @@ position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
 .comment {

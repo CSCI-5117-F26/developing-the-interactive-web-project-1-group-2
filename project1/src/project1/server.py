@@ -319,6 +319,43 @@ def show_post(post_id):
         return jsonify(post), 200
     return render_template("post.html", post=post), 200
 
+@app.post('/post/<int:post_id>')
+def post_comment(post_id):
+    id = post_id
+    comment = request.form.get('comment').strip()
+    if comment == '':
+        return redirect(url_for('show_post', post_id=id))
+    
+    account_id = get_account_id()
+    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute('''
+            SELECT post_id FROM posts
+            WHERE post_id = %s;
+            ''', (post_id,)
+            )
+            if cursor.fetchone() is None:
+                return redirect('/404'), 404
+            
+            if account_id is not None:
+                cursor.execute('''
+                    SELECT username FROM accounts
+                    WHERE account_id = %s''', 
+                    (account_id,)
+                )
+            account_row = cursor.fetchone()
+
+            author = 'Anonymous'
+            if account_row:
+                author = account_row[0]
+
+            cursor.execute('''
+                            INSERT INTO comments (post, author, comment)
+                            VALUES (%s, %s, %s);
+                            ''',
+                            (post_id, author, comment))
+    return redirect(url_for('show_post', post_id=id))
+
 @app.get('/post/<int:post_id>/image')
 def post_image(post_id):
     with psycopg.connect(os.environ['DATABASE_URL']) as conn:
@@ -331,51 +368,6 @@ def post_image(post_id):
             row = cursor.fetchone()
             img, type = row
     return Response(bytes(img), mimetype=type)
-
-@app.post('/post/<int:post_id>/comments')
-def add_comment(post_id):
-    comment = request.form.get('comment').strip()
-
-    if comment == '':
-        return "NO AUTHOR NOR COMMENT", 400
-
-    account_id = get_account_id()
-    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute('''
-            SELECT post_id FROM posts
-            WHERE post_id = %s;
-            ''', (post_id,)
-            )
-            if cursor.fetchone() is None:
-                return redirect('/404'), 404
-            if account_id is not None:
-                cursor.execute('''
-                    SELECT username FROM accounts
-                    WHERE account_id = %s''', 
-                    (account_id,)
-                )
-            account_row = cursor.fetchone()
-
-            author = 'Anonymous'
-            if account_row:
-                author = account_row[0]
-            
-            cursor.execute('''
-                INSERT INTO comments (post, author, comment)
-                VALUES (%s, %s, %s)
-                RETURNING author, time, comment;
-                ''',
-                (post_id, author, comment)
-            )
-            comment_row = cursor.fetchone()
-
-            added_comment = {
-                'author': comment_row[0],
-                'time': comment_row[1],
-                'comment': comment_row[2]
-            }
-    return jsonify(added_comment), 201
 
 @app.post('/create')
 def create():
