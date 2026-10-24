@@ -12,10 +12,15 @@
 </head>
 
 <body>
-    <header class="pure-g">
-        {% block header %}
-        <div class="pure-u-1-2"></div>
-        {% endblock %}
+    <header class="pure-g"> 
+        <div class="pure-u-1-2 blog-controls">
+            <div class="pure-u-1-2">
+                <a href="/map" class="site-logo">
+                    <img src="{{ url_for('static', filename='images/geoblog-logo.png') }}" alt="GeoBloggr logo">
+                    <span>GeoBloggr</span>
+                </a>
+            </div>
+        </div>
         <div class="pure-u-1-2">
             <div id="menu" class="pure-menu pure-menu-horizontal">
                 <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
@@ -24,7 +29,7 @@
                     <a href="/account" class="pure-menu-item pure-menu-link">Account</a>
                 {% else %}
                     <a href="/login" class="pure-menu-item pure-menu-link" >Log In</a>
-                    <a href="/signup" class="pure-menu-item pure-menu-link" >Sign Up</a>
+                    <!-- <a href="/signup" class="pure-menu-item pure-menu-link" >Sign Up</a> -->
                 {% endif %}
             </div>
         </div>

@@ -187,10 +187,7 @@ function showPost(post, id) {
     description.innerText = `Description: ${post['description']}`;
 
     let location = document.getElementById('postLocation');
-    location.innerText = `Location: (${post['location']['lat']}, ${post['location']['long']})`;
-    if (post['location']['name']) {
-        location.innerText = `Location: ${post['location']['name']}`;
-    }
+    location.innerText = `Location: ${post['location']}`;
 
     let image = document.getElementById('postImage');
     if (post['image'] != null) {
