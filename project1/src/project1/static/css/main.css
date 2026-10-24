@@ -268,6 +268,11 @@ position: relative;
     max-height: 14em;
 }
 
+#postDescription, #postTitle {
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+}
+
 #sidebar {
     background-color: #f8f9fa;
     border-right: 0.1em solid #ddd;
@@ -303,6 +308,10 @@ position: relative;
     padding-bottom: 0.6em;
     margin-bottom: 1.25em;
     width: 100%;
+}
+
+#searchForm {
+    margin-bottom: 1em;
 }
 
 /* blog specific*/
@@ -568,7 +577,7 @@ position: relative;
 }
 
 #indv-post-page {
-    border: 1pt solid black;
+    background-color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -592,5 +601,50 @@ position: relative;
     padding: 1%;
     height: 300px;
     overflow-y: auto;
-    border: 1px solid gray;
+    /* border: 1px solid gray; */
+}
+
+/* Post page specific */
+#post_page{
+    background-color: #ddd;
+}
+
+#comments h3, .indiv_post_author, .indiv_post_date {
+    text-align: center;
+}
+
+#indv-post-page,
+#postComments {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word; /* fallback for older browsers */
+}
+
+#indv-post-title,
+#indv-post-description,
+.comment p {
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+}
+
+.indiv_post_author, .indiv_post_date, .indiv_post_comment  {
+    margin: 1%;
+}
+
+#commentForm {
+    padding-bottom: 1em;
+}
+
+#commentList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comment {
+    background-color: white;
+    padding: 2%;
+    width: 50%;
+    margin: 1%;
+    align-items: center;
 }

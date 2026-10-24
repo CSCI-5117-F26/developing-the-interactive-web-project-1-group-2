@@ -6,10 +6,9 @@
 
 {% block body %}
 <div id="post_page">
-    <section id="indv-post-page" class="pure-u-1-2">
-        <h1>{{ post.title }}</h1>
-        <h1>Post ID: {{ post.post_id }}</h1>
-        <p>Post Author: 
+    <div id="indv-post-page" class="pure-u-1-2">
+        <h1 id="indv-post-title">{{ post.title }}</h1>
+        <p>Author: 
             {% if post.anon %}
                 {% if post.username %}
                     Anonymous ({{ post.username }})
@@ -20,32 +19,34 @@
                 {{ post.username }}
             {% endif %}
         </p>
-        <p>Post Description: {{ post.description }}</p>
-        <p>Post Location: {{ post.location }}</p>
+        <p id="indv-post-description">Description: {{ post.description }}</p>
+        <p>Location: {{ post.location }}</p>
         {% if post.image %}
-            <p>Post Image/Link:</p>
             <img src="{{ post.image }}" alt="{{ post.title }}" id="indv-post-img">
         {% else %}
             <p>No image available for this post.</p>
         {% endif %}
         <p>Date Created: {{ post.time }}</p>
-    </section>
-    <section id="postComments">
+    </div>
+
+    <div id="comments">
         <h3>Comments</h3>
-        <p id="noComment" class="pure-form-message-inline" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
-        <form id="commentForm" method="post"action="/post/{{ post.post_id }}/comments" class="pure-form">
-            <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." required>
-            <button class="pure-button">Submit</button>
-        </form>
-        <div id="commentList">
-            {% for comment in post.comments %}
-                <div class="comment">
-                    <p>{{ comment.author }}</p>
-                    <p>Date: {{ comment.time }}</p>
-                    <p>{{ comment.comment }}</p>
-                </div>
-            {% endfor %}
+        <div id="postComments">
+            <p id="noComment" class="pure-form-message-inline" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
+            <form id="commentForm" method="post" action="/post/{{ post.post_id }}/comments" class="pure-form">
+                <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100" required>
+                <button class="pure-button pure-button-primary">Submit</button>
+            </form>
+            <div id="commentList">
+                {% for comment in post.comments %}
+                    <div class="comment">
+                        <p class="indiv_post_author">Author: {{ comment.author }}</p>
+                        <p class="indiv_post_date">Date: {{ comment.time }}</p>
+                        <p class="indiv_post_comment">Description:<br>{{ comment.comment }}</p>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-    </section>
+    </div>
 </div>
 {% endblock %}

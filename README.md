@@ -59,6 +59,7 @@ Please do not document required libraries. or libraries that are mentioned in th
 * Library or service name: description of use
 * Leaflet: Lightweight open source mapping library. The mapping library provides utilities to add maps to the webpage and interact with the map.
 * PostGIS: Open source software that extends the capabilities of the Postgres relational database. Adds support for storing, indexing, and querying geospatial data.
+* Font Awesome: Library to get search icon
 
 **If there's anything else you would like to disclose about how your project
 relied on external code, expertise, or anything else, please disclose that

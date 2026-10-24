@@ -188,14 +188,14 @@ def login():
         prompt='login'
     )
 
-
-@app.route('/signup')
-def signup():
-    return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for('callback', _external=True),
-        screen_hint='signup',
-        prompt='login'
-    )
+# Both go to the same link, do not need two
+# @app.route('/signup')
+# def signup():
+#     return oauth.auth0.authorize_redirect(
+#         redirect_uri=url_for('callback', _external=True),
+#         screen_hint='signup',
+#         prompt='login'
+#     )
 
 
 @app.route('/logout')
@@ -297,13 +297,17 @@ def show_post(post_id):
         img = None
         if post_row[8] != None:
             img = url_for('post_image', post_id=post_id)
+            
+        location = f'{post_row[4]}, {post_row[3]}'
+        if post_row[2] is not None:
+            location = post_row[2]
 
     post = {
         'post_id': post_id,
         'anon': post_row[0],
         'account': post_row[1],
         'username': post_row[1],
-        'location': {'name': post_row[2], 'long': post_row[3], 'lat': post_row[4],},
+        'location': location,
         'title': post_row[5],
         'time': post_row[6],
         'description': post_row[7],
@@ -330,7 +334,7 @@ def post_image(post_id):
 
 @app.post('/post/<int:post_id>/comments')
 def add_comment(post_id):
-    comment = request.form.get('comment', '')
+    comment = request.form.get('comment').strip()
 
     if comment == '':
         return "NO AUTHOR NOR COMMENT", 400
