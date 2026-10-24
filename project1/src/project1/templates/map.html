@@ -2,6 +2,7 @@
 
 {% block scripts %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="{{ url_for('static', filename='js/map.js') }}" defer></script>
 <script>
@@ -10,17 +11,6 @@
 {% endblock %}
 
 {% block header %}
-
-<!-- <div id="searchBar" class="pure-u-1-2">
-    <form action="/map" method="get" class="pure-form" id="searchForm">
-        <input type="text" class="pure-input-rounded" aria-label="Search" id="search" name="search"/>
-        <input type="submit" class="pure-input-rounded pure-button"/>
-    </form>
-    {% for id in postIds %}
-        <input type="hidden" id="{{id}}" class="post_ids">
-    {% endfor %}
-</div> -->
-
 <div class="pure-u-1-2 blog-controls">
     <div class="pure-u-1-2">
         <a href="/map" class="site-logo">
@@ -29,12 +19,22 @@
         </a>
     </div>
 </div>
-
 {% endblock %}
 
 {% block body %}
 <div id="map_page" class="pure-g" data-user-logged-in="{{ 'true' if logged_in else 'false' }}">
     <div id="sidebar" hidden>
+        <div id="searchForm">
+            <form action="/map" method="get" class="pure-form " id="searchForm">
+                <input type="text" class="pure-input-rounded" aria-label="Search" id="search" name="search" style="width: 78%;"/>
+                <button class="pure-input-rounded pure-button">
+                    <i class="fa fa-search" style="font-size:20px; color:black;"></i>
+                </button>
+            </form>
+            {% for id in postIds %}
+                <input type="hidden" id="{{id}}" class="post_ids">
+            {% endfor %}
+        </div>
         <div id="sideBarPosts"></div>
     </div>
     <div id="mapContainer">

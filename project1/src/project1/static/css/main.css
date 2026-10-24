@@ -305,6 +305,10 @@ position: relative;
     width: 100%;
 }
 
+#searchForm {
+    margin-bottom: 1em;
+}
+
 /* blog specific*/
 
 #blog_page {
