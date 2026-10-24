@@ -1,0 +1,650 @@
+html,
+body {
+    height: 100%;
+}
+
+[hidden] { display: none !important; }
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+body header {
+    padding: 0.7em 2.5em;
+    background-color: #fff;
+    align-items: center;
+}
+
+.site-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #000;
+    text-decoration: none;
+}
+
+.site-logo img {
+    width: 1.4em;
+    height: 1.4em;
+    object-fit: contain;
+}
+
+
+header #menu {
+    text-align: end;
+}
+
+/* map page specific */
+#map_page {
+position: relative;
+  width: 100%;
+  height: calc(100vh - .7em);   /* Account for header */
+  overflow: hidden;
+}
+
+#mapContainer {
+    width: 100%;
+    height: 100%;
+}
+
+#mapContainer {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    grid-area: 1 / 1 / 16 / 7;
+    z-index: 1;
+}
+
+#footer {
+    grid-area: 15 / 3 / 16 / 5;
+    place-self: center;
+    color: black;
+    z-index: 2;
+}
+
+.popupBackground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1003;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popupWindow {
+    width: 90%;
+    max-width: 37.5em;
+    /* ~600px */
+    max-height: 85vh;
+    background-color: white;
+    z-index: 1004;
+    border-radius: 0;
+    padding: 0;
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
+}
+
+#createForm .popupHeader {
+    position: relative;
+    background-color: rgb(179, 179, 179);
+    padding: 0.75em 3em;
+    text-align: center;
+}
+
+#createForm .popupHeader h2 {
+    margin: 0;
+    font-size: 1.25em;
+    font-weight: 500;
+}
+
+#closePopup {
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    transform: translateY(-50%);
+    padding: 0;
+    border: 0;
+    background: none;
+    line-height: 0;
+    cursor: pointer;
+}
+
+#createForm .popupBody { 
+    padding: 1.5em 1.5em 2em; 
+}
+
+#createForm .popupCol  { 
+    box-sizing: border-box; 
+    padding: 0 0.5em; 
+}
+
+#createForm label { 
+    display: block; 
+    margin: 0.75em 0 0.25em; 
+    font-size: 1em; 
+}
+
+#createForm .imageBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    margin: 0 0 1em;
+    background-color: rgb(179, 179, 179);
+    cursor: pointer;
+    overflow: hidden;
+
+}
+
+#imagePreview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    object-fit: cover;
+}
+
+#imagePreview:not([hidden]) + .placeholderIcon {
+    display: none;
+}
+ 
+#createForm .imagePicker {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+}
+
+#createForm .imagePicker label {
+    flex: none;
+    margin: 0;
+    white-space: nowrap;
+}
+
+#createForm .imageBox #imagePreview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+#createForm .imageBox .placeholderIcon {
+    width: 2.5em;
+    height: 2.5em;
+    object-fit: contain;
+}
+
+#createForm .imageBox #imagePreview:not([hidden]) ~ .placeholderIcon {
+    display: none;
+}
+
+#createForm input[type="file"] {
+    flex: 1;
+    min-width: 0;
+}
+
+#createForm input[type="file"]::file-selector-button {
+    margin-right: 0.6em;
+    padding: 0.3em 0.6em;
+    border: 0;
+    background-color: rgb(179, 179, 179);
+    cursor: pointer;
+}
+
+#createForm .popupBody textarea {
+    width: 100%;
+    margin-bottom: 0.5em;
+}
+
+#createForm .anonRow { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.75em; 
+    margin-bottom: 1em; 
+}
+
+#createForm .anonRow label { 
+    margin: 0; 
+}
+
+#createForm input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+#createForm .submitRow { 
+    display: flex; 
+    justify-content: flex-end; 
+}
+
+#createButton {
+    min-width: 6.5em;
+    padding: 0.4em 1.5em;
+    margin: 0;
+    border-radius: 0;
+    background-color: rgb(179, 179, 179);
+    color: #000;
+}
+
+@media (max-width: 40em) {
+    #createForm .popupBody {
+        padding: 1.25em 1em;
+    }
+ 
+    #createForm .popupCol {
+        width: 100%;
+        padding: 0;
+    }
+ 
+    #createForm .imageBox {
+        aspect-ratio: 16 / 9;
+    }
+ 
+    #createForm .imagePicker {
+        margin-bottom: 1.25em;
+    }
+}
+
+#post {
+    padding: 2em;
+    margin: 3% auto;
+    text-align: center;
+}
+
+#postImage {
+    max-width: 20em;
+    max-height: 14em;
+}
+
+#postDescription, #postTitle {
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+}
+
+#sidebar {
+    background-color: #f8f9fa;
+    border-right: 0.1em solid #ddd;
+    padding: 3em;
+    box-sizing: border-box;
+    overflow-y: auto;
+    min-height: 100vh;
+    position: absolute;
+    width: 350px;
+    z-index: 1002;
+}
+
+#sidebarToggle {
+    background-color: #0e0e0e;
+    border-radius: 20px;
+    box-sizing: border-box;
+    opacity: .6;
+    height: 120px;
+    position: absolute;
+    top: 35%;
+    margin:auto;
+    width: 80px;
+    left: -40px;
+    z-index: 1001;
+}
+
+.sidebar-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.15em solid #eee;
+    padding-bottom: 0.6em;
+    margin-bottom: 1.25em;
+    width: 100%;
+}
+
+#searchForm {
+    margin-bottom: 1em;
+}
+
+/* blog specific*/
+
+#blog_page {
+    flex: 1;
+    background-color: #ddd;
+    padding: 2em 1em;
+}
+
+.blog-layout {
+    max-width: 64em;
+    margin: 0 auto;
+}
+
+.blog-main,
+.blog-sidebar {
+    box-sizing: border-box;
+    padding: 0 0.75em;
+}
+
+.side-card {
+    padding: 1em 1.25em;
+    margin-bottom: 1em;
+}
+
+.side-title {
+    margin: 0 0 0.75em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid #999;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+.new-post-btn {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #000;
+    color: #fff;
+    border-radius: 0;
+    text-align: center;
+}
+
+.blog-sidebar .pure-form input[type="text"] {
+    background-color: #eee;
+    border: 0;
+    box-shadow: none;
+}
+
+.view-toggle {
+    display: flex;
+    border: 1px solid #000;
+}
+
+.view-toggle .pure-button {
+    flex: 1;
+    background-color: #fff;
+    color: #000;
+    border-radius: 0;
+}
+
+.view-toggle .pure-button.is-selected {
+    background-color: #000;
+    color: #fff;
+}
+
+.blog-sidebar .pure-form-stacked label {
+    margin: 0.75em 0 0.25em;
+    font-size: 0.85em;
+}
+
+.blog-sidebar .pure-form-stacked input[type="text"],
+.blog-sidebar .pure-form-stacked select {
+    background-color: #d9d9d9;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.blog-sidebar input[type="range"] {
+    accent-color: #555;
+}
+
+.blog-sidebar output {
+    display: block;
+    font-size: 0.75em;
+}
+
+.apply-btn {
+    margin-top: 1em;
+    background-color: #d9d9d9;
+    border-radius: 0;
+}
+
+/* GRID */
+
+.post-card, .side-card, .post-row {
+    background-color: #fff;
+    margin-bottom: 1.5em;
+}
+
+.post-card {
+    padding: 1.5em;
+}
+
+.post-title {
+    margin: 0 0 0.25em;
+    font-size: 1.3em;
+}
+
+.post-title a {
+    color: #000;
+    text-decoration: none;
+}
+
+.post-meta {
+    margin: 0 0 1em;
+    font-size: 0.85em;
+}
+
+.post-desc {
+    margin: 0 0 1.5em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    overflow: hidden;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75em;
+    border-top: 1px solid #999;
+    font-size: 0.9em;
+}
+
+.post-footer a,
+.link-button {
+    color: #000;
+    text-decoration: none;
+}
+
+.post-footer a:hover,
+.link-button:hover {
+    text-decoration: underline;
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25em;
+}
+
+.post-actions a,
+.post-actions a:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+.post-actions form {
+    margin: 0;
+}
+
+.link-button {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+/* COLLAPSED */
+
+.post-row {
+    display: block;
+    padding: 1.25em 1.5em;
+    color: #000;
+}
+
+.post-row-text {
+    min-width: 0;
+}
+
+.post-row h3 a {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Depends on how much info we want displayed
+
+.post-row .post-desc {
+    margin: 0 0 0.5em;
+    font-size: 0.8em;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    white-space: normal;
+}
+
+.post-row-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.post-row-meta .post-meta {
+    margin: 0;
+}
+ */
+
+.post-row-meta .post-actions {
+    margin-left: auto;
+}
+
+.post-row-meta {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.post-row-title {
+    font-size: 1.3em;
+}
+
+.post-row h3 {
+    margin: 0 0 0.25em;
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+.post-row .post-desc {
+    margin: 0 0 0.5em;
+    font-size: 0.8em;
+    overflow: hidden;
+}
+
+.post-row .post-meta {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+.post-dropdown {
+    margin-bottom: 1em;
+    padding: 1em;
+    border: 0.1em solid #ccc;
+    border-radius: 0.25em;
+    background-color: #fcfcfc;
+}
+
+.popupWindow #closePopupBtn {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+}
+
+#viewCommentsButton {
+    padding: 1%;
+    margin: 1% auto;
+}
+
+#indv-post-page {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%;
+    padding: 2%;
+    margin: 3% auto;
+    text-align: center;
+}
+
+#indv-post-img {
+    width: 50%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+#postComments {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1%;
+    height: 300px;
+    overflow-y: auto;
+    /* border: 1px solid gray; */
+}
+
+/* Post page specific */
+#post_page{
+    background-color: #ddd;
+}
+
+#comments h3, .indiv_post_author, .indiv_post_date {
+    text-align: center;
+}
+
+#indv-post-page,
+#postComments {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word; /* fallback for older browsers */
+}
+
+#indv-post-title,
+#indv-post-description,
+.comment p {
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+}
+
+.indiv_post_author, .indiv_post_date, .indiv_post_comment  {
+    margin: 1%;
+}
+
+#commentForm {
+    padding-bottom: 1em;
+}
+
+#commentList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comment {
+    background-color: white;
+    padding: 2%;
+    width: 50%;
+    margin: 1%;
+    align-items: center;
+}
