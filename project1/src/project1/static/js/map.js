@@ -83,7 +83,7 @@ window.addEventListener('load', async () => {
         }
 
         removedPostIds = [];
-        map.eachLayer(function(layer) {
+        map.eachLayer(function (layer) {
             if (layer instanceof L.Marker &&
                 !idsList.includes(layer['options']['postId'])) {
                 layer.remove();
@@ -144,13 +144,13 @@ function changePopup(hide, id = null) {
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.hidden = !sidebar.hidden;
-    
+
     const sidebarToggle = document.getElementById('sidebarToggle');
-    if(sidebar.hidden){
-        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2}px`;
+    if (sidebar.hidden) {
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
     }
-    else{
-        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+    else {
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
         updatePostsInView();
     }
 
@@ -265,11 +265,11 @@ function updateSidebar(posts) {
         summary.className = 'clickable-post';
         summary.textContent = post.title;
         details.appendChild(summary);
-        
+
         // Clicking on a post makes the map pan to it and opens the post popup
         summary.addEventListener('click', (e) => {
             map.panTo([post.lat, post.long]);
-            viewPost({target:{options:{postId:post.post_id}}});
+            viewPost({ target: { options: { postId: post.post_id } } });
         });
 
         const time = document.createElement('p');
@@ -290,3 +290,21 @@ function updateSidebar(posts) {
         container.appendChild(noPosts);
     }
 }
+
+// update user char input count
+document.addEventListener('DOMContentLoaded', () => {
+    const textareas = document.querySelectorAll('textarea[maxlength]');
+
+    textareas.forEach(textarea => {
+        const counter = textarea.nextElementSibling;
+        const max = textarea.getAttribute('maxlength');
+        if (counter && counter.classList.contains('char-limit-footnote')) {
+            const updateCounter = () => {
+                counter.textContent = `${textarea.value.length}/${max}`;
+            };
+
+            updateCounter();
+            textarea.addEventListener('input', updateCounter);
+        }
+    });
+});

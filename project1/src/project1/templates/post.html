@@ -5,26 +5,26 @@
 {% endblock %}
 
 {% block body %}
-<div id="post_page">
+<div id="post-page">
     <div id="indv-post-page" class="pure-u-1-2">
-        <h1 id="indv-post-title">{{ post.title }}</h1>
-        <p>Author: 
+        <h1 class="post-title">{{ post.title }}</h1>
+        <p>Author:
             {% if post.anon %}
-                {% if post.username %}
-                    Anonymous ({{ post.username }})
-                {% else %}
-                    Anonymous
-                {% endif %}
+            {% if post.username %}
+            Anonymous ({{ post.username }})
             {% else %}
-                {{ post.username }}
+            Anonymous
+            {% endif %}
+            {% else %}
+            {{ post.username }}
             {% endif %}
         </p>
-        <p id="indv-post-description">Description: {{ post.description }}</p>
+        <p class="post-desc">Description: {{ post.description }}</p>
         <p>Location: {{ post.location }}</p>
         {% if post.image %}
-            <img src="{{ post.image }}" alt="{{ post.title }}" id="indv-post-img">
+        <img src="{{ post.image }}" alt="{{ post.title }}" id="indv-post-img">
         {% else %}
-            <p>No image available for this post.</p>
+        <p>No image available for this post.</p>
         {% endif %}
         <p>Date Created: {{ post.time }}</p>
     </div>
@@ -34,16 +34,18 @@
         <p id="noComment" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
         <div id="postComments">
             <form id="commentForm" method="post" action="/post/{{ post.post_id }}" class="pure-form">
-                <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100" required>
-                <button class="pure-button pure-button-primary">Submit</button>
+                <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100"
+                    required>
+                <button class="pure-button pure-button-primary">Reply</button>
+                <small class="char-limit-footnote">0/100</small>
             </form>
             <div id="commentList">
                 {% for comment in post.comments %}
-                    <div class="comment">
-                        <p class="indiv_post_author">Author: {{ comment.author }}</p>
-                        <p class="indiv_post_date">Date: {{ comment.time }}</p>
-                        <p class="indiv_post_comment">Description:<br>{{ comment.comment }}</p>
-                    </div>
+                <div class="comment">
+                    <p class="indiv_post_author">Author: {{ comment.author }}</p>
+                    <p class="indiv_post_date">Date: {{ comment.time }}</p>
+                    <p class="indiv_post_comment">Description:<br>{{ comment.comment }}</p>
+                </div>
                 {% endfor %}
             </div>
         </div>
