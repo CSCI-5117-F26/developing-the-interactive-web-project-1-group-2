@@ -36,7 +36,8 @@
             <form id="commentForm" method="post" action="/post/{{ post.post_id }}" class="pure-form">
                 <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100"
                     required>
-                <button class="pure-button pure-button-primary">Submit</button>
+                <button class="pure-button pure-button-primary">Reply</button>
+                <small class="char-limit-footnote">0/100</small>
             </form>
             <div id="commentList">
                 {% for comment in post.comments %}

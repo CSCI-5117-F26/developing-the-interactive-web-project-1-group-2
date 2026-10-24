@@ -286,8 +286,15 @@ header #menu {
     font-size: 0.75em;
     color: #666;
     text-align: right;
-    margin-top: -0.1em;
+    margin-top: -0.2em;
     margin-bottom: 0.8em;
+}
+
+.file-size-footnote {
+    display: block;
+    font-size: 0.75em;
+    color: #666;
+    margin-top: 0.2em;
 }
 
 
