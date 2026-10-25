@@ -66,6 +66,15 @@ header #menu {
     z-index: 1;
 }
 
+#mapContainer .leaflet-bar {
+    border: 1px solid #000;
+    border-radius: 0;
+}
+
+#mapContainer .leaflet-bar a {
+    border-radius: 0;
+}
+
 #footer {
     grid-area: 15 / 3 / 16 / 5;
     place-self: center;
@@ -88,7 +97,7 @@ header #menu {
 
 .popupWindow {
     width: 90%;
-    max-width: 37.5em;
+    max-width: 40em;
     /* ~600px */
     max-height: 85vh;
     background-color: white;
@@ -100,164 +109,293 @@ header #menu {
     box-sizing: border-box;
 }
 
+/* CREATE POST POPUP */
+#createForm {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
 #createForm .popupHeader {
-    position: relative;
-    background-color: rgb(179, 179, 179);
-    padding: 0.75em 3em;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 0.75em 0.5em 1.75em;
+    border-bottom: 1px solid #999;
 }
 
 #createForm .popupHeader h2 {
     margin: 0;
     font-size: 1.25em;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 #closePopup {
-    position: absolute;
-    top: 50%;
-    right: 0.5em;
-    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75em;
+    height: 2.75em;
     padding: 0;
     border: 0;
     background: none;
-    line-height: 0;
     cursor: pointer;
 }
 
+#closePopup img {
+    width: 1.5em;
+    height: 1.5em;
+}
+
 #createForm .popupBody {
-    padding: 1.5em 1.5em 2em;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+    padding: 1.5em 1.75em;
 }
 
-#createForm .popupCol {
-    box-sizing: border-box;
-    padding: 0 0.5em;
+#createForm .field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
 }
 
-#createForm label {
+#createForm .fieldHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4em;
+}
+
+#createForm label,
+#createForm .fieldLabel {
     display: block;
-    margin: 0.75em 0 0.25em;
-    font-size: 1em;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9em;
+    font-weight: 700;
 }
 
-#createForm .imageBox {
+#createForm .fieldLabel {
+    margin-bottom: 0.4em;
+    width: auto;
+    border: 0;
+}
+
+#createForm .optional {
+    font-weight: 400;
+    color: #555;
+}
+
+#createForm .fieldHead small,
+#createForm .fieldNote {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: #555;
+}
+
+#createForm .fieldNote {
+    display: block;
+    margin-top: 0.3em;
+}
+
+#createForm .fieldError {
+    display: block;
+    margin-top: 0.3em;
+    font-size: 0.8em;
+    font-weight: 700;
+}
+
+#createForm input[type="text"],
+#createForm textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    height: 2.75em;
+    padding: 0 0.75em;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #d9d9d9;
+    color: #000;
+}
+
+#createForm textarea {
+    height: auto;
+    padding: 0.75em;
+    resize: vertical;
+}
+
+#createForm input[type="text"]:focus,
+#createForm textarea:focus {
+    border: 0;
+    box-shadow: none;
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+#locationMap {
+    position: relative;
+    z-index: 0;
+    height: 10em;
+    margin-top: 0.5em;
+    border: 1px solid #000;
+}
+
+#createForm .locationSummary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75em;
+    padding: 0 0.75em;
+    background: #d9d9d9;
+    font-size: 0.9em;
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+#createForm .imageDrop {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1 / 1;
-    margin: 0 0 1em;
-    background-color: rgb(179, 179, 179);
-    cursor: pointer;
+    height: 7em;
     overflow: hidden;
-
+    background: #d9d9d9;
+    font-size: 0.9em;
+    font-weight: 400;
+    cursor: pointer;
 }
 
-#imagePreview {
+#createForm .imageDrop:focus-within {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+#createForm .imageDrop #imagePreview {
     position: absolute;
     inset: 0;
     width: 100%;
-    object-fit: cover;
-}
-
-#imagePreview:not([hidden])+.placeholderIcon {
-    display: none;
-}
-
-#createForm .imagePicker {
-    display: flex;
-    align-items: center;
-    gap: 0.6em;
-}
-
-#createForm .imagePicker label {
-    flex: none;
-    margin: 0;
-    white-space: nowrap;
-}
-
-#createForm .imageBox #imagePreview {
-    width: 100%;
     height: 100%;
     object-fit: contain;
-    object-position: center;
 }
 
-#createForm .imageBox .placeholderIcon {
-    width: 2.5em;
-    height: 2.5em;
-    object-fit: contain;
+#createForm .imageDropText {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
 }
 
-#createForm .imageBox #imagePreview:not([hidden])~.placeholderIcon {
+#createForm .imageDropText small {
+    display: block;
+    font-size: 0.8em;
+    color: #555;
+}
+
+#createForm .imageDrop .placeholderIcon {
+    width: 2em;
+    height: 2em;
+}
+
+#createForm .imageDrop #imagePreview:not([hidden]) ~ .imageDropText {
     display: none;
 }
 
-#createForm input[type="file"] {
-    flex: 1;
-    min-width: 0;
+#createForm .iconChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
 }
 
-#createForm input[type="file"]::file-selector-button {
-    margin-right: 0.6em;
-    padding: 0.3em 0.6em;
-    border: 0;
-    background-color: rgb(179, 179, 179);
+#createForm .iconChip {
+    height: 2.5em;
+    padding: 0 0.9em;
+    border: 1px solid #000;
+    border-radius: 0;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 0.9em;
     cursor: pointer;
 }
 
-#createForm .popupBody textarea {
-    width: 100%;
-    margin-bottom: 0.5em;
+#createForm .iconChip.is-selected {
+    background: #000;
+    color: #fff;
+}
+
+#customIconRow {
+    margin-top: 0.75em;
+}
+
+#customIconRow label {
+    margin-bottom: 0.3em;
+    font-weight: 400;
+}
+
+#createForm .popupFooter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75em;
+    padding: 1em 1.75em;
+    border-top: 1px solid #999;
 }
 
 #createForm .anonRow {
     display: flex;
     align-items: center;
-    gap: 0.75em;
-    margin-bottom: 1em;
+    gap: 0.6em;
+    min-height: 2.75em;
 }
 
 #createForm .anonRow label {
-    margin: 0;
-}
-
-#createForm input[type="checkbox"] {
-    margin: 0;
+    font-weight: 400;
     cursor: pointer;
 }
 
-#createForm .submitRow {
+#createForm input[type="checkbox"] {
+    width: 1.1em;
+    height: 1.1em;
+    margin: 0;
+    accent-color: #000;
+    cursor: pointer;
+}
+
+#createForm .footerButtons {
     display: flex;
-    justify-content: flex-end;
+    gap: 0.75em;
+    margin-left: auto;
+}
+
+#createForm .footerButtons .pure-button {
+    min-width: 6.5em;
+    height: 2.75em;
+    padding: 0 1.25em;
+    border-radius: 0;
+}
+
+#cancelPost {
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
 }
 
 #createButton {
-    min-width: 6.5em;
-    padding: 0.4em 1.5em;
-    margin: 0;
-    border-radius: 0;
-    background-color: rgb(179, 179, 179);
-    color: #000;
-}
-
-@media (max-width: 40em) {
-    #createForm .popupBody {
-        padding: 1.25em 1em;
-    }
-
-    #createForm .popupCol {
-        width: 100%;
-        padding: 0;
-    }
-
-    #createForm .imageBox {
-        aspect-ratio: 16 / 9;
-    }
-
-    #createForm .imagePicker {
-        margin-bottom: 1.25em;
-    }
+    background: #000;
+    color: #fff;
+    border: 0;
 }
 
 #post {
@@ -301,26 +439,33 @@ header #menu {
 #sidebar {
     background-color: #f8f9fa;
     border-right: 0.1em solid #ddd;
-    padding: 3em;
+    padding: 1.5em;
     box-sizing: border-box;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    max-width: 100%;
     min-height: 100vh;
     position: absolute;
-    width: 350px;
+    width: 500px;
     z-index: 1002;
 }
 
 #sidebarToggle {
-    background-color: #0e0e0e;
-    border-radius: 20px;
+    background-color: #000;
+    border-radius: 0;
     box-sizing: border-box;
-    opacity: .6;
-    height: 120px;
+    color: #fff;
+    height: 80px;
     position: absolute;
-    top: 35%;
-    margin: auto;
-    width: 80px;
-    left: -40px;
+    top: calc(50% - 36px);
+    margin: 0;
+    padding: 0 0 0 28px;
+    width: 60px;
+    left: -28px;
     z-index: 1001;
 }
 
@@ -335,8 +480,140 @@ header #menu {
     width: 100%;
 }
 
-#searchForm {
+#mapSearchForm {
     margin-bottom: 1em;
+}
+
+.map-search-row {
+    display: flex;
+    gap: 0.5em;
+}
+
+.map-search {
+    position: relative;
+    flex: 1;
+}
+
+#mapSearchForm .map-search input[type="text"] {
+    width: 100%;
+    height: 2.75em;
+    box-sizing: border-box;
+    border: 1px solid #000;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 3em 0 0.9em;
+}
+
+.map-search button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2.75em;
+    height: 2.75em;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+#filterToggle {
+    flex: none;
+    width: 2.75em;
+    height: 2.75em;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+}
+
+#filterToggle[aria-expanded="true"] {
+    background: #000;
+    color: #fff;
+}
+
+#mapSearchForm .fa {
+    font-size: 1.2em;
+}
+
+#postCount {
+    margin-bottom: 0.75em;
+    font-size: 0.85em;
+    color: #555;
+}
+
+#sideBarPosts .post-row,
+#sideBarPosts .post-dropdown {
+    border: 1px solid #000;
+    border-radius: 0;
+}
+
+#filterPanel {
+    margin-top: 1em;
+    padding: 1em;
+    background: #fff;
+    border: 1px solid #000;
+}
+
+#filterPanel label {
+    display: block;
+    margin-bottom: 0.75em;
+    font-size: 0.85em;
+    color: #333;
+}
+
+#filterPanel .filter-row {
+    display: flex;
+    gap: 0.75em;
+}
+
+#filterPanel .filter-row label {
+    flex: 1;
+    min-width: 0;
+}
+
+#filterPanel input[type="text"],
+#filterPanel select {
+    display: block;
+    width: 100%;
+    height: 2.5em;
+    box-sizing: border-box;
+    margin-top: 0.25em;
+    border: 1px solid #999;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 1.25em;
+}
+
+.filter-actions .apply-btn {
+    flex: 1;
+    width: auto;
+    height: 2.5em;
+    margin-top: 0;
+    background-color: #000;
+    color: #fff;
+    border-radius: 0;
+}
+
+.filter-actions a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: 2.5em;
+    padding: 0 1.25em;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+}
+
+.filter-actions a:hover {
+    background: #eee;
 }
 
 /* blog specific*/
@@ -347,8 +624,21 @@ header #menu {
     padding: 2em 1em;
 }
 
+.page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.page-heading h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
 .blog-layout {
-    max-width: 64em;
+    max-width: 80em;
     margin: 0 auto;
 }
 
@@ -426,10 +716,17 @@ header #menu {
     font-size: 0.75em;
 }
 
+
+.btn-primary{
+    width: 8em;
+    background-color: black;
+    color: white;
+    border-radius: 0;
+}
+
 .apply-btn {
     margin-top: 1em;
-    background-color: #d9d9d9;
-    border-radius: 0;
+    width: 100%;
 }
 
 #clearFilterButton {
@@ -446,13 +743,57 @@ header #menu {
     margin-bottom: 1.5em;
 }
 
+#gridView {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5em;
+}
+
+@media (min-width: 36em) {
+    #gridView {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 70em) {
+    #gridView {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+#gridView .post-card {
+    margin-bottom: 0;
+}
+
 .post-card {
-    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    border: none;
+}
+
+.post-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+}
+
+.post-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25em;
 }
 
 .post-title {
     margin: 0 0 0.25em;
     font-size: 1.3em;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
 }
 
 .post-title a {
@@ -469,15 +810,19 @@ header #menu {
     margin: 0 0 1.5em;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
     overflow: hidden;
+    overflow-wrap: anywhere;
 }
 
 .post-footer {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
     padding-top: 0.75em;
     border-top: 1px solid #999;
     font-size: 0.9em;
@@ -535,27 +880,6 @@ header #menu {
     text-decoration: none;
 }
 
-/* Depends on how much info we want displayed
-
-.post-row .post-desc {
-    margin: 0 0 0.5em;
-    font-size: 0.8em;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-    white-space: normal;
-}
-
-.post-row-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1em;
-}
-
-.post-row-meta .post-meta {
-    margin: 0;
-}
- */
 
 .post-row-meta .post-actions {
     margin-left: auto;
@@ -578,15 +902,37 @@ header #menu {
     font-weight: 700;
 }
 
-.post-row .post-desc {
-    margin: 0 0 0.5em;
-    font-size: 0.8em;
-    overflow: hidden;
+.post-row summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    cursor: pointer;
+    list-style: none;
 }
 
-.post-row .post-meta {
+.post-row summary::-webkit-details-marker {
+    display: none;
+}
+
+.post-row summary::after {
+    content: "+"; /* will probs be set to actual icon later */
+    font-size: 1.3em;
+}
+
+.post-row[open] summary::after {
+    content: "-";
+    font-size: 1.8em;
+}
+
+.post-row summary h3 {
     margin: 0;
-    font-size: 0.8em;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.post-row-body {
+    margin-top: 0.75em;
 }
 
 .post-dropdown {
@@ -639,7 +985,7 @@ header #menu {
 }
 
 /* Post page specific */
-#post_page {
+.post-page {
     background-color: #ddd;
 }
 
@@ -657,6 +1003,14 @@ header #menu {
 
 #noComment {
     color: #555;
+}
+
+#indv-post-page .post-title,
+#indv-post-page .post-desc {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
 }
 
 #indv-post-page,

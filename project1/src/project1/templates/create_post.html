@@ -1,0 +1,94 @@
+<form action="/create" method="post" class="pure-form popup" id="createForm"
+    enctype="multipart/form-data" hidden>
+    <input type="hidden" id="lat" name="lat">
+    <input type="hidden" id="long" name="long">
+    <input type="hidden" id="locationName" name="locationName" value="">
+    <input type="hidden" id="icon" name="icon" value="default">
+    <input type="hidden" name="next" value="{{ 'blog' if location_mode == 'picker' else 'map' }}">
+
+    <div class="popupHeader">
+        <h2>Create new post</h2>
+        <button type="button" id="closePopup" aria-label="Close">
+            <img src="{{ url_for('static', filename='icons/x-square.svg') }}" alt="">
+        </button>
+    </div>
+
+    <div class="popupBody">
+
+        <div class="field">
+            <div class="fieldHead">
+                <label for="title">Title</label>
+                <small id="titleCount">0/100</small>
+            </div>
+            <input type="text" id="title" name="title" minlength="3" maxlength="100" required>
+        </div>
+
+        <div class="field">
+            <div class="fieldHead">
+                <label for="description">Description</label>
+                <small id="descCount">0/500</small>
+            </div>
+            <textarea id="description" name="description" rows="4" maxlength="500" required></textarea>
+        </div>
+
+        {% if location_mode == 'picker' %}
+        <div class="field">
+            <label for="locationSearch">Location</label>
+            <input type="text" id="locationSearch" list="buildingList"
+                placeholder="Search for a building" autocomplete="off">
+            <datalist id="buildingList"></datalist>
+            <div id="locationMap" aria-label="Map for choosing a location"></div>
+            <small class="fieldNote" id="locationHint">Search for a building, or click the map to drop a pin.</small>
+            <small class="fieldError" id="locationError" hidden>Choose a location before posting.</small>
+        </div>
+        {% else %}
+        <div class="field">
+            <span class="fieldLabel">Location</span>
+            <div id="locationSummary" class="locationSummary">Click the map to choose a spot.</div>
+            <small class="fieldNote">Set by the spot you clicked on the map.</small>
+        </div>
+        {% endif %}
+
+        <div class="field">
+            <span class="fieldLabel">Image <span class="optional">(optional)</span></span>
+            <label for="image" class="imageDrop">
+                <img id="imagePreview" alt="Image preview" hidden>
+                <span class="imageDropText">
+                    <img src="{{ url_for('static', filename='icons/image.svg') }}" alt="" class="placeholderIcon">
+                    <span>Choose an image<small>PNG, JPG or GIF &middot; max 5 MB</small></span>
+                </span>
+            </label>
+            <input type="file" id="image" name="image" class="srOnly"
+                accept="image/png, image/jpg, image/jpeg, image/gif">
+        </div>
+
+        <fieldset class="field">
+            <legend class="fieldLabel">Map icon</legend>
+            <div class="iconChips">
+                {% for key, label in [('default', 'Default'), ('pin', 'Pin'), ('star', 'Star'),
+                                      ('heart', 'Heart'), ('flag', 'Flag'), ('custom', 'Upload')] %}
+                <button type="button" class="iconChip{% if key == 'default' %} is-selected{% endif %}"
+                    data-icon="{{ key }}" aria-pressed="{{ 'true' if key == 'default' else 'false' }}">{{ label }}</button>
+                {% endfor %}
+            </div>
+            <div id="customIconRow" hidden>
+                <label for="customIcon">Upload a custom map icon</label>
+                <input type="file" id="customIcon" name="customIcon"
+                    accept="image/png, image/jpg, image/jpeg, image/gif">
+                <small class="fieldNote">Max size: 5 MB</small>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="popupFooter">
+        <div class="anonRow" id="anonRow" {% if not (logged_in or account_id) %}hidden{% endif %}>
+            <input type="checkbox" id="anon" name="anonOption" value="yes">
+            <input type="hidden" name="anonOption" value="no">
+            <label for="anon">Post anonymously</label>
+        </div>
+        <div class="footerButtons">
+            <button type="button" id="cancelPost" class="pure-button">Cancel</button>
+            <button type="submit" id="createButton" class="pure-button">Post</button>
+        </div>
+    </div>
+</form>

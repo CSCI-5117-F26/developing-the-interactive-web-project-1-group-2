@@ -22,13 +22,14 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 **Describe the most challenging features you implemented
 (one sentence per bullet, maximum 4 bullets):**
 
-* ...
+* Handling image uploads from users, storing images, and displaying images.
+* Creating popups, structuring the layout so popups appear on top of the map and not under it.
 
 ## Testing Notes
 
 **Is there anything special we need to know in order to effectively test your app? (optional):**
 
-* ...
+* If testing locally, not on Render, ensure that the Postgres application is installed. PGAdmin4 alone will not work with PostGIS.
 
 
 ## Screenshots of Site
