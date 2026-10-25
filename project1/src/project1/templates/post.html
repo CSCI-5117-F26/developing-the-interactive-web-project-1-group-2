@@ -22,7 +22,7 @@
         <h1 class="post-detail-title">{{ post.title }}</h1>
         <p class="post-detail-meta">
           {{ post.time.strftime('%B %d, %Y') }}
-          by {{ 'anonymous' if post.anon else (post.username or 'anonymous') }}
+          by {{ post.author }}
           {% if post.location %}&nbsp;@{{ post.location }}{% endif %}
         </p>
         <p class="post-detail-desc">{{ post.description }}</p>
