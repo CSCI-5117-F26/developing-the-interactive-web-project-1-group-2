@@ -311,13 +311,13 @@ header #menu {
     display: none;
 }
 
-#createForm .iconChips {
+#createForm .icon-options {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
 }
 
-#createForm .iconChip {
+#createForm .icon-option {
     height: 2.5em;
     padding: 0 0.9em;
     border: 1px solid #000;
@@ -329,7 +329,7 @@ header #menu {
     cursor: pointer;
 }
 
-#createForm .iconChip.is-selected {
+#createForm .icon-option.is-selected {
     background: #000;
     color: #fff;
 }
@@ -1129,4 +1129,329 @@ header #menu {
 .comment p {
     margin: 0.3em 0 0;
     overflow-wrap: anywhere;
+}
+
+/*  EDIT POST PAGE  */
+
+#editForm {
+    display: flex;
+    flex-direction: column;
+    max-width: 40em;
+    margin: 0 auto;
+    background: #fff;
+}
+ 
+#editForm .popupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 0.75em 0.5em 1.75em;
+    border-bottom: 1px solid #999;
+}
+ 
+#editForm .popupHeader h2 {
+    margin: 0;
+    font-size: 1.25em;
+    font-weight: 700;
+}
+ 
+#closePopup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75em;
+    height: 2.75em;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+ 
+#closePopup img {
+    width: 1.5em;
+    height: 1.5em;
+}
+ 
+#editForm .popupBody {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+    padding: 1.5em 1.75em;
+}
+ 
+#editForm .field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+ 
+#editForm .fieldHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4em;
+}
+ 
+#editForm label,
+#editForm .fieldLabel {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9em;
+    font-weight: 700;
+}
+ 
+#editForm .fieldLabel {
+    margin-bottom: 0.4em;
+    width: auto;
+    border: 0;
+}
+ 
+#editForm .optional {
+    font-weight: 400;
+    color: #555;
+}
+ 
+#editForm .fieldHead small,
+#editForm .fieldNote {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: #555;
+}
+ 
+#editForm .fieldNote {
+    display: block;
+    margin-top: 0.3em;
+}
+ 
+#editForm .fieldError {
+    display: block;
+    margin-top: 0.3em;
+    font-size: 0.8em;
+    font-weight: 700;
+}
+ 
+#editForm input[type="text"],
+#editForm textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    height: 2.75em;
+    padding: 0 0.75em;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #d9d9d9;
+    color: #000;
+}
+ 
+#editForm textarea {
+    height: auto;
+    padding: 0.75em;
+    resize: vertical;
+}
+ 
+#editForm input[type="text"]:focus,
+#editForm textarea:focus {
+    border: 0;
+    box-shadow: none;
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+ 
+#locationMap {
+    position: relative;
+    z-index: 0;
+    height: 10em;
+    margin-top: 0.5em;
+    border: 1px solid #000;
+}
+ 
+#editForm .locationSummary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75em;
+    padding: 0 0.75em;
+    background: #d9d9d9;
+    font-size: 0.9em;
+}
+ 
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+ 
+#editForm .imageDrop {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 7em;
+    overflow: hidden;
+    background: #d9d9d9;
+    font-size: 0.9em;
+    font-weight: 400;
+    cursor: pointer;
+}
+ 
+#editForm .imageDrop:focus-within {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+ 
+#editForm .imageDrop #imagePreview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+ 
+#editForm .imageDropText {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+}
+ 
+#editForm .imageDropText small {
+    display: block;
+    font-size: 0.8em;
+    color: #555;
+}
+ 
+#editForm .imageDrop .placeholderIcon {
+    width: 2em;
+    height: 2em;
+}
+ 
+#editForm .imageDrop #imagePreview:not([hidden]) ~ .imageDropText {
+    display: none;
+}
+ 
+#editForm .icon-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+ 
+#editForm .icon-option {
+    height: 2.5em;
+    padding: 0 0.9em;
+    border: 1px solid #000;
+    border-radius: 0;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+ 
+#editForm .icon-option.is-selected {
+    background: #000;
+    color: #fff;
+}
+ 
+#customIconRow {
+    margin-top: 0.75em;
+}
+ 
+#customIconRow label {
+    margin-bottom: 0.3em;
+    font-weight: 400;
+}
+ 
+#editForm .popupFooter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75em;
+    padding: 1em 1.75em;
+    border-top: 1px solid #999;
+}
+ 
+#editForm .anonRow {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    min-height: 2.75em;
+}
+ 
+#editForm .anonRow label {
+    font-weight: 400;
+    cursor: pointer;
+}
+ 
+#editForm input[type="checkbox"] {
+    width: 1.1em;
+    height: 1.1em;
+    margin: 0;
+    accent-color: #000;
+    cursor: pointer;
+}
+ 
+#editForm .footerButtons {
+    display: flex;
+    gap: 0.75em;
+    margin-left: auto;
+}
+ 
+#editForm .footerButtons .pure-button {
+    min-width: 6.5em;
+    height: 2.75em;
+    padding: 0 1.25em;
+    border-radius: 0;
+}
+ 
+#cancelPost {
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+}
+ 
+#saveButton {
+    background: #000;
+    color: #fff;
+    border: 0;
+}
+ 
+#editForm .popupHeader h2 { font-size: 1.25em; }
+ 
+#editForm .imageActions {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    margin-top: 0.5em;
+}
+ 
+#editForm .imageActions .pure-button {
+    height: 2.25em;
+    padding: 0 1em;
+    border-radius: 0;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    font-size: 0.85em;
+}
+ 
+#editForm .imageActions .fieldNote { margin: 0; }
+ 
+#editForm #cancelPost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+ 
+@media (max-width: 36em) {
+    .post-detail-body, .comments-card { padding-left: 1.25em; padding-right: 1.25em; }
+    #editForm .popupBody, #editForm .popupFooter { padding-left: 1.25em; padding-right: 1.25em; }
 }
