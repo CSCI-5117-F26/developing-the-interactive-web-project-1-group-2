@@ -172,10 +172,12 @@ function adjustSideBar() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     if (sidebar.hidden) {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
+        sidebarToggle.innerHTML = '<i class="fa fa-angle-right"></i>';
     }
     else {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
         updatePostsInView();
+        sidebarToggle.innerHTML = '<i class="fa fa-angle-left"></i>';
     }
 
 }
