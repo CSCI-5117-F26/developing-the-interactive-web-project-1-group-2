@@ -82,7 +82,7 @@ def map_page():
 
     if searchInput != "":
         conditions.append("(posts.title ILIKE %s OR posts.description ILIKE %s)")
-        values.extend([searchInput, f"%{searchInput}%"])
+        values.extend([f"%{searchInput}%", f"%{searchInput}%"])
 
     if locationInput != "":
         conditions.append("LOWER(locations.location) = LOWER(%s)")
@@ -171,7 +171,7 @@ def blog_page():
                 if not searchInput == "":
                     querySearch = "posts.title ILIKE %s or posts.description ILIKE %s"
                     conditions.append(querySearch)
-                    values.extend([searchInput, f"%{searchInput}%"])
+                    values.extend([f"%{searchInput}%", f"%{searchInput}%"])
 
                 if not locationInput == "":
                     queryLocation = "LOWER(locations.location) = LOWER(%s)"
