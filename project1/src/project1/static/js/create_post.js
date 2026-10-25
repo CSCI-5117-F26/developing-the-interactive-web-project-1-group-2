@@ -34,18 +34,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const chips = form.querySelectorAll('.iconChip');
+    const iconOptions = form.querySelectorAll('.icon-option');
     const iconInput = $('icon');
     const customRow = $('customIconRow');
-    chips.forEach((chip) => {
-        chip.addEventListener('click', () => {
-            chips.forEach((c) => {
-                const on = c === chip;
-                c.classList.toggle('is-selected', on);
-                c.setAttribute('aria-pressed', on);
+    iconOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+            iconOptions.forEach((currentOption) => {
+                const on = currentOption === option;
+                currentOption.classList.toggle('is-selected', on);
+                currentOption.setAttribute('aria-pressed', on);
             });
-            iconInput.value = chip.dataset.icon;
-            customRow.hidden = chip.dataset.icon !== 'custom';
+            iconInput.value = option.dataset.icon;
+            customRow.hidden = option.dataset.icon !== 'custom';
             if (customRow.hidden) $('customIcon').value = '';
         });
     });

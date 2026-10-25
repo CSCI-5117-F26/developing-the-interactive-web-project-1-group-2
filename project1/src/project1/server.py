@@ -684,7 +684,14 @@ def edit_page(post_id):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT title, description FROM posts WHERE post_id = %s AND account = %s",
+        """
+        SELECT posts.title, posts.description, posts.anon, posts.icon_id,
+               locations.location, ST_Y(locations.coord), ST_X(locations.coord),
+               EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id)
+        FROM posts
+        LEFT JOIN locations ON posts.location = locations.location_id
+        WHERE posts.post_id = %s AND posts.account = %s;
+        """,
         (post_id, account_id),
     )
     row = cursor.fetchone()
@@ -694,7 +701,18 @@ def edit_page(post_id):
     if row is None:
         return abort(404)
 
-    post = {"post_id": post_id, "title": row[0], "description": row[1]}
+    post = {
+        "post_id": post_id,
+        "title": row[0],
+        "description": row[1],
+        "anon": row[2],
+        "icon": "custom" if row[3] is not None else "default",
+        "location": row[4],
+        "lat": row[5],
+        "long": row[6],
+        "has_image": row[7],
+    }
+
     return render_template("edit.html", post=post)
 
 
@@ -703,14 +721,79 @@ def edit_save(post_id):
     account_id = get_account_id()
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
+    anon = request.form.get("anonOption", "") == "yes"
+    lat = request.form.get("lat")
+    long = request.form.get("long")
+    locationName = request.form.get("locationName", "").strip()
+    icon = request.form.get("icon", "default")
+    remove_image = request.form.get("removeImage", "no") == "yes"
+
+    file = request.files.get("image")
+    image_binary = None
+    mime_type = None
+    if file and file.filename and allowed_file(file):
+        filename = secure_filename(file.filename)
+        image_binary = file.read()
+        mime_type = file.mimetype
+
+    custom_icon_file = request.files.get("customIcon")
+    icon_binary = None
+    icon_mime_type = None
+    if custom_icon_file and custom_icon_file.filename and allowed_file(custom_icon_file):
+        icon_binary = custom_icon_file.read()
+        icon_mime_type = custom_icon_file.mimetype
 
     if title and description:
         conn = psycopg.connect(os.environ["DATABASE_URL"])
         cursor = conn.cursor()
+
         cursor.execute(
-            "UPDATE posts SET title = %s, description = %s WHERE post_id = %s AND account = %s",
-            (title, description, post_id, account_id),
+            "SELECT location, icon_id FROM posts WHERE post_id = %s AND account = %s",
+            (post_id, account_id),
         )
+        row = cursor.fetchone()
+
+        if row:
+            location_id, old_icon_id = row
+
+            cursor.execute(
+                "UPDATE posts SET title = %s, description = %s, anon = %s WHERE post_id = %s AND account = %s",
+                (title, description, anon, post_id, account_id),
+            )
+
+            if lat and long:
+                cursor.execute(
+                    "UPDATE locations SET location = %s, coord = ST_MakePoint(%s, %s) WHERE location_id = %s",
+                    (locationName or None, float(long), float(lat), location_id),
+                )
+
+            new_icon_id = old_icon_id
+            if icon == "custom":
+                if icon_binary and icon_mime_type:
+                    cursor.execute(
+                        "INSERT INTO icons (icon_file, mime_type) VALUES (%s, %s) RETURNING icon_id;",
+                        (icon_binary, icon_mime_type),
+                    )
+                    new_icon_id = cursor.fetchone()[0]
+            else:
+                new_icon_id = None
+
+            if new_icon_id != old_icon_id:
+                cursor.execute(
+                    "UPDATE posts SET icon_id = %s WHERE post_id = %s",
+                    (new_icon_id, post_id),
+                )
+                if old_icon_id is not None:
+                    cursor.execute("DELETE FROM icons WHERE icon_id = %s", (old_icon_id,))
+
+            if image_binary and mime_type:
+                cursor.execute("DELETE FROM links WHERE post = %s", (post_id,))
+                cursor.execute(
+                    "INSERT INTO links (post, link, image_file, mime_type) VALUES (%s, %s, %s, %s);",
+                    (post_id, filename, image_binary, mime_type),
+                )
+            elif remove_image:
+                cursor.execute("DELETE FROM links WHERE post = %s", (post_id,))
         conn.commit()
         cursor.close()
         conn.close()
