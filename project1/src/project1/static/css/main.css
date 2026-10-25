@@ -983,99 +983,150 @@ header #menu {
     margin: 1% auto;
 }
 
-#indv-post-page {
-    background-color: white;
+.page-bg {
+    flex: 1;
+    background: #ddd;
+    padding: 2em 1em 3em;
+}
+
+/* ---------- INDIVIDUAL POST PAGE ---------- */
+.post-wrap {
+    max-width: 55em;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 1.25em;
+    font-size: 0.9em;
+    color: #000;
+    text-decoration: none;
+}
+
+.back-link:hover { text-decoration: underline; }
+
+.post-detail,
+.comments-card {
+    background: #fff;
+    margin-bottom: 1.5em;
+}
+
+.post-detail-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 880 / 377;
+    object-fit: cover;
+}
+
+.post-detail-body {
+    padding: 2em 2.25em 1.5em;
+}
+
+.post-detail-title {
+    margin: 0 0 0.35em;
+    font-size: 2em;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.post-detail-meta {
+    margin: 0 0 1.5em;
+    font-size: 0.85em;
+}
+
+.post-detail-desc {
+    margin: 0 0 1.75em;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+    white-space: pre-wrap;
+}
+
+.post-detail-footer {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    width: 60%;
-    padding: 2%;
-    margin: 3% auto;
-    text-align: center;
+    padding-top: 0.9em;
+    border-top: 1px solid #999;
+    font-size: 0.9em;
 }
 
-#indv-post-img {
-    width: 50%;
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
+.post-detail-footer a { color: #000; text-decoration: none; }
+.post-detail-footer a:hover { text-decoration: underline; }
+
+.comments-card { padding: 1.5em 2.25em 2em; }
+
+.comments-heading {
+    margin: 0 0 0.75em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid #999;
+    font-size: 1.1em;
+    font-weight: 400;
 }
 
-#postComments {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1%;
-    height: 300px;
-    overflow-y: auto;
-    /* border: 1px solid gray; */
+.comments-heading span { color: #666; }
+
+.comment-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 0.75em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #999;
 }
 
-/* Post page specific */
-.post-page {
-    background-color: #ddd;
+.comment-form input[type="text"] {
+    height: 2.75em;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 0.75em;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #d9d9d9;
 }
 
-#comments h3,
-#noComment,
-.indiv_post_author,
-.indiv_post_date {
-    text-align: center;
+.comment-form input[type="text"]:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
 }
 
-#comments h3,
+.reply-btn {
+    width: 6.5em;
+    height: 2.75em;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+}
+
+.comment-form .char-limit-footnote {
+    grid-column: 2;
+    margin: 0.3em 0 0;
+}
+
 #noComment {
-    margin: 1%;
-}
-
-#noComment {
+    margin: 1em 0 0;
     color: #555;
 }
 
-#indv-post-page .post-title,
-#indv-post-page .post-desc {
-    display: block;
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-    overflow: visible;
-}
-
-#indv-post-page,
-#postComments {
-    min-width: 0;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    /* fallback for older browsers */
-}
-
-#indv-post-title,
-#indv-post-description,
-.comment p {
-    overflow-wrap: anywhere;
-    text-wrap: pretty;
-}
-
-.indiv_post_author,
-.indiv_post_date,
-.indiv_post_comment {
-    margin: 1%;
-}
-
-#commentForm {
-    padding-bottom: 1em;
-}
-
-#commentList {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
 .comment {
-    background-color: white;
-    padding: 2%;
-    width: 50%;
-    margin: 1%;
-    align-items: center;
+    padding: 0.9em 0;
+    border-bottom: 1px solid #999;
+}
+
+.comment:last-child { border-bottom: 0; }
+
+.comment-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    font-size: 0.85em;
+}
+
+.comment-head span { color: #666; }
+
+.comment p {
+    margin: 0.3em 0 0;
+    overflow-wrap: anywhere;
 }
