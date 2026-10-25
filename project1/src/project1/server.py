@@ -121,7 +121,8 @@ def blog_page():
                         ST_X(locations.coord),
                         posts.time,
                         accounts.username AS account,
-                        posts.account AS owner_id
+                        posts.account AS owner_id,
+                        EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id) AS has_image
                     FROM posts
                     LEFT JOIN locations ON posts.location = locations.location_id
                     LEFT JOIN accounts ON posts.account = accounts.account_id
@@ -183,7 +184,8 @@ def blog_page():
                             SELECT posts.post_id, posts.title, posts.description, posts.time,
                                 ST_Y(locations.coord), ST_X(locations.coord),
                                 posts.account AS owner_id,
-                                accounts.username AS account
+                                accounts.username AS account,
+                                EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id) AS has_image
                             FROM posts
                             LEFT JOIN locations ON posts.location = locations.location_id
                             LEFT JOIN accounts ON posts.account = accounts.account_id
