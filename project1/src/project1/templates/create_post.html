@@ -64,10 +64,10 @@
 
         <fieldset class="field">
             <legend class="fieldLabel">Map icon</legend>
-            <div class="iconChips">
+            <div class="icon-options">
                 {% for key, label in [('default', 'Default'), ('pin', 'Pin'), ('star', 'Star'),
                                       ('heart', 'Heart'), ('flag', 'Flag'), ('custom', 'Upload')] %}
-                <button type="button" class="iconChip{% if key == 'default' %} is-selected{% endif %}"
+                <button type="button" class="icon-option{% if key == 'default' %} is-selected{% endif %}"
                     data-icon="{{ key }}" aria-pressed="{{ 'true' if key == 'default' else 'false' }}">{{ label }}</button>
                 {% endfor %}
             </div>
