@@ -97,7 +97,7 @@ header #menu {
 
 .popupWindow {
     width: 90%;
-    max-width: 37.5em;
+    max-width: 40em;
     /* ~600px */
     max-height: 85vh;
     background-color: white;
@@ -109,164 +109,293 @@ header #menu {
     box-sizing: border-box;
 }
 
+/* CREATE POST POPUP */
+#createForm {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
 #createForm .popupHeader {
-    position: relative;
-    background-color: rgb(179, 179, 179);
-    padding: 0.75em 3em;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 0.75em 0.5em 1.75em;
+    border-bottom: 1px solid #999;
 }
 
 #createForm .popupHeader h2 {
     margin: 0;
     font-size: 1.25em;
-    font-weight: 500;
+    font-weight: 700;
 }
 
 #closePopup {
-    position: absolute;
-    top: 50%;
-    right: 0.5em;
-    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75em;
+    height: 2.75em;
     padding: 0;
     border: 0;
     background: none;
-    line-height: 0;
     cursor: pointer;
 }
 
+#closePopup img {
+    width: 1.5em;
+    height: 1.5em;
+}
+
 #createForm .popupBody {
-    padding: 1.5em 1.5em 2em;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+    padding: 1.5em 1.75em;
 }
 
-#createForm .popupCol {
-    box-sizing: border-box;
-    padding: 0 0.5em;
+#createForm .field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
 }
 
-#createForm label {
+#createForm .fieldHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4em;
+}
+
+#createForm label,
+#createForm .fieldLabel {
     display: block;
-    margin: 0.75em 0 0.25em;
-    font-size: 1em;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9em;
+    font-weight: 700;
 }
 
-#createForm .imageBox {
+#createForm .fieldLabel {
+    margin-bottom: 0.4em;
+    width: auto;
+    border: 0;
+}
+
+#createForm .optional {
+    font-weight: 400;
+    color: #555;
+}
+
+#createForm .fieldHead small,
+#createForm .fieldNote {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: #555;
+}
+
+#createForm .fieldNote {
+    display: block;
+    margin-top: 0.3em;
+}
+
+#createForm .fieldError {
+    display: block;
+    margin-top: 0.3em;
+    font-size: 0.8em;
+    font-weight: 700;
+}
+
+#createForm input[type="text"],
+#createForm textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    height: 2.75em;
+    padding: 0 0.75em;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #d9d9d9;
+    color: #000;
+}
+
+#createForm textarea {
+    height: auto;
+    padding: 0.75em;
+    resize: vertical;
+}
+
+#createForm input[type="text"]:focus,
+#createForm textarea:focus {
+    border: 0;
+    box-shadow: none;
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+#locationMap {
+    position: relative;
+    z-index: 0;
+    height: 10em;
+    margin-top: 0.5em;
+    border: 1px solid #000;
+}
+
+#createForm .locationSummary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75em;
+    padding: 0 0.75em;
+    background: #d9d9d9;
+    font-size: 0.9em;
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+#createForm .imageDrop {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1 / 1;
-    margin: 0 0 1em;
-    background-color: rgb(179, 179, 179);
-    cursor: pointer;
+    height: 7em;
     overflow: hidden;
-
+    background: #d9d9d9;
+    font-size: 0.9em;
+    font-weight: 400;
+    cursor: pointer;
 }
 
-#imagePreview {
+#createForm .imageDrop:focus-within {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+#createForm .imageDrop #imagePreview {
     position: absolute;
     inset: 0;
     width: 100%;
-    object-fit: cover;
-}
-
-#imagePreview:not([hidden])+.placeholderIcon {
-    display: none;
-}
-
-#createForm .imagePicker {
-    display: flex;
-    align-items: center;
-    gap: 0.6em;
-}
-
-#createForm .imagePicker label {
-    flex: none;
-    margin: 0;
-    white-space: nowrap;
-}
-
-#createForm .imageBox #imagePreview {
-    width: 100%;
     height: 100%;
     object-fit: contain;
-    object-position: center;
 }
 
-#createForm .imageBox .placeholderIcon {
-    width: 2.5em;
-    height: 2.5em;
-    object-fit: contain;
+#createForm .imageDropText {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
 }
 
-#createForm .imageBox #imagePreview:not([hidden])~.placeholderIcon {
+#createForm .imageDropText small {
+    display: block;
+    font-size: 0.8em;
+    color: #555;
+}
+
+#createForm .imageDrop .placeholderIcon {
+    width: 2em;
+    height: 2em;
+}
+
+#createForm .imageDrop #imagePreview:not([hidden]) ~ .imageDropText {
     display: none;
 }
 
-#createForm input[type="file"] {
-    flex: 1;
-    min-width: 0;
+#createForm .iconChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
 }
 
-#createForm input[type="file"]::file-selector-button {
-    margin-right: 0.6em;
-    padding: 0.3em 0.6em;
-    border: 0;
-    background-color: rgb(179, 179, 179);
+#createForm .iconChip {
+    height: 2.5em;
+    padding: 0 0.9em;
+    border: 1px solid #000;
+    border-radius: 0;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 0.9em;
     cursor: pointer;
 }
 
-#createForm .popupBody textarea {
-    width: 100%;
-    margin-bottom: 0.5em;
+#createForm .iconChip.is-selected {
+    background: #000;
+    color: #fff;
+}
+
+#customIconRow {
+    margin-top: 0.75em;
+}
+
+#customIconRow label {
+    margin-bottom: 0.3em;
+    font-weight: 400;
+}
+
+#createForm .popupFooter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75em;
+    padding: 1em 1.75em;
+    border-top: 1px solid #999;
 }
 
 #createForm .anonRow {
     display: flex;
     align-items: center;
-    gap: 0.75em;
-    margin-bottom: 1em;
+    gap: 0.6em;
+    min-height: 2.75em;
 }
 
 #createForm .anonRow label {
-    margin: 0;
-}
-
-#createForm input[type="checkbox"] {
-    margin: 0;
+    font-weight: 400;
     cursor: pointer;
 }
 
-#createForm .submitRow {
+#createForm input[type="checkbox"] {
+    width: 1.1em;
+    height: 1.1em;
+    margin: 0;
+    accent-color: #000;
+    cursor: pointer;
+}
+
+#createForm .footerButtons {
     display: flex;
-    justify-content: flex-end;
+    gap: 0.75em;
+    margin-left: auto;
+}
+
+#createForm .footerButtons .pure-button {
+    min-width: 6.5em;
+    height: 2.75em;
+    padding: 0 1.25em;
+    border-radius: 0;
+}
+
+#cancelPost {
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
 }
 
 #createButton {
-    min-width: 6.5em;
-    padding: 0.4em 1.5em;
-    margin: 0;
-    border-radius: 0;
-    background-color: rgb(179, 179, 179);
-    color: #000;
-}
-
-@media (max-width: 40em) {
-    #createForm .popupBody {
-        padding: 1.25em 1em;
-    }
-
-    #createForm .popupCol {
-        width: 100%;
-        padding: 0;
-    }
-
-    #createForm .imageBox {
-        aspect-ratio: 16 / 9;
-    }
-
-    #createForm .imagePicker {
-        margin-bottom: 1.25em;
-    }
+    background: #000;
+    color: #fff;
+    border: 0;
 }
 
 #post {
