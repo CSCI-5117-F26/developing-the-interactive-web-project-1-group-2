@@ -313,8 +313,21 @@ position: relative;
     padding: 2em 1em;
 }
 
+.page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.page-heading h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
 .blog-layout {
-    max-width: 64em;
+    max-width: 80em;
     margin: 0 auto;
 }
 
@@ -392,10 +405,17 @@ position: relative;
     font-size: 0.75em;
 }
 
+
+.btn-primary{
+    width: 8em;
+    background-color: black;
+    color: white;
+    border-radius: 0;
+}
+
 .apply-btn {
     margin-top: 1em;
-    background-color: #d9d9d9;
-    border-radius: 0;
+    width: 100%;
 }
 
 /* GRID */
@@ -405,13 +425,57 @@ position: relative;
     margin-bottom: 1.5em;
 }
 
+#gridView {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5em;
+}
+
+@media (min-width: 36em) {
+    #gridView {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 70em) {
+    #gridView {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+#gridView .post-card {
+    margin-bottom: 0;
+}
+
 .post-card {
-    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    border: none;
+}
+
+.post-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+}
+
+.post-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25em;
 }
 
 .post-title {
     margin: 0 0 0.25em;
     font-size: 1.3em;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
 }
 
 .post-title a {
@@ -428,15 +492,19 @@ position: relative;
     margin: 0 0 1.5em;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
     overflow: hidden;
+    overflow-wrap: anywhere;
 }
 
 .post-footer {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
     padding-top: 0.75em;
     border-top: 1px solid #999;
     font-size: 0.9em;
