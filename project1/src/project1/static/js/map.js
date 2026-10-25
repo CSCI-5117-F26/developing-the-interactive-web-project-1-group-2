@@ -24,6 +24,8 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 // help with AI to access geojson file
 fetch(REGIONS_URL)
     .then(response => response.json())
@@ -60,6 +62,26 @@ document.getElementById('closePopup').addEventListener('click', () => {
     changePopup(true);
 });
 
+const filterToggle = document.getElementById('filterToggle');
+const filterPanel = document.getElementById('filterPanel');
+filterToggle.addEventListener('click', () => {
+    filterPanel.hidden = !filterPanel.hidden;
+    filterToggle.setAttribute('aria-expanded', !filterPanel.hidden);
+});
+
+const mapSearchForm = document.getElementById('mapSearchForm');
+const searchParams = new URLSearchParams(window.location.search);
+for (const [name, value] of searchParams) {
+    if (mapSearchForm.elements[name]) {
+        mapSearchForm.elements[name].value = value;
+    }
+}
+if (searchParams.get('location') || searchParams.get('user') ||
+    (searchParams.get('date-range') || 'any') !== 'any') {
+    filterPanel.hidden = false;
+    filterToggle.setAttribute('aria-expanded', true);
+}
+
 const imageInput = document.getElementById('image');
 const imagePreview = document.getElementById('imagePreview');
 imageInput.addEventListener('change', () => {
@@ -92,6 +114,9 @@ window.addEventListener('load', async () => {
                 removedPostIds.push(layer['options']['postId']);
             }
         });
+    }
+    if (window.location.search !== '') {
+        adjustSideBar();
     }
 });
 
@@ -149,10 +174,12 @@ function adjustSideBar() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     if (sidebar.hidden) {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
+        sidebarToggle.innerHTML = '<i class="fa fa-angle-right"></i>';
     }
     else {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
         updatePostsInView();
+        sidebarToggle.innerHTML = '<i class="fa fa-angle-left"></i>';
     }
 
 }
@@ -242,6 +269,10 @@ function updateSidebar(posts) {
     const container = document.getElementById('sideBarPosts');
     container.replaceChildren();    // Resets the children to start from scratch
 
+    const visibleCount = posts.filter(post => !removedPostIds.includes(post.post_id)).length;
+    document.getElementById('postCount').textContent =
+        `${visibleCount} ${visibleCount === 1 ? 'post' : 'posts'} in view`;
+
     if (posts.length === 0) {
         const noPosts = document.createElement('p');
         noPosts.textContent = 'No Nearby Posts!';
@@ -257,43 +288,63 @@ function updateSidebar(posts) {
         }
 
         postFlag = true;
-        const dropdown = document.createElement('div');
-        dropdown.className = 'post-dropdown';
-
+        
         const details = document.createElement('details');
+        details.className = 'post-row';
         details.open = openPostIds.has(post.post_id);
 
         let restoring = details.open;
         details.addEventListener('toggle', () =>{       // Help from AI to identify bug and think of possible solutions
-            if (restoring == true) {
-                restoring = false;
-                return;
-            }
-            
-            if (details.open) {
+
+            if (restoring) {
                 openPostIds.add(post.post_id);
-                map.panTo([post.lat, post.long]);
-                viewPost({ target: { options: { postId: post.post_id } } });
             } else {
                 openPostIds.delete(post.post_id);
             }
         });
 
         const summary = document.createElement('summary');
-        summary.className = 'clickable-post';
-        summary.textContent = post.title;
+        const title = document.createElement('h3');
+        title.textContent = post.title;
+        summary.appendChild(title);
         details.appendChild(summary);
 
+        const body = document.createElement('div');
+        body.className = 'post-row-body';
+
         const time = document.createElement('p');
-        time.textContent = post.time;
-        details.appendChild(time);
+        time.className = 'post-meta';
+        time.textContent = new Date(post.time).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+        body.appendChild(time);
 
         const desc = document.createElement('p');
+        desc.className = 'post-desc';
         desc.textContent = post.description;
-        details.appendChild(desc);
+        body.appendChild(desc);
 
-        dropdown.appendChild(details);
-        container.appendChild(dropdown);
+        const footer = document.createElement('div');
+        footer.className = 'post-footer';
+
+        const readMore = document.createElement('a');
+        readMore.href = `/post/${post.post_id}`;
+        readMore.textContent = 'Read more & comments';
+        footer.appendChild(readMore);
+
+        const viewOnMap = document.createElement('button');
+        viewOnMap.type = 'button';
+        viewOnMap.className = 'link-button';
+        viewOnMap.textContent = 'View on map';
+        viewOnMap.addEventListener('click', () => {
+            map.panTo([post.lat, post.long]);
+            viewPost({ target: { options: { postId: post.post_id } } });
+        });
+        footer.appendChild(viewOnMap);
+
+        body.appendChild(footer);
+        details.appendChild(body);
+        container.appendChild(details);
     }
 
     if (postFlag == false) {
