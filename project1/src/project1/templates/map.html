@@ -6,6 +6,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="{{ url_for('static', filename='js/map.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/create_post.js') }}" defer></script>
 <script>
     const REGIONS_URL = "{{ url_for('static', filename='data/building_polygons_4326.geojson') }}";
 </script>
@@ -78,72 +79,9 @@
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
                 <div class="popups">
-                    <form action="/create" method="post" class="pure-form popup" id="createForm"
-                        enctype=multipart/form-data hidden>
-                        <input type="hidden" id="lat" name="lat">
-                        <input type="hidden" id="long" name="long">
-                        <input type="hidden" id="locationName" name="locationName" value="">
-
-                        <div class="popupHeader">
-                            <h2>Create New Post</h2>
-                            <button type="button" id="closePopup">
-                                <img src="{{ url_for('static', filename='icons/x-square.svg') }}" alt="exit">
-                            </button>
-                        </div>
-
-                        <div class="pure-g popupBody">
-                            <div class="pure-u-5-12 popupCol">
-                                <label for="image" class="imageBox">
-                                    <img id="imagePreview" alt="image preview" hidden>
-                                    <img src="{{ url_for('static', filename='icons/image.svg') }}" alt="image">
-                                </label>
-                                <div class="chooseImage">
-                                    <label for="image"></label>
-                                    <input type="file" id="image" name="image"
-                                        accept="image/png, image/jpg, image/jpeg, image/gif">
-                                    <small class="file-size-footnote">Max size: 5 MB</small>
-                                </div>
-                                <div id="iconRow">
-                                    <label for="icon">Select a map icon:</label>
-                                    <select id="icon" name="icon">
-                                        <option value="default">Default</option>
-                                        <option value="pin">Pin</option>
-                                        <option value="star">Star</option>
-                                        <option value="heart">Heart</option>
-                                        <option value="flag">Flag</option>
-                                    </select>
-                                </div>
-                                <div id="customIconRow">
-                                    <label for="customIcon">Upload a custom map icon</label>
-                                    <input type="file" id="customIcon" name="customIcon"
-                                        accept="image/png, image/jpg, image/jpeg, image/gif">
-                                    <small class="file-size-footnote">Max size: 5 MB</small>
-                                </div>
-                            </div>
-
-                            <div class="pure-u-7-12 popupCol">
-                                <label for="title">Post Title:</label>
-                                <textarea id="title" name="title" class="pure-input-1" minlength="3" rows="1"
-                                    maxlength="20" required></textarea>
-                                <small class="char-limit-footnote">0/20</small>
-
-                                <label for="description">Description:</label>
-                                <textarea id="description" name="description" class="pure-input-1" rows="3"
-                                    maxlength="200" required></textarea>
-                                <small class="char-limit-footnote">0/200</small>
-
-                                <div class="anonRow" id="anonRow">
-                                    <label for="anon">Post anonymously?</label>
-                                    <input type="checkbox" id="anon" name="anonOption" value="yes">
-                                    <input type="hidden" name="anonOption" value="no">
-                                </div>
-
-                                <div class="submitRow">
-                                    <button type="submit" class="pure-button" id="createButton">Post</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    
+                    {% set location_mode = 'map' %}
+                    {% include "create_post.html" %}
 
                     <div class="popup" id="post" hidden>
                         <h1 id="postTitle"></h1>

@@ -40,16 +40,21 @@ fetch(REGIONS_URL)
                 };
             }
         }).on('click', (e) => {
-            feature = e['layer']['feature'];
-            document.getElementById('locationName').value = feature['properties']['BLDG_NAME_'];
+            document.getElementById('locationName').value = e.layer.feature.properties.BLDG_NAME_;
+            document.getElementById('lat').value = e.latlng.lat;
+            document.getElementById('long').value = e.latlng.lng;
+            showLocationSummary();
+            changePopup(false, 'createForm');
         }).addTo(map);
     });
 
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e) => {
-    changePopup(false, 'createForm');
+    document.getElementById('locationName').value = '';
     document.getElementById('lat').value = e.latlng.lat;
     document.getElementById('long').value = e.latlng.lng;
+    showLocationSummary();
+    changePopup(false, 'createForm');
 });
 
 createPopupBackground.addEventListener('click', (e) => {
