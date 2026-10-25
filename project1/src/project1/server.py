@@ -178,12 +178,6 @@ def blog_page():
                     conditions.append(queryLocation)
                     values.append(locationInput)
 
-                # if not request.args.get('radius') == '':
-                #     radiusFloat = float(request.args.get('radius'))
-                #     queryRadius = 'ST_DWithin(locations.coord::geography, %s::geography)'
-                #     conditions.append(queryRadius)
-                #     values.append(radiusFloat)
-
                 if not userInput == "":
                     queryUser = "LOWER(accounts.username) = LOWER(%s)"
                     conditions.append(queryUser)
@@ -206,12 +200,12 @@ def blog_page():
 
                 where = "WHERE " + " AND ".join(conditions)
 
-                cur.execute(
-                    f"""
-                            SELECT posts.post_id, posts.title, posts.description, posts.time, posts.anon, 
+                cur.execute(f"""
+                            SELECT posts.post_id, posts.title, posts.description, posts.anon,
                                 ST_Y(locations.coord), ST_X(locations.coord),
-                                posts.account AS owner_id,
+                                posts.time,
                                 accounts.username AS account,
+                                posts.account AS owner_id,
                                 EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id) AS has_image
                             FROM posts
                             LEFT JOIN locations ON posts.location = locations.location_id
@@ -228,16 +222,6 @@ def login():
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("callback", _external=True), prompt="login"
     )
-
-
-# Both go to the same link, do not need two
-# @app.route('/signup')
-# def signup():
-#     return oauth.auth0.authorize_redirect(
-#         redirect_uri=url_for('callback', _external=True),
-#         screen_hint='signup',
-#         prompt='login'
-#     )
 
 
 @app.route("/logout")
@@ -332,6 +316,23 @@ def show_post(post_id):
                 (post_id,),
             )
             comment_rows = cursor.fetchall()
+            
+            # determine how author should appear in posts
+            author = post_row[1]
+            if post_row[0] == True:
+                author = 'Anonymous'
+                if "user_token" in session:
+                    sub = session["user_token"].get("userinfo")["sub"]
+                    if sub:
+                        cursor.execute("""
+                                        SELECT account_id FROM accounts
+                                        WHERE auth0_sub = %s;""",
+                                        (sub,),)
+                        row = cursor.fetchone()
+                        if row:
+                            account_id = row[0]
+                            if account_id == post_row[9]:
+                                author += f' ({post_row[1]})'
 
         comments = []  # the list of dict comments for the post based on its id
         for comment in comment_rows:
@@ -352,6 +353,7 @@ def show_post(post_id):
         "anon": post_row[0],
         "account": post_row[1],
         "username": post_row[1],
+        "author": author,
         "location": location,
         "title": post_row[5],
         "time": post_row[6],
