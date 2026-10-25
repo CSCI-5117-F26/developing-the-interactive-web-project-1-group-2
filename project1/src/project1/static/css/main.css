@@ -313,6 +313,12 @@ header #menu {
     padding: 1.5em;
     box-sizing: border-box;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    max-width: 100%;
     min-height: 100vh;
     position: absolute;
     width: 500px;
