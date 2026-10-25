@@ -9,7 +9,8 @@
     <div id="indv-post-page" class="pure-u-1-2">
         <h1 class="post-title">{{ post.title }}</h1>
         <p>Author:
-            {% if post.anon %}
+            {{post.author}}
+            <!-- {% if post.anon %}
             {% if post.username %}
             Anonymous ({{ post.username }})
             {% else %}
@@ -17,7 +18,7 @@
             {% endif %}
             {% else %}
             {{ post.username }}
-            {% endif %}
+            {% endif %} -->
         </p>
         <p class="post-desc">Description: {{ post.description }}</p>
         <p>Location: {{ post.location }}</p>
