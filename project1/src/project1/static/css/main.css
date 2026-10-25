@@ -708,7 +708,7 @@ header #menu {
 }
 
 /* Post page specific */
-#post_page {
+.post-page {
     background-color: #ddd;
 }
 
@@ -726,6 +726,14 @@ header #menu {
 
 #noComment {
     color: #555;
+}
+
+#indv-post-page .post-title,
+#indv-post-page .post-desc {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
 }
 
 #indv-post-page,

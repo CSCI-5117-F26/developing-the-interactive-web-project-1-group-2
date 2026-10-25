@@ -117,6 +117,7 @@ def blog_page():
                         posts.post_id, 
                         posts.title, 
                         posts.description,
+                        posts.anon,
                         ST_Y(locations.coord), 
                         ST_X(locations.coord),
                         posts.time,
@@ -181,7 +182,7 @@ def blog_page():
 
                 cur.execute(
                     f"""
-                            SELECT posts.post_id, posts.title, posts.description, posts.time,
+                            SELECT posts.post_id, posts.title, posts.description, posts.time, posts.anon, 
                                 ST_Y(locations.coord), ST_X(locations.coord),
                                 posts.account AS owner_id,
                                 accounts.username AS account,
@@ -194,11 +195,6 @@ def blog_page():
                 )
             posts = cur.fetchall()
     return render_template("blog.html", posts=posts, account_id=get_account_id(), filter=filterFlag), 200
-
-
-@app.get("/account")
-def account_page():
-    return render_template("account.html"), 200
 
 
 @app.route("/login")
