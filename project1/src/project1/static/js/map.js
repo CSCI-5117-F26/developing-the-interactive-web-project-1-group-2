@@ -2,6 +2,8 @@ let createPopupBackground;
 let createButton = document.getElementById('createButton');
 let popups = document.getElementsByClassName('popup');
 
+let openPostIds = new Set();
+
 var map = L.map('map', {
     center: [44.97449, -93.23514],
     zoom: 16,
@@ -129,7 +131,6 @@ function changePopup(hide, id = null) {
         let post = document.getElementById(id);
         post.hidden = hide;
 
-        // TODO: check if user is logged in. if not, the anonymous button should not show up
         let userLoggedIn = document.getElementById('map_page').dataset.userLoggedIn === 'true';
         let anonSection = document.getElementById('anonRow');
         if (userLoggedIn == true) {
@@ -260,17 +261,28 @@ function updateSidebar(posts) {
         dropdown.className = 'post-dropdown';
 
         const details = document.createElement('details');
+        details.open = openPostIds.has(post.post_id);
+
+        let restoring = details.open;
+        details.addEventListener('toggle', () =>{       // Help from AI to identify bug and think of possible solutions
+            if (restoring == true) {
+                restoring = false;
+                return;
+            }
+            
+            if (details.open) {
+                openPostIds.add(post.post_id);
+                map.panTo([post.lat, post.long]);
+                viewPost({ target: { options: { postId: post.post_id } } });
+            } else {
+                openPostIds.delete(post.post_id);
+            }
+        });
 
         const summary = document.createElement('summary');
         summary.className = 'clickable-post';
         summary.textContent = post.title;
         details.appendChild(summary);
-
-        // Clicking on a post makes the map pan to it and opens the post popup
-        summary.addEventListener('click', (e) => {
-            map.panTo([post.lat, post.long]);
-            viewPost({ target: { options: { postId: post.post_id } } });
-        });
 
         const time = document.createElement('p');
         time.textContent = post.time;

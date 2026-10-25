@@ -449,6 +449,9 @@ def create():
             row = cursor.fetchone()
             if row:
                 account_id = row[0]
+    else:
+        anon = True
+        
     icon_id = None
     if custom_icon_file and icon_binary and icon_mime_type:
         cursor.execute(
