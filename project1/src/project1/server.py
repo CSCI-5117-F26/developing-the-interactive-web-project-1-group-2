@@ -70,33 +70,59 @@ def home_page():
 
 @app.get("/map")
 def map_page():
-    if len(request.args) != 0 and request.args.get("search") != None:
-        titleQuery = request.args.get("search").strip()
-        descriptionQuery = f"%{titleQuery}%"
-        if titleQuery != None:
-            with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
-                                SELECT post_id FROM posts
-                                WHERE title ILIKE %s or
-                                description ILIKE %s;
-                                """,
-                        (titleQuery, descriptionQuery),
-                    )
-                    post_ids = [row[0] for row in cursor.fetchall()]
-            if len(post_ids) == 0:
-                return render_template(
-                    "map.html", logged_in=get_account_id() is not None, postIds=[-1]
-                ), 200
-            return render_template(
-                "map.html", logged_in=get_account_id() is not None, postIds=post_ids
-            ), 200
-        return render_template(
-            "map.html", logged_in=get_account_id() is not None, postIds=[]
-        ), 400
+    logged_in = get_account_id() is not None
+
+    searchInput = request.args.get("search", "").strip()
+    locationInput = request.args.get("location", "").strip()
+    userInput = request.args.get("user", "").strip()
+    dateRange = request.args.get("date-range", "any")
+
+    conditions = []
+    values = []
+
+    if searchInput != "":
+        conditions.append("(posts.title ILIKE %s OR posts.description ILIKE %s)")
+        values.extend([searchInput, f"%{searchInput}%"])
+
+    if locationInput != "":
+        conditions.append("LOWER(locations.location) = LOWER(%s)")
+        values.append(locationInput)
+
+    if userInput != "":
+        conditions.append("LOWER(accounts.username) = LOWER(%s)")
+        values.append(userInput)
+
+    if dateRange != "any":
+        now = datetime.now()
+
+        if dateRange == "today":
+            cutoff = now - timedelta(days=1)
+        elif dateRange == "week":
+            cutoff = now - timedelta(weeks=1)
+        else:
+            cutoff = now - timedelta(weeks=4)
+
+        conditions.append("posts.time > %s")
+        values.append(cutoff)
+
+    if len(conditions) == 0:
+        return render_template("map.html", logged_in=logged_in, postIds=[]), 200
+
+    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                f"""
+                SELECT posts.post_id FROM posts
+                LEFT JOIN locations ON posts.location = locations.location_id
+                LEFT JOIN accounts ON posts.account = accounts.account_id
+                WHERE {" AND ".join(conditions)};
+                """,
+                values,
+            )
+            post_ids = [row[0] for row in cursor.fetchall()]
+
     return render_template(
-        "map.html", logged_in=get_account_id() is not None, postIds=[]
+        "map.html", logged_in=logged_in, postIds=post_ids or [-1]
     ), 200
 
 

@@ -60,6 +60,26 @@ document.getElementById('closePopup').addEventListener('click', () => {
     changePopup(true);
 });
 
+const filterToggle = document.getElementById('filterToggle');
+const filterPanel = document.getElementById('filterPanel');
+filterToggle.addEventListener('click', () => {
+    filterPanel.hidden = !filterPanel.hidden;
+    filterToggle.setAttribute('aria-expanded', !filterPanel.hidden);
+});
+
+const mapSearchForm = document.getElementById('mapSearchForm');
+const searchParams = new URLSearchParams(window.location.search);
+for (const [name, value] of searchParams) {
+    if (mapSearchForm.elements[name]) {
+        mapSearchForm.elements[name].value = value;
+    }
+}
+if (searchParams.get('location') || searchParams.get('user') ||
+    (searchParams.get('date-range') || 'any') !== 'any') {
+    filterPanel.hidden = false;
+    filterToggle.setAttribute('aria-expanded', true);
+}
+
 const imageInput = document.getElementById('image');
 const imagePreview = document.getElementById('imagePreview');
 imageInput.addEventListener('change', () => {
@@ -92,6 +112,9 @@ window.addEventListener('load', async () => {
                 removedPostIds.push(layer['options']['postId']);
             }
         });
+    }
+    if (window.location.search !== '') {
+        adjustSideBar();
     }
 });
 
@@ -241,6 +264,10 @@ async function updatePostsInView() {
 function updateSidebar(posts) {
     const container = document.getElementById('sideBarPosts');
     container.replaceChildren();    // Resets the children to start from scratch
+
+    const visibleCount = posts.filter(post => !removedPostIds.includes(post.post_id)).length;
+    document.getElementById('postCount').textContent =
+        `${visibleCount} ${visibleCount === 1 ? 'post' : 'posts'} in view`;
 
     if (posts.length === 0) {
         const noPosts = document.createElement('p');
