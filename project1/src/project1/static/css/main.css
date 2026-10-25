@@ -562,27 +562,6 @@ position: relative;
     text-decoration: none;
 }
 
-/* Depends on how much info we want displayed
-
-.post-row .post-desc {
-    margin: 0 0 0.5em;
-    font-size: 0.8em;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-    white-space: normal;
-}
-
-.post-row-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1em;
-}
-
-.post-row-meta .post-meta {
-    margin: 0;
-}
- */
 
 .post-row-meta .post-actions {
     margin-left: auto;
@@ -605,15 +584,37 @@ position: relative;
     font-weight: 700;
 }
 
-.post-row .post-desc {
-    margin: 0 0 0.5em;
-    font-size: 0.8em;
-    overflow: hidden;
+.post-row summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    cursor: pointer;
+    list-style: none;
 }
 
-.post-row .post-meta {
+.post-row summary::-webkit-details-marker {
+    display: none;
+}
+
+.post-row summary::after {
+    content: "+"; /* will probs be set to actual icon later */
+    font-size: 1.3em;
+}
+
+.post-row[open] summary::after {
+    content: "-";
+    font-size: 1.8em;
+}
+
+.post-row summary h3 {
     margin: 0;
-    font-size: 0.8em;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.post-row-body {
+    margin-top: 0.75em;
 }
 
 .post-dropdown {
