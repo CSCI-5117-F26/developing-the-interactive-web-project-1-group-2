@@ -2,6 +2,8 @@ let createPopupBackground;
 let createButton = document.getElementById('createButton');
 let popups = document.getElementsByClassName('popup');
 
+let openPostIds = new Set();
+
 var map = L.map('map', {
     center: [44.97449, -93.23514],
     zoom: 16,
@@ -71,8 +73,26 @@ imageInput.addEventListener('change', () => {
     }
 });
 
-window.addEventListener('load', () => {
-    loadMarkers()
+let removedPostIds = [];
+window.addEventListener('load', async () => {
+    await loadMarkers()
+
+    const postIds = document.getElementsByClassName('post_ids');
+    if (postIds != null && postIds.length > 0) {
+        let idsList = []
+        for (id of postIds) {
+            idsList.push(Number(id['id']));
+        }
+
+        removedPostIds = [];
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Marker &&
+                !idsList.includes(layer['options']['postId'])) {
+                layer.remove();
+                removedPostIds.push(layer['options']['postId']);
+            }
+        });
+    }
 });
 
 async function loadMarkers() {
@@ -111,7 +131,6 @@ function changePopup(hide, id = null) {
         let post = document.getElementById(id);
         post.hidden = hide;
 
-        // TODO: check if user is logged in. if not, the anonymous button should not show up
         let userLoggedIn = document.getElementById('map_page').dataset.userLoggedIn === 'true';
         let anonSection = document.getElementById('anonRow');
         if (userLoggedIn == true) {
@@ -126,13 +145,14 @@ function changePopup(hide, id = null) {
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.hidden = !sidebar.hidden;
-    
+
     const sidebarToggle = document.getElementById('sidebarToggle');
-    if(sidebar.hidden){
-        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2}px`;
+    if (sidebar.hidden) {
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
     }
-    else{
-        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+    else {
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
+        updatePostsInView();
     }
 
 }
@@ -168,10 +188,7 @@ function showPost(post, id) {
     description.innerText = `Description: ${post['description']}`;
 
     let location = document.getElementById('postLocation');
-    location.innerText = `Location: (${post['location']['lat']}, ${post['location']['long']})`;
-    if (post['location']['name']) {
-        location.innerText = `Location: ${post['location']['name']}`;
-    }
+    location.innerText = `Location: ${post['location']}`;
 
     let image = document.getElementById('postImage');
     if (post['image'] != null) {
@@ -217,7 +234,6 @@ async function updatePostsInView() {
 
     const response = await fetch(url);
     const posts = await response.json();
-    console.log(posts);
 
     updateSidebar(posts);
 }
@@ -234,22 +250,39 @@ function updateSidebar(posts) {
     }
 
     // Effectively recreate the HTML structure of the collapsable blog post view
+    let postFlag = false;
     for (const post of posts) {
+        if (removedPostIds.includes(post.post_id)) {
+            continue;
+        }
+
+        postFlag = true;
         const dropdown = document.createElement('div');
         dropdown.className = 'post-dropdown';
 
         const details = document.createElement('details');
+        details.open = openPostIds.has(post.post_id);
+
+        let restoring = details.open;
+        details.addEventListener('toggle', () =>{       // Help from AI to identify bug and think of possible solutions
+            if (restoring == true) {
+                restoring = false;
+                return;
+            }
+            
+            if (details.open) {
+                openPostIds.add(post.post_id);
+                map.panTo([post.lat, post.long]);
+                viewPost({ target: { options: { postId: post.post_id } } });
+            } else {
+                openPostIds.delete(post.post_id);
+            }
+        });
 
         const summary = document.createElement('summary');
         summary.className = 'clickable-post';
         summary.textContent = post.title;
         details.appendChild(summary);
-        
-        // Clicking on a post makes the map pan to it and opens the post popup
-        summary.addEventListener('click', (e) => {
-            map.panTo([post.lat, post.long]);
-            viewPost({target:{options:{postId:post.post_id}}});
-        });
 
         const time = document.createElement('p');
         time.textContent = post.time;
@@ -262,4 +295,28 @@ function updateSidebar(posts) {
         dropdown.appendChild(details);
         container.appendChild(dropdown);
     }
+
+    if (postFlag == false) {
+        const noPosts = document.createElement('p');
+        noPosts.textContent = 'No Nearby Posts!';
+        container.appendChild(noPosts);
+    }
 }
+
+// update user char input count
+document.addEventListener('DOMContentLoaded', () => {
+    const textareas = document.querySelectorAll('textarea[maxlength]');
+
+    textareas.forEach(textarea => {
+        const counter = textarea.nextElementSibling;
+        const max = textarea.getAttribute('maxlength');
+        if (counter && counter.classList.contains('char-limit-footnote')) {
+            const updateCounter = () => {
+                counter.textContent = `${textarea.value.length}/${max}`;
+            };
+
+            updateCounter();
+            textarea.addEventListener('input', updateCounter);
+        }
+    });
+});

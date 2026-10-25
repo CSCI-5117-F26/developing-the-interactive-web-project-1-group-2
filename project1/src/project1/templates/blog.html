@@ -4,19 +4,6 @@
 <script src="{{ url_for('static', filename='js/blog.js') }}" defer></script>
 {% endblock %}
 
-
-{% block header %}
-<div class="pure-u-1-2 blog-controls">
-    <div class="pure-u-1-2">
-        <a href="/map" class="site-logo">
-            <img src="{{ url_for('static', filename='images/geoblog-logo.png') }}" alt="GeoBloggr logo">
-            <span>GeoBloggr</span>
-        </a>
-    </div>
-</div>
-{% endblock %}
-
-
 {% block body %}
 <div id="blog_page">
     <div class="pure-g blog-layout">
@@ -138,26 +125,47 @@
 
             </div>
 
-            <div class="side-card">
+            <!-- <div class="side-card">
 
                 <h3 class="side-title">Search</h3>
                 <form action="/search" method="post" class="pure-form">
                 <input type="text" class="pure-input-rounded pure-input-1" placeholder="Hinted search text" aria-label="Search">
                 </form>
 
-            </div>
+            </div> -->
 
             <div class="side-card">
 
-                <h3 class="side-title">Filter</h3>
-                <form id="filterForm" action="/filter" method="get" class="pure-form pure-form-stacked">
-                <label for="location">Location</label>
-                <input type="text" id="location" name="location" class="pure-input-1">
+                <h3 class="side-title">View</h3>
+                <div class="view-toggle">
+                <button type="button" class="pure-button is-selected" data-view="grid">Grid</button>
+                <button type="button" class="pure-button" data-view="collapsed">Collapsed</button>
+                </div>
 
-                <label for="radius">Location Radius (miles)</label>
-                <input type="range" id="radius" name="radius" class="pure-input-1" min="1" max="100" value="10"
-                        oninput="this.nextElementSibling.value = this.value + ' miles'">
-                <output>10 miles</output>
+            </div>
+
+            <div class="side-card">
+                <div class="side-title">
+                    <h3 class="pure-u-2-3">Filter</h3>
+                    {% if filter == True %}
+                        <a href="/blog">
+                            <button class="pure-button pure-input-rounded" id="clearFilterButton">
+                                Clear
+                            </button>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <form id="filterForm" action="/blog" method="get" class="pure-form pure-form-stacked">
+                  
+                <label for="search">Search</label>
+                <input type="text" id="search" name="search" class="pure-input-1" placeholder="keywords">
+                
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" class="pure-input-1">               
+
+                <label for="user">User</label>
+                <input type="text" id="user" name="user" class="pure-input-1" placeholder="@username">
 
                 <label for="date-range">Date</label>
                 <select id="date-range" name="date-range" class="pure-input-1">
