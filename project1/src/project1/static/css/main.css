@@ -66,6 +66,15 @@ header #menu {
     z-index: 1;
 }
 
+#mapContainer .leaflet-bar {
+    border: 1px solid #000;
+    border-radius: 0;
+}
+
+#mapContainer .leaflet-bar a {
+    border-radius: 0;
+}
+
 #footer {
     grid-area: 15 / 3 / 16 / 5;
     place-self: center;

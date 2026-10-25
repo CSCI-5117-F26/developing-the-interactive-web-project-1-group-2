@@ -24,6 +24,8 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 // help with AI to access geojson file
 fetch(REGIONS_URL)
     .then(response => response.json())
