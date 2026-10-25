@@ -12,10 +12,6 @@
     <article class="post-detail">
       {% if post.image %}
       <img class="post-detail-img" src="{{ post.image }}" alt="{{ post.title }}">
-      {% else %}
-      <img class="post-detail-img"
-            src="{{ post.image or url_for('static', filename='images/default_post_img.jpg') }}"
-            alt="{{ post.title }}">
       {% endif %}
 
       <div class="post-detail-body">

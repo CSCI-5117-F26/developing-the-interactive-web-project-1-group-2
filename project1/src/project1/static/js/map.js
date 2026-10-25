@@ -67,6 +67,10 @@ document.getElementById('closePopup').addEventListener('click', () => {
     changePopup(true);
 });
 
+document.getElementById('closePostPopup').addEventListener('click', () => {
+    changePopup(true);
+});
+
 const filterToggle = document.getElementById('filterToggle');
 const filterPanel = document.getElementById('filterPanel');
 filterToggle.addEventListener('click', () => {
@@ -203,42 +207,31 @@ async function viewPost(e) {
 }
 
 function showPost(post, id) {
-    let title = document.getElementById('postTitle');
-    title.innerText = post['title'];
+    document.getElementById('postTitle').innerText = post['title'];
 
-    let author = document.getElementById('postAuthor');
-    author.innerText = post['author'];
-
-    let description = document.getElementById('postDescription');
-    description.innerText = `Description: ${post['description']}`;
-
-    let location = document.getElementById('postLocation');
-    location.innerText = `Location: ${post['location']}`;
-
-    let image = document.getElementById('postImage');
+    const image = document.getElementById('postImage');
     if (post['image'] != null) {
+        image.src = post['image'];
+        image.alt = post['title'];
         image.hidden = false;
-        image.setAttribute('src', post['image']);
     } else {
+        image.removeAttribute('src');
         image.hidden = true;
     }
 
-    let date = document.getElementById('postDate');
-    date.innerText = `Date: ${post['time']}`;
+    const date = new Date(post['time']).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
+    let meta = `${date} \u00b7 by ${post['author']}`;
+    if (post['location']) meta += ` \u00b7 @ ${post['location']}`;
+    document.getElementById('postMeta').innerText = meta;
+
+    document.getElementById('postDescription').innerText = post['description'];
 
     document.getElementById('postActions').hidden = !post['can_edit'];
     document.getElementById('deleteForm').action = '/delete/' + id;
-
     document.getElementById('editLink').href = '/edit/' + id;
-
-    let docId = document.getElementById('post_id');
-    docId.innerText = `${docId.innerText} ${id}`;
-
-    // Add view comments for post button
-    let viewCommentsButton = document.getElementById('viewCommentsButton');
-    viewCommentsButton.addEventListener('click', function () {
-        window.location.href = `/post/${id}`;
-    });
+    document.getElementById('viewCommentsButton').href = `/post/${id}`;
 }
 
 window.addEventListener('load', () => {
