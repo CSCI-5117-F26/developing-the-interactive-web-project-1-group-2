@@ -1,35 +1,17 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const textFields = document.querySelectorAll('input[maxlength]');
 
+    textFields.forEach(field => {
+        const counter = field.parentElement.querySelector('.char-limit-footnote');
+        const max = field.getAttribute('maxlength');
 
-// Add post comments
-let commentForm = document.getElementById('commentForm');
-commentForm.addEventListener('submit', async function (event) {
-    event.preventDefault();
-    let commentInput = document.getElementById('commentInput');
-    let comments = document.getElementById('commentList');
-    let comment = commentInput.value;
-    let noComment = document.getElementById('noComment');
+        if (counter) {
+            const updateCounter = () => {
+                counter.textContent = `${field.value.length}/${max}`;
+            };
 
-    if (comment.trim() === '') {
-        return; 
-    }
-
-    let response = await fetch(commentForm.action, {
-        method: 'POST',
-        body: new FormData(commentForm)
+            updateCounter();
+            field.addEventListener('input', updateCounter);
+        }
     });
-    let data = await response.json();
-    let newCommentContainer = document.createElement('div');
-    newCommentContainer.class = 'comment';
-    
-    let author = document.createElement('p');
-    author.textContent = data.author;
-
-    let time = document.createElement('p');
-    time.textContent = `Date: ${data.time}`;
-
-    let commentText = document.createElement('p');
-    commentText.textContent = `Comment: ${data.comment}`;
-
-    newCommentContainer.append(author, time, commentText);
-    comments.appendChild(newCommentContainer);
-})
+});

@@ -5,10 +5,10 @@
     <h1>Edit post</h1>
     <form method="post" class="pure-form pure-form-stacked">
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" value="{{ post.title }}" required>
+        <input type="text" id="title" name="title" value="{{ post.title }}" maxlength="100" required>
 
         <label for="description">Description</label>
-        <textarea id="description" name="description" rows="5" required>{{ post.description }}</textarea>
+        <textarea id="description" name="description" rows="5" maxlength="500" required>{{ post.description }}</textarea>
 
         <button class="pure-button pure-button-primary">Save</button>
         <a href="/blog" class="pure-button">Cancel</a>

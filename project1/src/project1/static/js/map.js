@@ -2,6 +2,8 @@ let createPopupBackground;
 let createButton = document.getElementById('createButton');
 let popups = document.getElementsByClassName('popup');
 
+let openPostIds = new Set();
+
 var map = L.map('map', {
     center: [44.97449, -93.23514],
     zoom: 16,
@@ -22,6 +24,8 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 // help with AI to access geojson file
 fetch(REGIONS_URL)
     .then(response => response.json())
@@ -36,16 +40,21 @@ fetch(REGIONS_URL)
                 };
             }
         }).on('click', (e) => {
-            feature = e['layer']['feature'];
-            document.getElementById('locationName').value = feature['properties']['BLDG_NAME_'];
+            document.getElementById('locationName').value = e.layer.feature.properties.BLDG_NAME_;
+            document.getElementById('lat').value = e.latlng.lat;
+            document.getElementById('long').value = e.latlng.lng;
+            showLocationSummary();
+            changePopup(false, 'createForm');
         }).addTo(map);
     });
 
 createPopupBackground = document.getElementById("createPopupBackground");
 map.on('click', (e) => {
-    changePopup(false, 'createForm');
+    document.getElementById('locationName').value = '';
     document.getElementById('lat').value = e.latlng.lat;
     document.getElementById('long').value = e.latlng.lng;
+    showLocationSummary();
+    changePopup(false, 'createForm');
 });
 
 createPopupBackground.addEventListener('click', (e) => {
@@ -57,6 +66,26 @@ createPopupBackground.addEventListener('click', (e) => {
 document.getElementById('closePopup').addEventListener('click', () => {
     changePopup(true);
 });
+
+const filterToggle = document.getElementById('filterToggle');
+const filterPanel = document.getElementById('filterPanel');
+filterToggle.addEventListener('click', () => {
+    filterPanel.hidden = !filterPanel.hidden;
+    filterToggle.setAttribute('aria-expanded', !filterPanel.hidden);
+});
+
+const mapSearchForm = document.getElementById('mapSearchForm');
+const searchParams = new URLSearchParams(window.location.search);
+for (const [name, value] of searchParams) {
+    if (mapSearchForm.elements[name]) {
+        mapSearchForm.elements[name].value = value;
+    }
+}
+if (searchParams.get('location') || searchParams.get('user') ||
+    (searchParams.get('date-range') || 'any') !== 'any') {
+    filterPanel.hidden = false;
+    filterToggle.setAttribute('aria-expanded', true);
+}
 
 const imageInput = document.getElementById('image');
 const imagePreview = document.getElementById('imagePreview');
@@ -71,8 +100,29 @@ imageInput.addEventListener('change', () => {
     }
 });
 
-window.addEventListener('load', () => {
-    loadMarkers()
+let removedPostIds = [];
+window.addEventListener('load', async () => {
+    await loadMarkers()
+
+    const postIds = document.getElementsByClassName('post_ids');
+    if (postIds != null && postIds.length > 0) {
+        let idsList = []
+        for (id of postIds) {
+            idsList.push(Number(id['id']));
+        }
+
+        removedPostIds = [];
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Marker &&
+                !idsList.includes(layer['options']['postId'])) {
+                layer.remove();
+                removedPostIds.push(layer['options']['postId']);
+            }
+        });
+    }
+    if (window.location.search !== '') {
+        adjustSideBar();
+    }
 });
 
 async function loadMarkers() {
@@ -111,7 +161,6 @@ function changePopup(hide, id = null) {
         let post = document.getElementById(id);
         post.hidden = hide;
 
-        // TODO: check if user is logged in. if not, the anonymous button should not show up
         let userLoggedIn = document.getElementById('map_page').dataset.userLoggedIn === 'true';
         let anonSection = document.getElementById('anonRow');
         if (userLoggedIn == true) {
@@ -126,13 +175,16 @@ function changePopup(hide, id = null) {
 function adjustSideBar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.hidden = !sidebar.hidden;
-    
+
     const sidebarToggle = document.getElementById('sidebarToggle');
-    if(sidebar.hidden){
-        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2}px`;
+    if (sidebar.hidden) {
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
+        sidebarToggle.innerHTML = '<i class="fa fa-angle-right"></i>';
     }
-    else{
-        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth/2 + sidebar.offsetWidth}px`;
+    else {
+        sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
+        updatePostsInView();
+        sidebarToggle.innerHTML = '<i class="fa fa-angle-left"></i>';
     }
 
 }
@@ -155,23 +207,13 @@ function showPost(post, id) {
     title.innerText = post['title'];
 
     let author = document.getElementById('postAuthor');
-    if (post['anon'] == true) {
-        author.innerText = `Author: Anonymous`;
-        if (post['username']) {
-            author.innerText += ` (${post['username']})`;
-        }
-    } else {
-        author.innerText = `Author: ${post['username']}`;
-    }
+    author.innerText = post['author'];
 
     let description = document.getElementById('postDescription');
     description.innerText = `Description: ${post['description']}`;
 
     let location = document.getElementById('postLocation');
-    location.innerText = `Location: (${post['location']['lat']}, ${post['location']['long']})`;
-    if (post['location']['name']) {
-        location.innerText = `Location: ${post['location']['name']}`;
-    }
+    location.innerText = `Location: ${post['location']}`;
 
     let image = document.getElementById('postImage');
     if (post['image'] != null) {
@@ -222,8 +264,12 @@ async function updatePostsInView() {
 }
 
 function updateSidebar(posts) {
-    const sideBarPosts = document.getElementById('sideBarPosts');
-    sideBarPosts.replaceChildren();    // Resets the children to start from scratch
+    const container = document.getElementById('sideBarPosts');
+    container.replaceChildren();    // Resets the children to start from scratch
+
+    const visibleCount = posts.filter(post => !removedPostIds.includes(post.post_id)).length;
+    document.getElementById('postCount').textContent =
+        `${visibleCount} ${visibleCount === 1 ? 'post' : 'posts'} in view`;
 
     if (posts.length === 0) {
         const noPosts = document.createElement('p');
@@ -233,22 +279,93 @@ function updateSidebar(posts) {
     }
 
     // Effectively recreate the HTML structure of the collapsable blog post view
+    let postFlag = false;
     for (const post of posts) {
-        const post_row = document.createElement('article');
-        post_row.className = 'post-row';
-        const post_row_text = document.createElement('div');
-        post_row_text.className = 'post-row-text';
-        const h3 = document.createElement('h3');
-        h3.textContent = post.title;
+        if (removedPostIds.includes(post.post_id)) {
+            continue;
+        }
 
-        sideBarPosts.appendChild(post_row);
-        post_row.appendChild(post_row_text);
-        post_row_text.appendChild(h3);
+        postFlag = true;
         
-        // Clicking on a post makes the map pan to it and opens the post popup
-        post_row.addEventListener('click', (e) => {
-            map.flyTo([post.lat, post.long], Math.max(16, map.getZoom()));
-            viewPost({target:{options:{postId:post.post_id}}});
+        const details = document.createElement('details');
+        details.className = 'post-row';
+        details.open = openPostIds.has(post.post_id);
+
+        let restoring = details.open;
+        details.addEventListener('toggle', () =>{       // Help from AI to identify bug and think of possible solutions
+
+            if (restoring) {
+                openPostIds.add(post.post_id);
+            } else {
+                openPostIds.delete(post.post_id);
+            }
         });
+
+        const summary = document.createElement('summary');
+        const title = document.createElement('h3');
+        title.textContent = post.title;
+        summary.appendChild(title);
+        details.appendChild(summary);
+
+        const body = document.createElement('div');
+        body.className = 'post-row-body';
+
+        const time = document.createElement('p');
+        time.className = 'post-meta';
+        time.textContent = new Date(post.time).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+        body.appendChild(time);
+
+        const desc = document.createElement('p');
+        desc.className = 'post-desc';
+        desc.textContent = post.description;
+        body.appendChild(desc);
+
+        const footer = document.createElement('div');
+        footer.className = 'post-footer';
+
+        const readMore = document.createElement('a');
+        readMore.href = `/post/${post.post_id}`;
+        readMore.textContent = 'Read more & comments';
+        footer.appendChild(readMore);
+
+        const viewOnMap = document.createElement('button');
+        viewOnMap.type = 'button';
+        viewOnMap.className = 'link-button';
+        viewOnMap.textContent = 'View on map';
+        viewOnMap.addEventListener('click', () => {
+            map.panTo([post.lat, post.long]);
+            viewPost({ target: { options: { postId: post.post_id } } });
+        });
+        footer.appendChild(viewOnMap);
+
+        body.appendChild(footer);
+        details.appendChild(body);
+        container.appendChild(details);
+    }
+
+    if (postFlag == false) {
+        const noPosts = document.createElement('p');
+        noPosts.textContent = 'No Nearby Posts!';
+        container.appendChild(noPosts);
     }
 }
+
+// update user char input count
+document.addEventListener('DOMContentLoaded', () => {
+    const textareas = document.querySelectorAll('textarea[maxlength]');
+
+    textareas.forEach(textarea => {
+        const counter = textarea.nextElementSibling;
+        const max = textarea.getAttribute('maxlength');
+        if (counter && counter.classList.contains('char-limit-footnote')) {
+            const updateCounter = () => {
+                counter.textContent = `${textarea.value.length}/${max}`;
+            };
+
+            updateCounter();
+            textarea.addEventListener('input', updateCounter);
+        }
+    });
+});
