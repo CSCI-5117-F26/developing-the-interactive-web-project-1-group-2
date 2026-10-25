@@ -84,21 +84,29 @@
                     {% include "create_post.html" %}
 
                     <div class="popup" id="post" hidden>
-                        <h1 id="postTitle"></h1>
-                        <p id="postAuthor"></p>
-                        <p id="postDescription"></p>
-                        <p id="postLocation"></p>
-                        <img src="" alt="" id="postImage" hidden>
-                        <p id="postDate"></p>
-                        <p id="post_id" hidden></p>
-                        <div id="postActions" hidden>
-                            <a id="editLink" class="pure-button" href="#">Edit</a>
-                            <form id="deleteForm" method="post" style="display:inline"
-                                onsubmit="return confirm('Delete this post?')">
-                                <button class="pure-button">Delete</button>
-                            </form>
+                        <div class="popupHeader">
+                            <button type="button" id="closePostPopup" aria-label="Close">
+                                <img src="{{ url_for('static', filename='icons/x-square.svg') }}" alt="">
+                            </button>
                         </div>
-                        <button id="viewCommentsButton" class="pure-button" href="/post/id">View Comments</button>
+
+                        <div class="popupBody">
+                            <img id="postImage" alt="" hidden>
+                            <h2 id="postTitle"></h2>
+                            <p id="postMeta"></p>
+                            <p id="postDescription"></p>
+                        </div>
+
+                        <div class="popupFooter">
+                            <a id="viewCommentsButton" class="pure-button" href="#">View comments</a>
+                            <div id="postActions" class="footerButtons" hidden>
+                                <a id="editLink" class="pure-button" href="#">Edit</a>
+                                <form id="deleteForm" method="post"
+                                    onsubmit="return confirm('Delete this post?')">
+                                    <button type="submit" class="pure-button">Delete</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
