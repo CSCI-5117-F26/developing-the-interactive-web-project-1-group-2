@@ -26,36 +26,39 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-// help with AI to access geojson file
-fetch(REGIONS_URL)
-    .then(response => response.json())
-    .then(data => {
-        const features = data['features'];
+    // help with AI to access geojson file
+    fetch(REGIONS_URL)
+        .then(response => response.json())
+        .then(data => {
+            const features = data['features'];
 
-        L.geoJson(features, {
-            style: function (features) {
-                return {
-                    opacity: 0,
-                    fillOpacity: 0
-                };
-            }
-        }).on('click', (e) => {
-            document.getElementById('locationName').value = e.layer.feature.properties.BLDG_NAME_;
-            document.getElementById('lat').value = e.latlng.lat;
-            document.getElementById('long').value = e.latlng.lng;
-            showLocationSummary();
-            changePopup(false, 'createForm');
-        }).addTo(map);
+            L.geoJson(features, {
+                style: function (features) {
+                    return {
+                        opacity: 0,
+                        fillOpacity: 0
+                    };
+                }
+            }).on('click', (e) => {
+                // Needed to make this click ONLY be handled by the geoJson layer to save building data 
+                L.DomEvent.stopPropagation(e);
+
+                document.getElementById('locationName').value = e.layer.feature.properties.BLDG_NAME_;
+                document.getElementById('lat').value = e.latlng.lat;
+                document.getElementById('long').value = e.latlng.lng;
+                showLocationSummary();
+                changePopup(false, 'createForm');
+            }).addTo(map);
+        });
+
+    createPopupBackground = document.getElementById("createPopupBackground");
+    map.on('click', (e) => {
+        document.getElementById('locationName').value = '';
+        document.getElementById('lat').value = e.latlng.lat;
+        document.getElementById('long').value = e.latlng.lng;
+        showLocationSummary();
+        changePopup(false, 'createForm');
     });
-
-createPopupBackground = document.getElementById("createPopupBackground");
-map.on('click', (e) => {
-    document.getElementById('locationName').value = '';
-    document.getElementById('lat').value = e.latlng.lat;
-    document.getElementById('long').value = e.latlng.lng;
-    showLocationSummary();
-    changePopup(false, 'createForm');
-});
 
 createPopupBackground.addEventListener('click', (e) => {
     if (e.target === createPopupBackground) {
