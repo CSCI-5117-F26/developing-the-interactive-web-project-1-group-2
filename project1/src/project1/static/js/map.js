@@ -257,43 +257,63 @@ function updateSidebar(posts) {
         }
 
         postFlag = true;
-        const dropdown = document.createElement('div');
-        dropdown.className = 'post-dropdown';
-
+        
         const details = document.createElement('details');
+        details.className = 'post-row';
         details.open = openPostIds.has(post.post_id);
 
         let restoring = details.open;
         details.addEventListener('toggle', () =>{       // Help from AI to identify bug and think of possible solutions
-            if (restoring == true) {
-                restoring = false;
-                return;
-            }
-            
-            if (details.open) {
+
+            if (restoring) {
                 openPostIds.add(post.post_id);
-                map.panTo([post.lat, post.long]);
-                viewPost({ target: { options: { postId: post.post_id } } });
             } else {
                 openPostIds.delete(post.post_id);
             }
         });
 
         const summary = document.createElement('summary');
-        summary.className = 'clickable-post';
-        summary.textContent = post.title;
+        const title = document.createElement('h3');
+        title.textContent = post.title;
+        summary.appendChild(title);
         details.appendChild(summary);
 
+        const body = document.createElement('div');
+        body.className = 'post-row-body';
+
         const time = document.createElement('p');
-        time.textContent = post.time;
-        details.appendChild(time);
+        time.className = 'post-meta';
+        time.textContent = new Date(post.time).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+        body.appendChild(time);
 
         const desc = document.createElement('p');
+        desc.className = 'post-desc';
         desc.textContent = post.description;
-        details.appendChild(desc);
+        body.appendChild(desc);
 
-        dropdown.appendChild(details);
-        container.appendChild(dropdown);
+        const footer = document.createElement('div');
+        footer.className = 'post-footer';
+
+        const readMore = document.createElement('a');
+        readMore.href = `/post/${post.post_id}`;
+        readMore.textContent = 'Read more & comments';
+        footer.appendChild(readMore);
+
+        const viewOnMap = document.createElement('button');
+        viewOnMap.type = 'button';
+        viewOnMap.className = 'link-button';
+        viewOnMap.textContent = 'View on map';
+        viewOnMap.addEventListener('click', () => {
+            map.panTo([post.lat, post.long]);
+            viewPost({ target: { options: { postId: post.post_id } } });
+        });
+        footer.appendChild(viewOnMap);
+
+        body.appendChild(footer);
+        details.appendChild(body);
+        container.appendChild(details);
     }
 
     if (postFlag == false) {
