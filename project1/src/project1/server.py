@@ -322,7 +322,8 @@ def show_post(post_id):
 
             # determine how author should appear in posts
             author = post_row[1]
-            if post_row[0] == True:
+
+            if post_row[0] == True or author is None:
                 author = "Anonymous"
                 if "user_token" in session:
                     sub = session["user_token"].get("userinfo")["sub"]
