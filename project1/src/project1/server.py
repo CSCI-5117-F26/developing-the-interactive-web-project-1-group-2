@@ -51,8 +51,8 @@ elif not DEV_LOGIN:
 def get_account_id():
     if "user_token" not in session:
         return None
-    sub = session["user_token"]["userinfo"]["sub"]
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    sub = session['user_token']['userinfo']['sub']
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
     cursor.execute("SELECT account_id FROM accounts WHERE auth0_sub = %s", (sub,))
     row = cursor.fetchone()
@@ -108,7 +108,7 @@ def map_page():
     if len(conditions) == 0:
         return render_template("map.html", logged_in=logged_in, postIds=[]), 200
 
-    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+    with psycopg.connect(os.environ["RENDER_DB"]) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 f"""
@@ -233,9 +233,9 @@ def logout():
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
-    session["user_token"] = token
-    user_info = token.get("userinfo")
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    session['user_token'] = token
+    user_info = token.get('userinfo')
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -264,7 +264,7 @@ if DEV_LOGIN:
 
         session["user_token"] = {"userinfo": {"sub": sub, "nickname": nickname}}
 
-        conn = psycopg.connect(os.environ["DATABASE_URL"])
+        conn = psycopg.connect(os.environ['RENDER_DB'])
         cursor = conn.cursor()
         cursor.execute(
             """
@@ -285,7 +285,7 @@ if DEV_LOGIN:
 def show_post(post_id):
     # show the post with the given id, the id is an integer
     account_id = get_account_id()
-    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 """
@@ -366,6 +366,19 @@ def show_post(post_id):
         return jsonify(post), 200
     return render_template("post.html", post=post), 200
 
+@app.get('/post/<int:post_id>/image')
+def post_image(post_id):
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute('''
+                           SELECT image_file, mime_type
+                           FROM links
+                           WHERE post=%s;''',
+                           (post_id,))
+            row = cursor.fetchone()
+            img, type = row
+    return Response(bytes(img), mimetype=type)
+
 
 @app.post("/post/<int:post_id>")
 def post_comment(post_id):
@@ -375,7 +388,7 @@ def post_comment(post_id):
         return redirect(url_for("show_post", post_id=id))
 
     account_id = get_account_id()
-    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 """
@@ -457,7 +470,7 @@ def create():
         icon_binary = custom_icon_file.read()
         icon_mime_type = custom_icon_file.mimetype
 
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    conn = psycopg.connect(os.environ["RENDER_DB"])
     cursor = conn.cursor()
 
     account_id = None
@@ -603,11 +616,11 @@ def getAllPosts():
 
 @app.get("/api/getNearby")
 def get_nearby():
-    min_lat = request.args.get("minLat", type=float)
-    max_lat = request.args.get("maxLat", type=float)
-    min_long = request.args.get("minLong", type=float)
-    max_long = request.args.get("maxLong", type=float)
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    min_lat = request.args.get('minLat', type=float)
+    max_lat = request.args.get('maxLat', type=float)
+    min_long = request.args.get('minLong', type=float)
+    max_long = request.args.get('maxLong', type=float)
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -655,7 +668,7 @@ def get_nearby():
 @app.post("/delete/<int:post_id>")
 def delete_post(post_id):
     account_id = get_account_id()
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
 
     cursor.execute(
@@ -680,7 +693,7 @@ def delete_post(post_id):
 @app.get("/edit/<int:post_id>")
 def edit_page(post_id):
     account_id = get_account_id()
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    conn = psycopg.connect(os.environ['RENDER_DB'])
     cursor = conn.cursor()
 
     cursor.execute(
@@ -744,7 +757,7 @@ def edit_save(post_id):
         icon_mime_type = custom_icon_file.mimetype
 
     if title and description:
-        conn = psycopg.connect(os.environ["DATABASE_URL"])
+        conn = psycopg.connect(os.environ['RENDER_DB'])
         cursor = conn.cursor()
 
         cursor.execute(
