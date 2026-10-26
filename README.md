@@ -24,7 +24,7 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 
 * Handling image uploads from users, storing images, and displaying images.
 * Creating popups, structuring the layout so popups appear on top of the map and not under it.
-* Location-based searching and advanced filtering of posts by keyword, location, user, and date
+* Location-based searching and advanced filtering of posts by keyword, location, user, and date.
 
 ## Testing Notes
 
@@ -41,11 +41,13 @@ along with a very brief caption:**
 ![](https://media.giphy.com/media/o0vwzuFwCGAFO/giphy.gif)
 **TODO: map page image here**
 ![image of GeoBloggr Post Pop-Up](/screenshots/create-post.png?raw=true)
+This is the popup displayed to users when they wish to create a post from the map page. They may add a title, description, image, and custom icon, as well as select if the post should be anonymized.
 
 ![image of GeoBloggr Blog Page](/screenshots/blog-page.png?raw=true)
+This is the main blog-style layout of the website, which supports both a grid and collapsed view. Users may filter by keyword search, location, user, and date.
 
 ![image of GeoBloggr Post Page](/screenshots/post-page.png?raw=true)
-
+This is an individual post page (zoomed out to see larger set of features). Users can leave comments to react. If a user is signed in and viewing their own post, they may edit and delete.
 
 ## Mock-up 
 
