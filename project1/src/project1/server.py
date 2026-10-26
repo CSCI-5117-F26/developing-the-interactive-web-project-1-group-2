@@ -7,7 +7,7 @@ from flask import (
     url_for,
     session,
     Response,
-    abort
+    abort,
 )
 import psycopg
 from psycopg.rows import dict_row
@@ -131,7 +131,7 @@ def blog_page():
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
             filterFlag = False
-            
+
             if len(request.args) == 0 or (
                 request.args.get("search").strip() == ""
                 and request.args.get("date-range") == "any"
@@ -200,7 +200,8 @@ def blog_page():
 
                 where = "WHERE " + " AND ".join(conditions)
 
-                cur.execute(f"""
+                cur.execute(
+                    f"""
                             SELECT posts.post_id, posts.title, posts.description, posts.anon,
                                 ST_Y(locations.coord), ST_X(locations.coord),
                                 posts.time,
@@ -214,7 +215,9 @@ def blog_page():
                     values,
                 )
             posts = cur.fetchall()
-    return render_template("blog.html", posts=posts, account_id=get_account_id(), filter=filterFlag), 200
+    return render_template(
+        "blog.html", posts=posts, account_id=get_account_id(), filter=filterFlag
+    ), 200
 
 
 @app.route("/login")
@@ -316,23 +319,25 @@ def show_post(post_id):
                 (post_id,),
             )
             comment_rows = cursor.fetchall()
-            
+
             # determine how author should appear in posts
             author = post_row[1]
             if post_row[0] == True:
-                author = 'Anonymous'
+                author = "Anonymous"
                 if "user_token" in session:
                     sub = session["user_token"].get("userinfo")["sub"]
                     if sub:
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                                         SELECT account_id FROM accounts
                                         WHERE auth0_sub = %s;""",
-                                        (sub,),)
+                            (sub,),
+                        )
                         row = cursor.fetchone()
                         if row:
                             account_id = row[0]
                             if account_id == post_row[9]:
-                                author += f' ({post_row[1]})'
+                                author += f" ({post_row[1]})"
 
         comments = []  # the list of dict comments for the post based on its id
         for comment in comment_rows:
@@ -386,7 +391,7 @@ def post_comment(post_id):
             )
             if cursor.fetchone() is None:
                 return abort(404)
-            
+
             if account_id is not None:
                 cursor.execute(
                     """
@@ -476,7 +481,7 @@ def create():
 
         if not allowed_file(custom_icon_file):
             return "Invalid custom icon file type.", 400
-        
+
         if len(icon_binary) > 5 * 1024 * 1024:
             return "Custom icon must be 5 MB or smaller.", 400
 
@@ -494,7 +499,8 @@ def create():
     if "user_token" in session:
         sub = session["user_token"].get("userinfo")["sub"]
         if sub:
-            cursor.execute("""
+            cursor.execute(
+                """
                     SELECT account_id FROM accounts
                     WHERE auth0_sub = %s;
                     """,
@@ -505,11 +511,12 @@ def create():
                 account_id = row[0]
     else:
         anon = True
-        
+
     icon_id = None
 
-    if icon_option=="custom" and icon_binary and icon_mime_type:
-        cursor.execute("""
+    if icon_option == "custom" and icon_binary and icon_mime_type:
+        cursor.execute(
+            """
                 INSERT INTO icons
                 (icon_file, mime_type)
                 VALUES (%s, %s)
@@ -540,12 +547,23 @@ def create():
                    LIMIT 1;""")
     location_id = cursor.fetchone()[0]
 
-    cursor.execute("""
+    cursor.execute(
+        """
             INSERT INTO posts
             (icon, icon_id, default_pin, icon_option, anon, account, location, title, description)
             VALUES
             (%s, %s, %s, %s, %s, %s, %s, %s, %s);""",
-        (icon, icon_id, default_pin, icon_option, anon, account_id, location_id, title, description),
+        (
+            icon,
+            icon_id,
+            default_pin,
+            icon_option,
+            anon,
+            account_id,
+            location_id,
+            title,
+            description,
+        ),
     )
 
     cursor.execute("""
@@ -622,7 +640,15 @@ def getAllPosts():
     if len(rows) > 0:
         for row in rows:
             body.append(
-                {"post_id": row[0], "lat": row[1], "long": row[2], "icon_id": row[3], "icon": row[4], "default_pin": row[5], "icon_option": row[6]}
+                {
+                    "post_id": row[0],
+                    "lat": row[1],
+                    "long": row[2],
+                    "icon_id": row[3],
+                    "icon": row[4],
+                    "default_pin": row[5],
+                    "icon_option": row[6],
+                }
             )
 
     return jsonify(body), 200
@@ -637,7 +663,8 @@ def get_nearby():
     conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
                     SELECT
                         posts.post_id, 
                         posts.title, 
@@ -766,7 +793,11 @@ def edit_save(post_id):
     custom_icon_file = request.files.get("customIcon")
     icon_binary = None
     icon_mime_type = None
-    if custom_icon_file and custom_icon_file.filename and allowed_file(custom_icon_file):
+    if (
+        custom_icon_file
+        and custom_icon_file.filename
+        and allowed_file(custom_icon_file)
+    ):
         icon_binary = custom_icon_file.read()
         icon_mime_type = custom_icon_file.mimetype
 
@@ -811,7 +842,9 @@ def edit_save(post_id):
                     (new_icon_id, post_id),
                 )
                 if old_icon_id is not None:
-                    cursor.execute("DELETE FROM icons WHERE icon_id = %s", (old_icon_id,))
+                    cursor.execute(
+                        "DELETE FROM icons WHERE icon_id = %s", (old_icon_id,)
+                    )
 
             if image_binary and mime_type:
                 cursor.execute("DELETE FROM links WHERE post = %s", (post_id,))
@@ -829,7 +862,7 @@ def edit_save(post_id):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template("404.html"), 404
 
 
 # flask --app project1.server run

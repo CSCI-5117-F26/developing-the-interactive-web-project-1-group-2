@@ -19,7 +19,7 @@
         <p class="post-detail-meta">
           {{ post.time.strftime('%B %d, %Y') }}
           by {{ post.author }}
-          {% if post.location %}&nbsp;@{{ post.location }}{% endif %}
+          {% if post.location %}@ {{ post.location }}{% endif %}
         </p>
         <p class="post-detail-desc">{{ post.description }}</p>
 
@@ -28,8 +28,7 @@
           {% if post.can_edit %}
           <span class="post-actions">
             <a href="/edit/{{ post.post_id }}">edit</a>
-            <form action="/delete/{{ post.post_id }}" method="post"
-                  onsubmit="return confirm('Delete this post?')">
+            <form action="/delete/{{ post.post_id }}" method="post" onsubmit="return confirm('Delete this post?')">
               <button type="submit" class="link-button">delete</button>
             </form>
           </span>
@@ -40,11 +39,11 @@
 
     <section class="comments-card" id="comments">
       <h2 class="comments-heading">Comments
-        <span id="commentCount">({{ post.comments|length }})</span></h2>
+        <span id="commentCount">({{ post.comments|length }})</span>
+      </h2>
 
       <form id="commentForm" method="post" action="/post/{{ post.post_id }}" class="comment-form">
-        <input type="text" id="commentInput" name="comment"
-               placeholder="Add a comment..." maxlength="100" required>
+        <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100" required>
         <button class="reply-btn">Reply</button>
         <small class="char-limit-footnote">0/100</small>
       </form>
