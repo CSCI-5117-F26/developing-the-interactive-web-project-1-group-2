@@ -1406,8 +1406,6 @@ header #menu .pure-menu-link:focus { background: var(--tan); color: var(--accent
     margin: 0 0 0.6em;
     padding: 0;
 }
-.side-card:first-child { padding-bottom: 0; border-bottom: 0; margin-bottom: 0; }
-.side-card:first-child .side-title { display: none; }
  
 .view-toggle { background: var(--tan); border: 0; padding: 4px; }
 .view-toggle .pure-button { background: transparent; color: var(--taupe); font-weight: 600; padding: 0.7em 1em; }
