@@ -128,7 +128,7 @@ def map_page():
 
 @app.get("/blog")
 def blog_page():
-    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
+    with psycopg.connect(os.environ["RENDER_DB"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
             filterFlag = False
             
@@ -544,7 +544,7 @@ def create():
 
 @app.get("/icon/<int:icon_id>")
 def get_icon(icon_id):
-    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+    with psycopg.connect(os.environ["RENDER_DB"]) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 """
@@ -576,7 +576,7 @@ def allowed_file(file):
 
 @app.get("/api/getAll")
 def getAllPosts():
-    conn = psycopg.connect(os.environ["DATABASE_URL"])
+    conn = psycopg.connect(os.environ["RENDER_DB"])
     cursor = conn.cursor()
     cursor.execute("""
                    SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord), posts.icon_id
