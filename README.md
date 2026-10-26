@@ -24,6 +24,7 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 
 * Handling image uploads from users, storing images, and displaying images.
 * Creating popups, structuring the layout so popups appear on top of the map and not under it.
+* Location-based searching and advanced filtering of posts by keyword, location, user, and date
 
 ## Testing Notes
 
@@ -38,6 +39,12 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 along with a very brief caption:**
 
 ![](https://media.giphy.com/media/o0vwzuFwCGAFO/giphy.gif)
+**TODO: map page image here**
+![image of GeoBloggr Post Pop-Up](/screenshots/create-post.png?raw=true)
+
+![image of GeoBloggr Blog Page](/screenshots/blog-page.png?raw=true)
+
+![image of GeoBloggr Post Page](/screenshots/post-page.png?raw=true)
 
 
 ## Mock-up 
