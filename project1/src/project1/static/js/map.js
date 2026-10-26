@@ -187,11 +187,13 @@ function adjustSideBar() {
     if (sidebar.hidden) {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
         sidebarToggle.innerHTML = '<i class="fa fa-angle-right"></i>';
+        sidebarToggle.setAttribute('aria-label', 'Open sidebar');
     }
     else {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
         updatePostsInView();
         sidebarToggle.innerHTML = '<i class="fa fa-angle-left"></i>';
+        sidebarToggle.setAttribute('aria-label', 'Close sidebar');
     }
 
 }
