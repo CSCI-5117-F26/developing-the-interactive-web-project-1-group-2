@@ -24,7 +24,7 @@
         </div>
         <div class="pure-u-1-2">
             <div id="menu" class="pure-menu pure-menu-horizontal">
-                {% if not request.path.startswith('/map') %}
+                {% if not request.path.startswith('/map') and request.path != '/' %}
                     <a href="/map" class="pure-menu-item pure-menu-link">Map</a>
                 {% endif %}
                 {% if not request.path.startswith('/blog') %}
