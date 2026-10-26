@@ -508,6 +508,7 @@ header #menu {
 }
 
 @media (max-width: 36em) {
+    #blog_page { padding-left: 1em; padding-right: 1em; }
     #post .popupBody, #post .popupFooter { padding-left: 1.25em; padding-right: 1.25em; }
     #post .popupFooter, #post #postActions { flex-direction: column; align-items: stretch; margin-left: 0; }
 }
@@ -724,7 +725,7 @@ header #menu {
 #blog_page {
     flex: 1;
     background-color: #ddd;
-    padding: 2em 1em;
+    padding: 2em 2.5em;
 }
 
 .page-heading {
