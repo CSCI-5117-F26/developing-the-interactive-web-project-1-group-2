@@ -366,19 +366,6 @@ def show_post(post_id):
         return jsonify(post), 200
     return render_template("post.html", post=post), 200
 
-@app.get('/post/<int:post_id>/image')
-def post_image(post_id):
-    with psycopg.connect(os.environ['RENDER_DB']) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute('''
-                           SELECT image_file, mime_type
-                           FROM links
-                           WHERE post=%s;''',
-                           (post_id,))
-            row = cursor.fetchone()
-            img, type = row
-    return Response(bytes(img), mimetype=type)
-
 
 @app.post("/post/<int:post_id>")
 def post_comment(post_id):
@@ -423,17 +410,15 @@ def post_comment(post_id):
     return redirect(url_for("show_post", post_id=id))
 
 
-@app.get("/post/<int:post_id>/image")
+@app.get('/post/<int:post_id>/image')
 def post_image(post_id):
-    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+    with psycopg.connect(os.environ['RENDER_DB']) as conn:
         with conn.cursor() as cursor:
-            cursor.execute(
-                """
+            cursor.execute('''
                            SELECT image_file, mime_type
                            FROM links
-                           WHERE post=%s;""",
-                (post_id,),
-            )
+                           WHERE post=%s;''',
+                           (post_id,))
             row = cursor.fetchone()
             img, type = row
     return Response(bytes(img), mimetype=type)
