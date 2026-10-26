@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/post.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+<main class="page-bg">
+  <div class="post-wrap">
+    <a href="/blog" class="back-link">&larr; Back to posts</a>
+
+    <article class="post-detail">
+      {% if post.image %}
+      <img class="post-detail-img" src="{{ post.image }}" alt="{{ post.title }}">
+      {% endif %}
+
+      <div class="post-detail-body">
+        <h1 class="post-detail-title">{{ post.title }}</h1>
+        <p class="post-detail-meta">
+          {{ post.time.strftime('%B %d, %Y') }}
+          by {{ post.author }}
+          {% if post.location %}@ {{ post.location }}{% endif %}
+        </p>
+        <p class="post-detail-desc">{{ post.description }}</p>
+
+        <div class="post-detail-footer">
+          <a href="/map">View on map</a>
+          {% if post.can_edit %}
+          <span class="post-actions">
+            <a href="/edit/{{ post.post_id }}">edit</a>
+            <form action="/delete/{{ post.post_id }}" method="post" onsubmit="return confirm('Delete this post?')">
+              <button type="submit" class="link-button">delete</button>
+            </form>
+          </span>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+
+    <section class="comments-card" id="comments">
+      <h2 class="comments-heading">Comments
+        <span id="commentCount">({{ post.comments|length }})</span>
+      </h2>
+
+      <form id="commentForm" method="post" action="/post/{{ post.post_id }}" class="comment-form">
+        <input type="text" id="commentInput" name="comment" placeholder="Add a comment..." maxlength="100" required>
+        <button class="reply-btn">Reply</button>
+        <small class="char-limit-footnote">0/100</small>
+      </form>
+
+      <p id="noComment" {% if post.comments %}hidden{% endif %}>No comments to display yet.</p>
+
+      <div id="commentList">
+        {% for comment in post.comments %}
+        <div class="comment">
+          <div class="comment-head">
+            <strong>{{ comment.author }}</strong>
+            <span>{{ comment.time.strftime('%B %d, %Y') }}</span>
+          </div>
+          <p>{{ comment.comment }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %}
