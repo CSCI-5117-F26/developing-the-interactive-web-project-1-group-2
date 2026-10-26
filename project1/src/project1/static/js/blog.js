@@ -11,6 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
             viewButtons.forEach(b => b.classList.toggle('is-selected', b === btn));
         });
     });
+
+    const filterForm = document.getElementById('filterForm');
+    const searchParams = new URLSearchParams(window.location.search);
+    for (const [name, value] of searchParams) {
+    if (filterForm.elements[name]) {
+        filterForm.elements[name].value = value;
+    }
+}
 });
 
 // popups
