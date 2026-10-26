@@ -43,7 +43,7 @@
                         <p class="post-meta">
 
                             {% if post.time %}{{ post.time.strftime('%B %d, %Y') }}{% endif %}
-                            by {{ 'anonymous' if post.anon else (post.account or 'anonymous') }}
+                            by {{ 'Anonymous' if post.anon else (post.account or 'Anonymous') }}
                             {% if post.location %}&nbsp;@{{ post.location }}{% endif %}
 
                         </p>
