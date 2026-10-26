@@ -948,7 +948,7 @@ button,
     white-space: nowrap;
 }
 
-.imageDrop {
+.field label.imageDrop {
     position: relative;
     display: flex;
     align-items: center;
