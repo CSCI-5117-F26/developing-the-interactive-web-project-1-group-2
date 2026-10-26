@@ -200,6 +200,15 @@ button,
     border: var(--border);
 }
 
+#mapContainer .leaflet-top.leaflet-right {
+    top: 1.5em;
+    right: 2.5em;
+}
+
+#mapContainer .leaflet-top.leaflet-right .leaflet-control {
+    margin-top: 6px;
+}
+
 #footer {
     grid-area: 15 / 3 / 16 / 5;
     place-self: center;
