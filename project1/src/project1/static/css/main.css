@@ -1558,3 +1558,64 @@ header #menu {
     .post-detail-body, .comments-card { padding-left: 1.25em; padding-right: 1.25em; }
     #editForm .popupBody, #editForm .popupFooter { padding-left: 1.25em; padding-right: 1.25em; }
 }
+
+.emoji-marker-container {
+    background: transparent;
+    border: none;
+}
+
+.emoji-marker {
+    display: block;
+    width: 36px;
+    height: 36px;
+    font-size: 30px;
+    line-height: 36px;
+    text-align: center;
+}
+
+.map-icon-header {
+    display: flex;
+    align-items: center;
+    gap: 2%;
+    margin-bottom: 1%;
+}
+
+.default-pin-options {
+    display: flex;
+    align-items: center;
+    gap: 2%;
+    margin: 2%;
+}
+
+.pin-option {
+    width: 32px;
+    height: 32px;
+    padding: 1%;
+    object-fit: contain;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 5px;
+}
+
+.pin-option.is-selected {
+    border-color: black;
+    background-color: white;
+}
+
+.pin-option:focus-visible {
+    outline: 2px solid black;
+    outline-offset: 2px;
+}
+
+.icon-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2%;
+}
+
+#emojiPicker {
+    height: 280px;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+}

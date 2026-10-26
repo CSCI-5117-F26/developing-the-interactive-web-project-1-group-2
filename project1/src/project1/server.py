@@ -435,6 +435,21 @@ def create():
     long = request.form.get("long")
     locationName = request.form.get("locationName")
 
+    icon_option = request.form.get("iconOptions", "pin")
+    icon = request.form.get("icon", "").strip()
+
+    default_pin = request.form.get("defaultPin", "black_pin.png")
+    default_pins = {"black_pin.png", "black_boardpin.png", "black_needlepin.png"}
+
+    if default_pin not in default_pins:
+        default_pin = "black_pin.png"
+    if icon_option not in {"pin", "emoji", "custom"}:
+        icon_option = "pin"
+
+    if icon_option == "emoji":
+        if not icon or len(icon) > 32:
+            return "Please choose an emoji icon.", 400
+
     if title == "" or description == "" or anon == "":
         return redirect(url_for("home_page"))
 
@@ -453,9 +468,23 @@ def create():
     custom_icon_file = request.files.get("customIcon")
     icon_binary = None
     icon_mime_type = None
-    if custom_icon_file and allowed_file(custom_icon_file):
+
+    if icon_option == "custom":
+        if not custom_icon_file or not custom_icon_file.filename:
+            return "You need to upload a custom icon.", 400
         icon_binary = custom_icon_file.read()
+
+        if not allowed_file(custom_icon_file):
+            return "Invalid custom icon file type.", 400
+        
+        if len(icon_binary) > 5 * 1024 * 1024:
+            return "Custom icon must be 5 MB or smaller.", 400
+
+        if not icon_binary:
+            return "Uploaded icon is empty.", 400
+
         icon_mime_type = custom_icon_file.mimetype
+        icon = "📍"
 
     conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
@@ -465,11 +494,10 @@ def create():
     if "user_token" in session:
         sub = session["user_token"].get("userinfo")["sub"]
         if sub:
-            cursor.execute(
-                """
-                            SELECT account_id FROM accounts
-                            WHERE auth0_sub = %s;
-                            """,
+            cursor.execute("""
+                    SELECT account_id FROM accounts
+                    WHERE auth0_sub = %s;
+                    """,
                 (sub,),
             )
             row = cursor.fetchone()
@@ -479,14 +507,14 @@ def create():
         anon = True
         
     icon_id = None
-    if custom_icon_file and icon_binary and icon_mime_type:
-        cursor.execute(
-            """
-                        INSERT INTO icons
-                        (icon_file, mime_type)
-                        VALUES (%s, %s)
-                        RETURNING icon_id;
-                        """,
+
+    if icon_option=="custom" and icon_binary and icon_mime_type:
+        cursor.execute("""
+                INSERT INTO icons
+                (icon_file, mime_type)
+                VALUES (%s, %s)
+                RETURNING icon_id;
+            """,
             (icon_binary, icon_mime_type),
         )
         icon_id = cursor.fetchone()[0]
@@ -512,13 +540,12 @@ def create():
                    LIMIT 1;""")
     location_id = cursor.fetchone()[0]
 
-    cursor.execute(
-        """
-                   INSERT INTO posts
-                   (icon_id, anon, account, location, title, description)
-                   VALUES
-                   (%s, %s, %s, %s, %s, %s);""",
-        (icon_id, anon, account_id, location_id, title, description),
+    cursor.execute("""
+            INSERT INTO posts
+            (icon, icon_id, default_pin, icon_option, anon, account, location, title, description)
+            VALUES
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s);""",
+        (icon, icon_id, default_pin, icon_option, anon, account_id, location_id, title, description),
     )
 
     cursor.execute("""
@@ -581,7 +608,7 @@ def getAllPosts():
     conn = psycopg.connect(os.environ["DATABASE_URL"])
     cursor = conn.cursor()
     cursor.execute("""
-                   SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord), posts.icon_id
+                   SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord), posts.icon_id, posts.icon, posts.default_pin, posts.icon_option
                    FROM posts
                    INNER JOIN locations ON posts.location = locations.location_id
                    """)
@@ -595,7 +622,7 @@ def getAllPosts():
     if len(rows) > 0:
         for row in rows:
             body.append(
-                {"post_id": row[0], "lat": row[1], "long": row[2], "icon_id": row[3]}
+                {"post_id": row[0], "lat": row[1], "long": row[2], "icon_id": row[3], "icon": row[4], "default_pin": row[5], "icon_option": row[6]}
             )
 
     return jsonify(body), 200
