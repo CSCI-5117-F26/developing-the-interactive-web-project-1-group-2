@@ -75,7 +75,9 @@
     </div>
     
     <div id="mapContainer">
-        <button id="sidebarToggle" class="pure-button" onclick="adjustSideBar()">></button>
+        <button id="sidebarToggle" class="pure-button" onclick="adjustSideBar()" aria-label="Open sidebar">
+            <i class="fa fa-angle-right"></i>
+        </button>
         <div id="map"></div>
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
