@@ -70,6 +70,10 @@ document.getElementById('closePopup').addEventListener('click', () => {
     changePopup(true);
 });
 
+document.getElementById('closePostPopup').addEventListener('click', () => {
+    changePopup(true);
+});
+
 const filterToggle = document.getElementById('filterToggle');
 const filterPanel = document.getElementById('filterPanel');
 filterToggle.addEventListener('click', () => {
@@ -135,9 +139,31 @@ async function loadMarkers() {
     if (posts.length > 0) {
         for (const post of posts) {
             let postMarker = { postId: post['post_id'] };
-            // Add a custom icon for post
-            if (post['icon_id'] != null) {
+            if (post.icon_option === 'custom' && post.icon_id != null) {
                 postMarker.icon = new CustomIcon({ iconUrl: `/icon/${post['icon_id']}` });
+            }
+            else if (post.icon_option === 'emoji') {
+                let emoji = String(post.icon);
+                let escapeEmoji = emoji.replace(/[&<>"']/g, char => ({
+                    '&': '&amp;',
+                    '<': '&lt;', '>': '&gt;',
+                    '"': '&quot;', "'": '&#39;'
+                })[char]);
+                postMarker.icon = L.divIcon({
+                    html: `<span class="emoji-marker">${escapeEmoji}</span>`,
+                    className: 'emoji-marker-container',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18],
+                    popupAnchor: [0, -18]
+                })
+            }
+            else {
+                let defaultPins = ['black_pin.png', 'black_boardpin.png','black_needlepin.png'];
+                let defaultPin;
+                if (defaultPins.includes(post.default_pin)) {
+                    defaultPin = post.default_pin
+                } else { defaultPin = 'black_pin.png'; }
+                postMarker.icon = new CustomIcon({ iconUrl: `/static/images/${defaultPin}` });
             }
             var marker = L.marker([post['lat'], post['long']], postMarker).addTo(map);
             marker.on('click', viewPost);
@@ -183,11 +209,13 @@ function adjustSideBar() {
     if (sidebar.hidden) {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
         sidebarToggle.innerHTML = '<i class="fa fa-angle-right"></i>';
+        sidebarToggle.setAttribute('aria-label', 'Open sidebar');
     }
     else {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
         updatePostsInView();
         sidebarToggle.innerHTML = '<i class="fa fa-angle-left"></i>';
+        sidebarToggle.setAttribute('aria-label', 'Close sidebar');
     }
 
 }
@@ -206,42 +234,31 @@ async function viewPost(e) {
 }
 
 function showPost(post, id) {
-    let title = document.getElementById('postTitle');
-    title.innerText = post['title'];
+    document.getElementById('postTitle').innerText = post['title'];
 
-    let author = document.getElementById('postAuthor');
-    author.innerText = post['author'];
-
-    let description = document.getElementById('postDescription');
-    description.innerText = `Description: ${post['description']}`;
-
-    let location = document.getElementById('postLocation');
-    location.innerText = `Location: ${post['location']}`;
-
-    let image = document.getElementById('postImage');
+    const image = document.getElementById('postImage');
     if (post['image'] != null) {
+        image.src = post['image'];
+        image.alt = post['title'];
         image.hidden = false;
-        image.setAttribute('src', post['image']);
     } else {
+        image.removeAttribute('src');
         image.hidden = true;
     }
 
-    let date = document.getElementById('postDate');
-    date.innerText = `Date: ${post['time']}`;
+    const date = new Date(post['time']).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
+    let meta = `${date} \u00b7 by ${post['author']}`;
+    if (post['location']) meta += ` \u00b7 @ ${post['location']}`;
+    document.getElementById('postMeta').innerText = meta;
+
+    document.getElementById('postDescription').innerText = post['description'];
 
     document.getElementById('postActions').hidden = !post['can_edit'];
     document.getElementById('deleteForm').action = '/delete/' + id;
-
     document.getElementById('editLink').href = '/edit/' + id;
-
-    let docId = document.getElementById('post_id');
-    docId.innerText = `${docId.innerText} ${id}`;
-
-    // Add view comments for post button
-    let viewCommentsButton = document.getElementById('viewCommentsButton');
-    viewCommentsButton.addEventListener('click', function () {
-        window.location.href = `/post/${id}`;
-    });
+    document.getElementById('viewCommentsButton').href = `/post/${id}`;
 }
 
 window.addEventListener('load', () => {

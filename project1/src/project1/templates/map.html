@@ -5,6 +5,7 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js" defer></script>
 <script src="{{ url_for('static', filename='js/map.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/create_post.js') }}" defer></script>
 <script>
@@ -74,7 +75,9 @@
     </div>
     
     <div id="mapContainer">
-        <button id="sidebarToggle" class="pure-button" onclick="adjustSideBar()">></button>
+        <button id="sidebarToggle" class="pure-button" onclick="adjustSideBar()" aria-label="Open sidebar">
+            <i class="fa fa-angle-right"></i>
+        </button>
         <div id="map"></div>
         <div class="popupBackground" id="createPopupBackground" hidden>
             <div class="popupWindow" id="createPopupWindow">
@@ -84,25 +87,34 @@
                     {% include "create_post.html" %}
 
                     <div class="popup" id="post" hidden>
-                        <h1 id="postTitle"></h1>
-                        <p id="postAuthor"></p>
-                        <p id="postDescription"></p>
-                        <p id="postLocation"></p>
-                        <img src="" alt="" id="postImage" hidden>
-                        <p id="postDate"></p>
-                        <p id="post_id" hidden></p>
-                        <div id="postActions" hidden>
-                            <a id="editLink" class="pure-button" href="#">Edit</a>
-                            <form id="deleteForm" method="post" style="display:inline"
-                                onsubmit="return confirm('Delete this post?')">
-                                <button class="pure-button">Delete</button>
-                            </form>
+                        <div class="popupHeader">
+                            <button type="button" id="closePostPopup" aria-label="Close">
+                                <img src="{{ url_for('static', filename='icons/x-square.svg') }}" alt="">
+                            </button>
                         </div>
-                        <button id="viewCommentsButton" class="pure-button" href="/post/id">View Comments</button>
+
+                        <div class="popupBody">
+                            <img id="postImage" alt="" hidden>
+                            <h2 id="postTitle"></h2>
+                            <p id="postMeta"></p>
+                            <p id="postDescription"></p>
+                        </div>
+
+                        <div class="popupFooter">
+                            <a id="viewCommentsButton" class="pure-button" href="#">View comments</a>
+                            <div id="postActions" class="footerButtons" hidden>
+                                <a id="editLink" class="pure-button" href="#">Edit</a>
+                                <form id="deleteForm" method="post"
+                                    onsubmit="return confirm('Delete this post?')">
+                                    <button type="submit" class="pure-button">Delete</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!-- <p> <a href="https://www.flaticon.com/free-icons/pin" title="pin icons">Pin icons created by Those Icons - Flaticon</a></p> -->
 {% endblock %}

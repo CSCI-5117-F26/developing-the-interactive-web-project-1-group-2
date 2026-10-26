@@ -3,7 +3,6 @@
     <input type="hidden" id="lat" name="lat">
     <input type="hidden" id="long" name="long">
     <input type="hidden" id="locationName" name="locationName" value="">
-    <input type="hidden" id="icon" name="icon" value="default">
     <input type="hidden" name="next" value="{{ 'blog' if location_mode == 'picker' else 'map' }}">
 
     <div class="popupHeader">
@@ -64,13 +63,36 @@
 
         <fieldset class="field">
             <legend class="fieldLabel">Map icon</legend>
-            <div class="icon-options">
-                {% for key, label in [('default', 'Default'), ('pin', 'Pin'), ('star', 'Star'),
-                                      ('heart', 'Heart'), ('flag', 'Flag'), ('custom', 'Upload')] %}
-                <button type="button" class="icon-option{% if key == 'default' %} is-selected{% endif %}"
-                    data-icon="{{ key }}" aria-pressed="{{ 'true' if key == 'default' else 'false' }}">{{ label }}</button>
-                {% endfor %}
+            <input type="hidden" id="icon" name="icon" value="">
+            <input type="hidden" id="iconOptions" name="iconOptions" value="pin">
+            <input type="hidden" id="defaultPin" name="defaultPin" value="black_pin.png">
+
+            <!-- <p> Selected Icon:
+                <img id="selectedEmoji" src="static/images/black_pin.png" alt="Default pin icon" width="32" height="32">
+            </p> -->
+            
+            <div class="default-pin-options">
+                <img src="/static/images/black_pin.png" alt="Black location pin" class="pin-option is-selected" data-pin="black_pin.png" role="button" aria-pressed="true">
+                <img src="/static/images/black_boardpin.png" alt="Black board pin" class="pin-option" data-pin="black_boardpin.png" role="button" aria-pressed="false">
+                <img src="/static/images/black_needlepin.png" alt="Black needle pin" class="pin-option" data-pin="black_needlepin.png" role="button" aria-pressed="false">
             </div>
+
+            <div class="icon-options">
+                <button type="button" id="emojiIconButton" class="pure-button" aria-pressed="false">
+                    Choose an emoji
+                </button>
+                <button type="button" id="customIconButton" class="pure-button" aria-pressed="false">
+                    Upload custom icon
+                </button>  
+            </div>
+            
+            <div id="emojiIconOptions" hidden>
+                <div id="emojiPicker"></div>
+                <p> Selected Icon:
+                    <img id="selectedEmoji" src="static/images/black_pin.png" alt="Default pin icon" width="32" height="32">
+                </p>
+            </div>
+
             <div id="customIconRow" hidden>
                 <label for="customIcon">Upload a custom map icon</label>
                 <input type="file" id="customIcon" name="customIcon"
