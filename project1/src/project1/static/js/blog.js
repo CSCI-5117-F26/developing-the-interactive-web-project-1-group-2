@@ -1,46 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const viewSelector = document.getElementById('view');
     const gridView = document.getElementById('gridView');
     const collapsedView = document.getElementById('collapsedView');
+    const viewButtons = document.querySelectorAll('.view-toggle button');
 
-    viewSelector.addEventListener('change', (event) => {
-        if (event.target.value === 'grid') {
-            gridView.style.display = 'grid';
-            collapsedView.style.display = 'none';
-        } else if (event.target.value === 'collapsed') {
-            gridView.style.display = 'none';
-            collapsedView.style.display = 'block';
-        }
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const showGrid = btn.dataset.view === 'grid';
+            gridView.hidden = !showGrid;
+            collapsedView.hidden = showGrid;
+            viewButtons.forEach(b => b.classList.toggle('is-selected', b === btn));
+        });
     });
 
-    // filter
-    const filterToggleBtn = document.getElementById('filterToggleBtn');
-    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-
-    if (filterToggleBtn) {
-        filterToggleBtn.addEventListener('click', adjustSideBar);
-    }
-
-    if (closeSidebarBtn) {
-        closeSidebarBtn.addEventListener('click', adjustSideBar);
-    }
-});
-
-function adjustSideBar() {
-    const sidebar = document.getElementById('sidebar');
-    const blogContainer = document.getElementById('blogContainer');
-    const sidebarButton = document.getElementById('filterToggleBtn');
-
-    if (sidebar.hidden == true) {
-        sidebar.hidden = false;
-        sidebarButton.textContent = 'Collapse';
-        blogContainer.classList.replace('pure-u-1', 'pure-u-2-3');
-    } else {
-        sidebar.hidden = true;
-        sidebarButton.textContent = 'Filter';
-        blogContainer.classList.replace('pure-u-2-3', 'pure-u-1');
+    const filterForm = document.getElementById('filterForm');
+    const searchParams = new URLSearchParams(window.location.search);
+    for (const [name, value] of searchParams) {
+    if (filterForm.elements[name]) {
+        filterForm.elements[name].value = value;
     }
 }
+});
 
 // popups
 const createPopupBackground = document.getElementById("createPopupBackground");

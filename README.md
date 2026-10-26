@@ -5,8 +5,8 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 ## App Info:
 
 * Team Name: The Style Sheet Skinks
-* App Name: Map Blog (Temporary)
-* App Link: <https://TODO.com/>
+* App Name: GeoBloggr
+* App Link: https://developing-the-interactive-web-project-1-iwci.onrender.com
 
 ### Students
 
@@ -22,13 +22,14 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 **Describe the most challenging features you implemented
 (one sentence per bullet, maximum 4 bullets):**
 
-* ...
+* Handling image uploads from users, storing images, and displaying images.
+* Creating popups, structuring the layout so popups appear on top of the map and not under it.
 
 ## Testing Notes
 
 **Is there anything special we need to know in order to effectively test your app? (optional):**
 
-* ...
+* If testing locally, not on Render, ensure that the Postgres application is installed. PGAdmin4 alone will not work with PostGIS.
 
 
 ## Screenshots of Site
@@ -59,6 +60,7 @@ Please do not document required libraries. or libraries that are mentioned in th
 * Library or service name: description of use
 * Leaflet: Lightweight open source mapping library. The mapping library provides utilities to add maps to the webpage and interact with the map.
 * PostGIS: Open source software that extends the capabilities of the Postgres relational database. Adds support for storing, indexing, and querying geospatial data.
+* Font Awesome: Library to get search icon
 
 **If there's anything else you would like to disclose about how your project
 relied on external code, expertise, or anything else, please disclose that
