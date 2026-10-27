@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // add emoji icons
     let pickerContainer = $('emojiPicker');
-
     if (pickerContainer && window.EmojiMart?.Picker) {
         let emojiPicker = new EmojiMart.Picker({
             onEmojiSelect: (emoji) => {
