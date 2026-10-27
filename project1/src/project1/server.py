@@ -742,7 +742,8 @@ def edit_page(post_id):
         """
         SELECT posts.title, posts.description, posts.anon, posts.icon_id,
                locations.location, ST_Y(locations.coord), ST_X(locations.coord),
-               EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id)
+               EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id), posts.icon,
+               posts.default_pin, posts.icon_option
         FROM posts
         LEFT JOIN locations ON posts.location = locations.location_id
         WHERE posts.post_id = %s AND posts.account = %s;
@@ -761,11 +762,14 @@ def edit_page(post_id):
         "title": row[0],
         "description": row[1],
         "anon": row[2],
-        "icon": "custom" if row[3] is not None else "default",
+        "icon_id": row[3],
         "location": row[4],
         "lat": row[5],
         "long": row[6],
         "has_image": row[7],
+        "icon": row[8] or "",
+        "default_pin": row[9] or "black_pin.png",
+        "icon_option": row[10] or "pin",
     }
 
     return render_template("edit.html", post=post)

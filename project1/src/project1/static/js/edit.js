@@ -7,10 +7,42 @@ var CustomIcon = L.Icon.extend({
 })
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    function initializeIconChoices() {
+        const initialType = $('iconOptions')?.value || 'pin';
+        const initialEmoji = $('icon')?.value || '';
+        const initialPin = $('defaultPin')?.value || 'black_pin.png';
+
+        if (initialType === 'pin'){
+            pinOptions.forEach((option) => {
+                option.classList.toggle('is-selected', option.dataset.pin === initialPin);
+                option.setAttribute('aria-pressed', String(option.dataset.pin === initialPin));
+            });
+            $('emojiIconOptions').hidden = true;
+            $('customIconRow').hidden = true;
+            updateIcon('pin', initialPin);
+        }
+        else if (initialType === 'emoji') {
+            setIconOptions('emoji');
+            $('icon').value = initialEmoji;
+            const selectedEmoji = $('selectedEmoji');
+            if (selectedEmoji && initialEmoji) {
+                selectedEmoji.textContent = initialEmoji;
+            }
+            updateIcon('emoji', initialEmoji);
+        }
+        else if (initialType === 'custom') {
+            setIconOptions('custom');
+            updateIcon('custom', `/icon/${$('icon_id')?.value || ''}`)
+        }
+
+    }
+
+
     const form = document.getElementById('editForm');
     if (!form) return;
     const $ = (id) => document.getElementById(id);
- 
+
     [['title', 'titleCount', 100], ['description', 'descCount', 500]].forEach(([inputId, counterId, max]) => {
         const input = $(inputId);
         const counter = $(counterId);
@@ -25,7 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const actions = $('imageActions');
     const status = $('imageStatus');
     const originalSrc = imagePreview.getAttribute('src');
- 
+    const emojiButton = $('emojiIconButton');
+    const customButton = $('customIconButton');
+    const emojiIconOptions = $('emojiIconOptions');
+    const customRow = $('customIconRow');
+    const customInput = $('customIcon');
+    const iconOptionsInput = $('iconOptions');
+
     imageInput.addEventListener('change', () => {
         const file = imageInput.files[0];
         if (file) {
@@ -68,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('emojiIconButton').setAttribute('aria-pressed', 'false');
             $('customIconButton').setAttribute('aria-pressed', 'false');
 
-            updateIcon({type: 'pin', value: pin.dataset.pin});
+            updateIcon('pin', pin.dataset.pin);
         }
 
         pin.addEventListener('click', selectPin);
@@ -91,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedEmoji) {
                     selectedEmoji.replaceWith(Object.assign(document.createElement('span'), { id: 'selectedEmoji', textContent: emoji.native }))
                 }
-                updateIcon({type: 'emoji', value: emoji.native});
+                updateIcon('emoji', emoji.native);
             },
             previewPosition: 'none',
             theme: 'light',
@@ -101,12 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pickerContainer.appendChild(emojiPicker);
     }
 
-    let emojiButton = $('emojiIconButton');
-    let customButton = $('customIconButton');
-    let emojiIconOptions = $('emojiIconOptions');
-    let customRow = $('customIconRow');
-    let customInput = $('customIcon');
-    let iconOptionsInput = $('iconOptions');
+
 
     function setIconOptions(option) {
         iconOptionsInput.value = option;
@@ -172,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         iconImg.src = URL.createObjectURL(file);
 
         preview.appendChild(iconImg);
-        updateIcon({type: 'custom', fileUrl: iconImg.src});
+        updateIcon('custom', iconImg.src);
     });
 
  
@@ -254,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
  
     setTimeout(() => pickerMap.invalidateSize(), 0);
     
-    function updateIcon({type, value, fileUrl=null}){
+    function updateIcon(type, value){
         $('iconOptions').value = type;
         if (type === 'pin') {
             $('defaultPin').value = value;
@@ -271,8 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (marker){
             let icon;
-            if (type === 'custom' && fileUrl) {
-                icon = new CustomIcon({ iconUrl: fileUrl });
+            if (type === 'custom' && value) {
+                icon = new CustomIcon({ iconUrl: value });
             }
             else if (type === 'emoji') {
                 let escapeEmoji = value.replace(/[&<>"']/g, char => ({
@@ -299,4 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
             marker.setIcon(icon);
         }
     }
+
+    initializeIconChoices();
+
 });

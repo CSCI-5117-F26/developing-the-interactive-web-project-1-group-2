@@ -20,7 +20,11 @@
     <input type="hidden" id="long" name="long" value="{{ post.long if post.long is not none else '' }}">
     <input type="hidden" id="locationName" name="locationName" value="{{ post.location or '' }}">
     <input type="hidden" id="icon" name="icon" value="{{ post.icon }}">
+    <input type="hidden" id="iconOptions" name="iconOptions" value="{{ post.icon_option }}">
+    <input type="hidden" id="defaultPin" name="defaultPin" value="{{ post.default_pin }}">
     <input type="hidden" id="removeImage" name="removeImage" value="no">
+    <input type="hidden" id="iconId" name="iconId" value="{{ post.icon_id }}">
+
 
     <div class="popupHeader">
         <h2>Edit post</h2>
