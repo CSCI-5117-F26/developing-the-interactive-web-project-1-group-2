@@ -783,6 +783,17 @@ def edit_save(post_id):
     icon = request.form.get("icon", "default")
     remove_image = request.form.get("removeImage", "no") == "yes"
 
+    icon_option = request.form.get("iconOptions", "pin")
+    icon = request.form.get("icon", "").strip()
+
+    default_pin = request.form.get("defaultPin", "black_pin.png")
+    default_pins = {"black_pin.png", "black_boardpin.png", "black_needlepin.png"}
+
+    if default_pin not in default_pins:
+        default_pin = "black_pin.png"
+    if icon_option not in {"pin", "emoji", "custom"}:
+        icon_option = "pin"
+
     file = request.files.get("image")
     image_binary = None
     mime_type = None
@@ -815,10 +826,10 @@ def edit_save(post_id):
         if row:
             location_id, old_icon_id = row
 
-            cursor.execute(
-                "UPDATE posts SET title = %s, description = %s, anon = %s WHERE post_id = %s AND account = %s",
-                (title, description, anon, post_id, account_id),
-            )
+            # cursor.execute(
+            #     "UPDATE posts SET title = %s, description = %s, anon = %s WHERE post_id = %s AND account = %s",
+            #     (title, description, anon, post_id, account_id),
+            # )
 
             if lat and long:
                 cursor.execute(
@@ -834,14 +845,40 @@ def edit_save(post_id):
                         (icon_binary, icon_mime_type),
                     )
                     new_icon_id = cursor.fetchone()[0]
+                icon = "📍"
             else:
                 new_icon_id = None
 
+            cursor.execute(
+                """
+                UPDATE posts 
+                SET title = %s, 
+                    description = %s, 
+                    anon = %s, 
+                    icon = %s, 
+                    icon_id = %s, 
+                    default_pin = %s, 
+                    icon_option = %s
+                WHERE post_id = %s AND account = %s
+                """,
+                (
+                    title,
+                    description,
+                    anon,
+                    icon,
+                    new_icon_id,
+                    default_pin,
+                    icon_option,
+                    post_id,
+                    account_id,
+                ),
+            )
+
             if new_icon_id != old_icon_id:
-                cursor.execute(
-                    "UPDATE posts SET icon_id = %s WHERE post_id = %s",
-                    (new_icon_id, post_id),
-                )
+                # cursor.execute(
+                #     "UPDATE posts SET icon_id = %s WHERE post_id = %s",
+                #     (new_icon_id, post_id),
+                # )
                 if old_icon_id is not None:
                     cursor.execute(
                         "DELETE FROM icons WHERE icon_id = %s", (old_icon_id,)

@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         iconImg.src = URL.createObjectURL(file);
 
         preview.appendChild(iconImg);
-        updateIcon({type: 'custom', value: iconImg.src});
+        updateIcon({type: 'custom', fileUrl: iconImg.src});
     });
 
  
