@@ -139,9 +139,31 @@ async function loadMarkers() {
     if (posts.length > 0) {
         for (const post of posts) {
             let postMarker = { postId: post['post_id'] };
-            // Add a custom icon for post
-            if (post['icon_id'] != null) {
+            if (post.icon_option === 'custom' && post.icon_id != null) {
                 postMarker.icon = new CustomIcon({ iconUrl: `/icon/${post['icon_id']}` });
+            }
+            else if (post.icon_option === 'emoji') {
+                let emoji = String(post.icon);
+                let escapeEmoji = emoji.replace(/[&<>"']/g, char => ({
+                    '&': '&amp;',
+                    '<': '&lt;', '>': '&gt;',
+                    '"': '&quot;', "'": '&#39;'
+                })[char]);
+                postMarker.icon = L.divIcon({
+                    html: `<span class="emoji-marker">${escapeEmoji}</span>`,
+                    className: 'emoji-marker-container',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18],
+                    popupAnchor: [0, -18]
+                })
+            }
+            else {
+                let defaultPins = ['black_pin.png', 'black_boardpin.png','black_needlepin.png'];
+                let defaultPin;
+                if (defaultPins.includes(post.default_pin)) {
+                    defaultPin = post.default_pin
+                } else { defaultPin = 'black_pin.png'; }
+                postMarker.icon = new CustomIcon({ iconUrl: `/static/images/${defaultPin}` });
             }
             var marker = L.marker([post['lat'], post['long']], postMarker).addTo(map);
             marker.on('click', viewPost);
@@ -187,11 +209,13 @@ function adjustSideBar() {
     if (sidebar.hidden) {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2}px`;
         sidebarToggle.innerHTML = '<i class="fa fa-angle-right"></i>';
+        sidebarToggle.setAttribute('aria-label', 'Open sidebar');
     }
     else {
         sidebarToggle.style.left = `${-sidebarToggle.offsetWidth / 2 + sidebar.offsetWidth}px`;
         updatePostsInView();
         sidebarToggle.innerHTML = '<i class="fa fa-angle-left"></i>';
+        sidebarToggle.setAttribute('aria-label', 'Close sidebar');
     }
 
 }

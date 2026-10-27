@@ -1,4 +1,4 @@
-CREATE EXTENSION postgis;
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS links;
@@ -24,6 +24,7 @@ CREATE TABLE locations (
     zip INT
 );
 
+-- this table for is uploaded custom icons
 CREATE TABLE icons (
     icon_id SERIAL PRIMARY KEY,
     icon_file BYTEA NOT NULL,
@@ -32,6 +33,9 @@ CREATE TABLE icons (
 
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
+    default_pin TEXT NOT NULL DEFAULT 'black_pin.png',
+    icon TEXT NOT NULL DEFAULT U&'\+01F4CD',
+    icon_option TEXT NOT NULL DEFAULT 'pin',
     icon_id INT,
     anon BOOLEAN NOT NULL,
     account INT,

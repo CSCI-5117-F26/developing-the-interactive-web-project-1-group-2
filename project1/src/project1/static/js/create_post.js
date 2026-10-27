@@ -13,6 +13,133 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!form) return;
     const $ = (id) => document.getElementById(id);
 
+    //add default pin options
+    let pinOptions = document.querySelectorAll('.pin-option');
+
+    pinOptions.forEach((pin) => {
+        function selectPin() {
+            $('defaultPin').value = pin.dataset.pin;
+            $('iconOptions').value = 'pin';
+            $('icon').value = '';
+
+            pinOptions.forEach((option) => {
+                option.classList.toggle('is-selected', option === pin);
+                option.setAttribute('aria-pressed', String(option === pin));
+            });
+
+            $('emojiIconOptions').hidden = true;
+            $('customIconRow').hidden = true;
+
+            $('emojiIconButton').classList.remove('is-selected');
+            $('customIconButton').classList.remove('is-selected');
+
+            $('emojiIconButton').setAttribute('aria-pressed', 'false');
+            $('customIconButton').setAttribute('aria-pressed', 'false');
+        }
+
+        pin.addEventListener('click', selectPin);
+
+        pin.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                selectPin();
+            }
+        });
+    });
+
+    // add emoji icons
+    let pickerContainer = $('emojiPicker');
+
+    if (pickerContainer && window.EmojiMart?.Picker) {
+        let emojiPicker = new EmojiMart.Picker({
+            onEmojiSelect: (emoji) => {
+                $('icon').value = emoji.native;
+                let selectedEmoji = $('selectedEmoji');
+                if (selectedEmoji) {
+                    selectedEmoji.replaceWith(Object.assign(document.createElement('span'), { id: 'selectedEmoji', textContent: emoji.native }))
+                }
+            },
+            previewPosition: 'none',
+            theme: 'light',
+            maxFrequentRows: 2
+        });
+
+        pickerContainer.appendChild(emojiPicker);
+    }
+
+    let emojiButton = $('emojiIconButton');
+    let customButton = $('customIconButton');
+    let emojiIconOptions = $('emojiIconOptions');
+    let customRow = $('customIconRow');
+    let customInput = $('customIcon');
+    let iconOptionsInput = $('iconOptions');
+
+    function setIconOptions(option) {
+        iconOptionsInput.value = option;
+        emojiIconOptions.hidden = option !== 'emoji';
+        customRow.hidden = option !== 'custom';
+        emojiButton.classList.toggle('is-selected', option === 'emoji');
+        customButton.classList.toggle('is-selected', option === 'custom');
+        emojiButton.setAttribute('aria-pressed', String(option === 'emoji'));
+        customButton.setAttribute('aria-pressed', String(option === 'custom'));
+        
+        pinOptions.forEach((pin) => {
+            pin.classList.remove('is-selected');
+            pin.setAttribute('aria-pressed', 'false');
+        });
+
+        if (option === 'emoji') {
+            customInput.value = '';
+            let preview = $('customIconPreview');
+            if (preview) {
+                preview.replaceChildren();
+            }
+        }
+        if (option === 'custom') {
+            $('icon').value = '';
+        }
+    }
+
+    emojiButton.addEventListener('click', () => setIconOptions('emoji'));
+    customButton.addEventListener('click', () => setIconOptions('custom'));
+
+    customInput.addEventListener('change', () => {
+        let file = customInput.files[0];
+
+        if (!file) return;
+
+        if (!['image/png', 'image/jpeg', 'image/gif'].includes(file.type)) {
+            alert('Please upload a PNG, JPG, or GIF image.');
+            customInput.value = '';
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('The custom icon must be 5 MB or smaller.');
+            customInput.value = '';
+            return;
+        }
+
+        let preview = $('customIconPreview');
+
+        if (!preview) {
+            preview = document.createElement('div');
+            preview.id = 'customIconPreview';
+            customRow.appendChild(preview);
+        }
+
+        preview.replaceChildren();
+
+        let iconImg = document.createElement('img');
+        iconImg.alt = 'Custom map icon preview';
+        iconImg.style.width = '48px';
+        iconImg.style.height = '48px';
+        iconImg.style.objectFit = 'contain';
+        iconImg.src = URL.createObjectURL(file);
+
+        preview.appendChild(iconImg);
+    });
+    
     [['title', 'titleCount', 100], ['description', 'descCount', 500]].forEach(([inputId, counterId, max]) => {
         const input = $(inputId);
         const counter = $(counterId);
@@ -32,22 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
             imagePreview.removeAttribute('src');
             imagePreview.hidden = true;
         }
-    });
-
-    const iconOptions = form.querySelectorAll('.icon-option');
-    const iconInput = $('icon');
-    const customRow = $('customIconRow');
-    iconOptions.forEach((option) => {
-        option.addEventListener('click', () => {
-            iconOptions.forEach((currentOption) => {
-                const on = currentOption === option;
-                currentOption.classList.toggle('is-selected', on);
-                currentOption.setAttribute('aria-pressed', on);
-            });
-            iconInput.value = option.dataset.icon;
-            customRow.hidden = option.dataset.icon !== 'custom';
-            if (customRow.hidden) $('customIcon').value = '';
-        });
     });
 
     [$('closePopup'), $('cancelPost')].forEach((btn) => {
@@ -139,3 +250,4 @@ document.addEventListener('DOMContentLoaded', () => {
         initPicker();
     });
 });
+
