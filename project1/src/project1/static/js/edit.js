@@ -1,9 +1,48 @@
+var CustomIcon = L.Icon.extend({
+    options: {
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -40]
+    }
+})
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    function initializeIconChoices() {
+        const initialType = $('iconOptions')?.value || 'pin';
+        const initialEmoji = $('icon')?.value || '';
+        const initialPin = $('defaultPin')?.value || 'black_pin.png';
+
+        if (initialType === 'pin'){
+            pinOptions.forEach((option) => {
+                option.classList.toggle('is-selected', option.dataset.pin === initialPin);
+                option.setAttribute('aria-pressed', String(option.dataset.pin === initialPin));
+            });
+            $('emojiIconOptions').hidden = true;
+            $('customIconRow').hidden = true;
+            updateIcon('pin', initialPin);
+        }
+        else if (initialType === 'emoji') {
+            setIconOptions('emoji');
+            $('icon').value = initialEmoji;
+            const selectedEmoji = $('selectedEmoji');
+            if (selectedEmoji && initialEmoji) {
+                selectedEmoji.textContent = initialEmoji;
+            }
+            updateIcon('emoji', initialEmoji);
+        }
+        else if (initialType === 'custom') {
+            setIconOptions('custom');
+            updateIcon('custom', `/icon/${$('icon_id')?.value || ''}`)
+        }
+
+    }
+
+
     const form = document.getElementById('editForm');
     if (!form) return;
     const $ = (id) => document.getElementById(id);
- 
+
     [['title', 'titleCount', 100], ['description', 'descCount', 500]].forEach(([inputId, counterId, max]) => {
         const input = $(inputId);
         const counter = $(counterId);
@@ -18,7 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const actions = $('imageActions');
     const status = $('imageStatus');
     const originalSrc = imagePreview.getAttribute('src');
- 
+    const emojiButton = $('emojiIconButton');
+    const customButton = $('customIconButton');
+    const emojiIconOptions = $('emojiIconOptions');
+    const customRow = $('customIconRow');
+    const customInput = $('customIcon');
+    const iconOptionsInput = $('iconOptions');
+
     imageInput.addEventListener('change', () => {
         const file = imageInput.files[0];
         if (file) {
@@ -37,22 +82,132 @@ document.addEventListener('DOMContentLoaded', () => {
         removeInput.value = 'yes';
         actions.hidden = true;
     });
- 
-    const iconOptions = form.querySelectorAll('.icon-option');
-    const iconInput = $('icon');
-    const customRow = $('customIconRow');
-    iconOptions.forEach((option) => {
-        option.addEventListener('click', () => {
-            iconOptions.forEach((currentOption) => {
-                const on = currentOption === option;
-                currentOption.classList.toggle('is-selected', on);
-                currentOption.setAttribute('aria-pressed', on);
+
+    let pinOptions = document.querySelectorAll('.pin-option');
+
+    pinOptions.forEach((pin) => {
+        function selectPin() {
+            $('defaultPin').value = pin.dataset.pin;
+            $('iconOptions').value = 'pin';
+            $('icon').value = '';
+            $('customIcon').value = '';
+
+            pinOptions.forEach((option) => {
+                option.classList.toggle('is-selected', option === pin);
+                option.setAttribute('aria-pressed', String(option === pin));
             });
-            iconInput.value = option.dataset.icon;
-            customRow.hidden = option.dataset.icon !== 'custom';
-            if (customRow.hidden) $('customIcon').value = '';
+
+            $('emojiIconOptions').hidden = true;
+            $('customIconRow').hidden = true;
+
+            $('emojiIconButton').classList.remove('is-selected');
+            $('customIconButton').classList.remove('is-selected');
+
+            $('emojiIconButton').setAttribute('aria-pressed', 'false');
+            $('customIconButton').setAttribute('aria-pressed', 'false');
+
+            updateIcon('pin', pin.dataset.pin);
+        }
+
+        pin.addEventListener('click', selectPin);
+
+        pin.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                selectPin();
+            }
         });
     });
+
+    // add emoji icons
+    let pickerContainer = $('emojiPicker');
+    if (pickerContainer && window.EmojiMart?.Picker) {
+        let emojiPicker = new EmojiMart.Picker({
+            onEmojiSelect: (emoji) => {
+                $('icon').value = emoji.native;
+                let selectedEmoji = $('selectedEmoji');
+                if (selectedEmoji) {
+                    selectedEmoji.replaceWith(Object.assign(document.createElement('span'), { id: 'selectedEmoji', textContent: emoji.native }))
+                }
+                updateIcon('emoji', emoji.native);
+            },
+            previewPosition: 'none',
+            theme: 'light',
+            maxFrequentRows: 2
+        });
+
+        pickerContainer.appendChild(emojiPicker);
+    }
+
+
+
+    function setIconOptions(option) {
+        iconOptionsInput.value = option;
+        emojiIconOptions.hidden = option !== 'emoji';
+        customRow.hidden = option !== 'custom';
+        emojiButton.classList.toggle('is-selected', option === 'emoji');
+        customButton.classList.toggle('is-selected', option === 'custom');
+        emojiButton.setAttribute('aria-pressed', String(option === 'emoji'));
+        customButton.setAttribute('aria-pressed', String(option === 'custom'));
+        
+        pinOptions.forEach((pin) => {
+            pin.classList.remove('is-selected');
+            pin.setAttribute('aria-pressed', 'false');
+        });
+
+        if (option === 'emoji') {
+            customInput.value = '';
+            let preview = $('customIconPreview');
+            if (preview) {
+                preview.replaceChildren();
+            }
+        }
+        if (option === 'custom') {
+            $('icon').value = '';
+        }
+    }
+
+    emojiButton.addEventListener('click', () => setIconOptions('emoji'));
+    customButton.addEventListener('click', () => setIconOptions('custom'));
+
+    customInput.addEventListener('change', () => {
+        let file = customInput.files[0];
+
+        if (!file) return;
+
+        if (!['image/png', 'image/jpeg', 'image/gif'].includes(file.type)) {
+            alert('Please upload a PNG, JPG, or GIF image.');
+            customInput.value = '';
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('The custom icon must be 5 MB or smaller.');
+            customInput.value = '';
+            return;
+        }
+
+        let preview = $('customIconPreview');
+
+        if (!preview) {
+            preview = document.createElement('div');
+            preview.id = 'customIconPreview';
+            customRow.appendChild(preview);
+        }
+
+        preview.replaceChildren();
+
+        let iconImg = document.createElement('img');
+        iconImg.alt = 'Custom map icon preview';
+        iconImg.style.width = '48px';
+        iconImg.style.height = '48px';
+        iconImg.style.objectFit = 'contain';
+        iconImg.src = URL.createObjectURL(file);
+
+        preview.appendChild(iconImg);
+        updateIcon('custom', iconImg.src);
+    });
+
  
     // Location validation
     const locationError = $('locationError');
@@ -131,4 +286,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
  
     setTimeout(() => pickerMap.invalidateSize(), 0);
+    
+    function updateIcon(type, value){
+        $('iconOptions').value = type;
+        if (type === 'pin') {
+            $('defaultPin').value = value;
+            $('icon').value = '';
+            $('customIcon').value = '';
+        } else if (type === 'emoji') {
+            $('icon').value = value;
+            $('defaultPin').value = '';
+            $('customIcon').value = '';
+        } else if (type === 'custom') {
+            $('defaultPin').value = '';
+            $('icon').value = '';
+        }
+
+        if (marker){
+            let icon;
+            if (type === 'custom' && value) {
+                icon = new CustomIcon({ iconUrl: value });
+            }
+            else if (type === 'emoji') {
+                let escapeEmoji = value.replace(/[&<>"']/g, char => ({
+                    '&': '&amp;',
+                    '<': '&lt;', '>': '&gt;',
+                    '"': '&quot;', "'": '&#39;'
+                })[char]);
+                icon = L.divIcon({
+                    html: `<span class="emoji-marker">${escapeEmoji}</span>`,
+                    className: 'emoji-marker-container',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18],
+                    popupAnchor: [0, -18]
+                })
+            }
+            else {
+                let defaultPins = ['black_pin.png', 'black_boardpin.png','black_needlepin.png'];
+                let chosenPin;
+                if (defaultPins.includes(value)) {
+                    chosenPin = value
+                } else { chosenPin = 'black_pin.png'; }
+                icon = new CustomIcon({ iconUrl: `/static/images/${chosenPin}` });
+            }
+            marker.setIcon(icon);
+        }
+    }
+
+    initializeIconChoices();
+
 });

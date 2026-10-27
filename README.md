@@ -38,8 +38,9 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 **[Add a screenshot of each key page (around 4)](https://stackoverflow.com/questions/10189356/how-to-add-screenshot-to-readmes-in-github-repository)
 along with a very brief caption:**
 
-![](https://media.giphy.com/media/o0vwzuFwCGAFO/giphy.gif)
-**TODO: map page image here**
+![image of GeoBloggr Map Page](/screenshots/map-page.png?raw=true)
+This is the main map layout of the website, which displays posts by their chosen pin icon.
+
 ![image of GeoBloggr Post Pop-Up](/screenshots/create-post.png?raw=true)
 This is the popup displayed to users when they wish to create a post from the map page. They may add a title, description, image, and custom icon, as well as select if the post should be anonymized.
 
@@ -70,6 +71,8 @@ Please do not document required libraries. or libraries that are mentioned in th
 * Leaflet: Lightweight open source mapping library. The mapping library provides utilities to add maps to the webpage and interact with the map.
 * PostGIS: Open source software that extends the capabilities of the Postgres relational database. Adds support for storing, indexing, and querying geospatial data.
 * Font Awesome: Library to get search icon
+* [Emoji Mart](https://github.com/missive/emoji-mart): Library for emoji picker for selectable map icons
+
 
 **If there's anything else you would like to disclose about how your project
 relied on external code, expertise, or anything else, please disclose that

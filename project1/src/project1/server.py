@@ -740,7 +740,8 @@ def edit_page(post_id):
         """
         SELECT posts.title, posts.description, posts.anon, posts.icon_id,
                locations.location, ST_Y(locations.coord), ST_X(locations.coord),
-               EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id)
+               EXISTS (SELECT 1 FROM links WHERE links.post = posts.post_id), posts.icon,
+               posts.default_pin, posts.icon_option
         FROM posts
         LEFT JOIN locations ON posts.location = locations.location_id
         WHERE posts.post_id = %s AND posts.account = %s;
@@ -759,11 +760,14 @@ def edit_page(post_id):
         "title": row[0],
         "description": row[1],
         "anon": row[2],
-        "icon": "custom" if row[3] is not None else "default",
+        "icon_id": row[3],
         "location": row[4],
         "lat": row[5],
         "long": row[6],
         "has_image": row[7],
+        "icon": row[8] or "",
+        "default_pin": row[9] or "black_pin.png",
+        "icon_option": row[10] or "pin",
     }
 
     return render_template("edit.html", post=post)
@@ -780,6 +784,17 @@ def edit_save(post_id):
     locationName = request.form.get("locationName", "").strip()
     icon = request.form.get("icon", "default")
     remove_image = request.form.get("removeImage", "no") == "yes"
+
+    icon_option = request.form.get("iconOptions", "pin")
+    icon = request.form.get("icon", "").strip()
+
+    default_pin = request.form.get("defaultPin", "black_pin.png")
+    default_pins = {"black_pin.png", "black_boardpin.png", "black_needlepin.png"}
+
+    if default_pin not in default_pins:
+        default_pin = "black_pin.png"
+    if icon_option not in {"pin", "emoji", "custom"}:
+        icon_option = "pin"
 
     file = request.files.get("image")
     image_binary = None
@@ -813,10 +828,10 @@ def edit_save(post_id):
         if row:
             location_id, old_icon_id = row
 
-            cursor.execute(
-                "UPDATE posts SET title = %s, description = %s, anon = %s WHERE post_id = %s AND account = %s",
-                (title, description, anon, post_id, account_id),
-            )
+            # cursor.execute(
+            #     "UPDATE posts SET title = %s, description = %s, anon = %s WHERE post_id = %s AND account = %s",
+            #     (title, description, anon, post_id, account_id),
+            # )
 
             if lat and long:
                 cursor.execute(
@@ -832,14 +847,40 @@ def edit_save(post_id):
                         (icon_binary, icon_mime_type),
                     )
                     new_icon_id = cursor.fetchone()[0]
+                icon = "📍"
             else:
                 new_icon_id = None
 
+            cursor.execute(
+                """
+                UPDATE posts 
+                SET title = %s, 
+                    description = %s, 
+                    anon = %s, 
+                    icon = %s, 
+                    icon_id = %s, 
+                    default_pin = %s, 
+                    icon_option = %s
+                WHERE post_id = %s AND account = %s
+                """,
+                (
+                    title,
+                    description,
+                    anon,
+                    icon,
+                    new_icon_id,
+                    default_pin,
+                    icon_option,
+                    post_id,
+                    account_id,
+                ),
+            )
+
             if new_icon_id != old_icon_id:
-                cursor.execute(
-                    "UPDATE posts SET icon_id = %s WHERE post_id = %s",
-                    (new_icon_id, post_id),
-                )
+                # cursor.execute(
+                #     "UPDATE posts SET icon_id = %s WHERE post_id = %s",
+                #     (new_icon_id, post_id),
+                # )
                 if old_icon_id is not None:
                     cursor.execute(
                         "DELETE FROM icons WHERE icon_id = %s", (old_icon_id,)
