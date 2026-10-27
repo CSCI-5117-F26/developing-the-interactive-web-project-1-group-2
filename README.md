@@ -38,8 +38,9 @@ CSCI 5117, Fall 2026, [assignment description](https://canvas.umn.edu/courses/57
 **[Add a screenshot of each key page (around 4)](https://stackoverflow.com/questions/10189356/how-to-add-screenshot-to-readmes-in-github-repository)
 along with a very brief caption:**
 
-![](https://media.giphy.com/media/o0vwzuFwCGAFO/giphy.gif)
-**TODO: map page image here**
+![image of GeoBloggr Map Page](/screenshots/map-page.png?raw=true)
+This is the main map layout of the website, which displays posts by their chosen pin icon.
+
 ![image of GeoBloggr Post Pop-Up](/screenshots/create-post.png?raw=true)
 This is the popup displayed to users when they wish to create a post from the map page. They may add a title, description, image, and custom icon, as well as select if the post should be anonymized.
 
