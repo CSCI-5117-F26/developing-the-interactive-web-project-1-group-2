@@ -5,6 +5,7 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js" defer></script>
 <script src="{{ url_for('static', filename='js/blog.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/create_post.js') }}" defer></script>
 <script>
@@ -43,7 +44,7 @@
                         <p class="post-meta">
 
                             {% if post.time %}{{ post.time.strftime('%B %d, %Y') }}{% endif %}
-                            by {{ 'anonymous' if post.anon else (post.account or 'anonymous') }}
+                            by {{ 'Anonymous' if post.anon else (post.account or 'Anonymous') }}
                             {% if post.location %}&nbsp;@{{ post.location }}{% endif %}
 
                         </p>
