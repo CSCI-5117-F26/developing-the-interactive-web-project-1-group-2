@@ -1,3 +1,10 @@
+var CustomIcon = L.Icon.extend({
+    options: {
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -40]
+    }
+})
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('editForm');
@@ -59,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             $('emojiIconButton').setAttribute('aria-pressed', 'false');
             $('customIconButton').setAttribute('aria-pressed', 'false');
+
+            updateIcon({defaultPin: pin.dataset.pin});
         }
 
         pin.addEventListener('click', selectPin);
@@ -81,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedEmoji) {
                     selectedEmoji.replaceWith(Object.assign(document.createElement('span'), { id: 'selectedEmoji', textContent: emoji.native }))
                 }
+                updateIcon({emojiIcon: emoji.native});
             },
             previewPosition: 'none',
             theme: 'light',
@@ -161,6 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         iconImg.src = URL.createObjectURL(file);
 
         preview.appendChild(iconImg);
+
+        updateIcon({customIconUrl: iconImg.src});
     });
 
  
@@ -241,4 +253,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
  
     setTimeout(() => pickerMap.invalidateSize(), 0);
+    
+    function updateIcon({customIconUrl=null, emojiIcon=null, defaultPin=null} = {}){
+        if (marker){
+            let icon;
+            if (customIconUrl) {
+                icon = new CustomIcon({ iconUrl: customIconUrl });
+            }
+            else if (emojiIcon) {
+                let escapeEmoji = emojiIcon.replace(/[&<>"']/g, char => ({
+                    '&': '&amp;',
+                    '<': '&lt;', '>': '&gt;',
+                    '"': '&quot;', "'": '&#39;'
+                })[char]);
+                icon = L.divIcon({
+                    html: `<span class="emoji-marker">${escapeEmoji}</span>`,
+                    className: 'emoji-marker-container',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18],
+                    popupAnchor: [0, -18]
+                })
+            }
+            else {
+                let defaultPins = ['black_pin.png', 'black_boardpin.png','black_needlepin.png'];
+                let chosenPin;
+                if (defaultPins.includes(defaultPin)) {
+                    chosenPin = defaultPin
+                } else { chosenPin = 'black_pin.png'; }
+                icon = new CustomIcon({ iconUrl: `/static/images/${chosenPin}` });
+            }
+            marker.setIcon(icon);
+        }
+    }
 });
