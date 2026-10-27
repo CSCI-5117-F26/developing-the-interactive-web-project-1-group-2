@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('defaultPin').value = pin.dataset.pin;
             $('iconOptions').value = 'pin';
             $('icon').value = '';
+            $('customIcon').value = '';
 
             pinOptions.forEach((option) => {
                 option.classList.toggle('is-selected', option === pin);
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('emojiIconButton').setAttribute('aria-pressed', 'false');
             $('customIconButton').setAttribute('aria-pressed', 'false');
 
-            updateIcon({defaultPin: pin.dataset.pin});
+            updateIcon({type: 'pin', value: pin.dataset.pin});
         }
 
         pin.addEventListener('click', selectPin);
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedEmoji) {
                     selectedEmoji.replaceWith(Object.assign(document.createElement('span'), { id: 'selectedEmoji', textContent: emoji.native }))
                 }
-                updateIcon({emojiIcon: emoji.native});
+                updateIcon({type: 'emoji', value: emoji.native});
             },
             previewPosition: 'none',
             theme: 'light',
@@ -171,8 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         iconImg.src = URL.createObjectURL(file);
 
         preview.appendChild(iconImg);
-
-        updateIcon({customIconUrl: iconImg.src});
+        updateIcon({type: 'custom', value: iconImg.src});
     });
 
  
@@ -254,14 +254,28 @@ document.addEventListener('DOMContentLoaded', () => {
  
     setTimeout(() => pickerMap.invalidateSize(), 0);
     
-    function updateIcon({customIconUrl=null, emojiIcon=null, defaultPin=null} = {}){
+    function updateIcon({type, value, fileUrl=null}){
+        $('iconOptions').value = type;
+        if (type === 'pin') {
+            $('defaultPin').value = value;
+            $('icon').value = '';
+            $('customIcon').value = '';
+        } else if (type === 'emoji') {
+            $('icon').value = value;
+            $('defaultPin').value = '';
+            $('customIcon').value = '';
+        } else if (type === 'custom') {
+            $('defaultPin').value = '';
+            $('icon').value = '';
+        }
+
         if (marker){
             let icon;
-            if (customIconUrl) {
-                icon = new CustomIcon({ iconUrl: customIconUrl });
+            if (type === 'custom' && fileUrl) {
+                icon = new CustomIcon({ iconUrl: fileUrl });
             }
-            else if (emojiIcon) {
-                let escapeEmoji = emojiIcon.replace(/[&<>"']/g, char => ({
+            else if (type === 'emoji') {
+                let escapeEmoji = value.replace(/[&<>"']/g, char => ({
                     '&': '&amp;',
                     '<': '&lt;', '>': '&gt;',
                     '"': '&quot;', "'": '&#39;'
@@ -277,8 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 let defaultPins = ['black_pin.png', 'black_boardpin.png','black_needlepin.png'];
                 let chosenPin;
-                if (defaultPins.includes(defaultPin)) {
-                    chosenPin = defaultPin
+                if (defaultPins.includes(value)) {
+                    chosenPin = value
                 } else { chosenPin = 'black_pin.png'; }
                 icon = new CustomIcon({ iconUrl: `/static/images/${chosenPin}` });
             }
