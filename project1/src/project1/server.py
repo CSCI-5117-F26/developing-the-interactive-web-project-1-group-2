@@ -627,7 +627,7 @@ def getAllPosts():
     cursor.execute("""
                    SELECT post_id, ST_Y(locations.coord), ST_X(locations.coord), posts.icon_id, posts.icon, posts.default_pin, posts.icon_option
                    FROM posts
-                   INNER JOIN locations ON posts.location = locations.location_id
+                   INNER JOIN locations ON posts.location = locations.location_id;
                    """)
 
     rows = cursor.fetchall()
