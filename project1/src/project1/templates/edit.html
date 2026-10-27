@@ -5,6 +5,7 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js" defer></script>
 <script src="{{ url_for('static', filename='js/edit.js') }}" defer></script>
 <script>
     const REGIONS_URL = "{{ url_for('static', filename='data/building_polygons_4326.geojson') }}";
@@ -75,22 +76,45 @@
             </div>
         </div>
  
-        <!-- <fieldset class="field">
+        <fieldset class="field">
             <legend class="fieldLabel">Map icon</legend>
-            <div class="icon-options">
-                {% for key, label in [('default', 'Default'), ('pin', 'Pin'), ('star', 'Star'),
-                                      ('heart', 'Heart'), ('flag', 'Flag'), ('custom', 'Upload')] %}
-                <button type="button" class="icon-option{% if key == post.icon %} is-selected{% endif %}"
-                    data-icon="{{ key }}" aria-pressed="{{ 'true' if key == post.icon else 'false' }}">{{ label }}</button>
-                {% endfor %}
+            <input type="hidden" id="icon" name="icon" value="">
+            <input type="hidden" id="iconOptions" name="iconOptions" value="pin">
+            <input type="hidden" id="defaultPin" name="defaultPin" value="black_pin.png">
+
+            <!-- <p> Selected Icon:
+                <img id="selectedEmoji" src="static/images/black_pin.png" alt="Default pin icon" width="32" height="32">
+            </p> -->
+            
+            <div class="default-pin-options">
+                <img src="/static/images/black_pin.png" alt="Black location pin" class="pin-option is-selected" data-pin="black_pin.png" role="button" aria-pressed="true">
+                <img src="/static/images/black_boardpin.png" alt="Black board pin" class="pin-option" data-pin="black_boardpin.png" role="button" aria-pressed="false">
+                <img src="/static/images/black_needlepin.png" alt="Black needle pin" class="pin-option" data-pin="black_needlepin.png" role="button" aria-pressed="false">
             </div>
-            <div id="customIconRow" {% if post.icon != 'custom' %}hidden{% endif %}>
+
+            <div class="icon-options">
+                <button type="button" id="emojiIconButton" class="pure-button" aria-pressed="false">
+                    Choose an emoji
+                </button>
+                <button type="button" id="customIconButton" class="pure-button" aria-pressed="false">
+                    Upload custom icon
+                </button>  
+            </div>
+            
+            <div id="emojiIconOptions" hidden>
+                <div id="emojiPicker"></div>
+                <p> Selected Icon:
+                    <img id="selectedEmoji" src="static/images/black_pin.png" alt="Default pin icon" width="32" height="32">
+                </p>
+            </div>
+
+            <div id="customIconRow" hidden>
                 <label for="customIcon">Upload a custom map icon</label>
                 <input type="file" id="customIcon" name="customIcon"
                     accept="image/png, image/jpg, image/jpeg, image/gif">
-                <small class="fieldNote">Max size: 5 MB{% if post.icon == 'custom' %} &middot; leave empty to keep the current icon{% endif %}</small>
+                <small class="fieldNote">Max size: 5 MB</small>
             </div>
-        </fieldset> -->
+        </fieldset>
     </div>
  
     <div class="popupFooter">
